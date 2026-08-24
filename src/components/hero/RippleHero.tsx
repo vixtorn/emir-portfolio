@@ -6,6 +6,7 @@ import { portraitAssets, rippleConfig } from "@/lib/ripple-config";
 import { containedSize } from "@/lib/trail-canvas";
 import { usePointerType } from "@/hooks/usePointerType";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useGpuSceneActivity } from "@/hooks/useGpuSceneActivity";
 import HeroCopy from "./HeroCopy";
 import HeroHeader from "./HeroHeader";
 import HeroStatus from "./HeroStatus";
@@ -34,6 +35,11 @@ export default function RippleHero() {
   const [failed, setFailed] = useState(false);
 
   const heroElement = useRef<HTMLElement | null>(null);
+  const { isActive: isGpuActive } = useGpuSceneActivity({
+    id: "hero",
+    elementRef: heroElement,
+    priority: 1,
+  });
 
   const pointer = useRef<PointerData>({
     u: 0.5,
@@ -340,6 +346,12 @@ export default function RippleHero() {
     };
   }, [resetPointer]);
 
+  useEffect(() => {
+    if (!isGpuActive) {
+      resetPointer(true);
+    }
+  }, [isGpuActive, resetPointer]);
+
   const syncTextureDimensions = useCallback(
     (
       base: { width: number; height: number },
@@ -403,6 +415,7 @@ export default function RippleHero() {
 
       {showCanvas && (
         <RippleCanvas
+          active={isGpuActive}
           pointer={pointer}
           onTextureDimensions={
             syncTextureDimensions
