@@ -2,14 +2,10 @@
   display: flex;
   align-items: center;
   min-height: 100svh;
-  padding: clamp(5rem, 12vw, 12rem) clamp(1.125rem, 4vw, 4rem);
-  background: #f1eee7;
-  color: #171614;
 }
 
 .label {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
   font-size: clamp(0.875rem, 1.5vw, 1.25rem);
   font-weight: 600;
   letter-spacing: 0.04em;

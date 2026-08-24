@@ -10,8 +10,14 @@ export default function SectionPlaceholder({
   label,
 }: SectionPlaceholderProps) {
   return (
-    <section id={id} className={styles.section} aria-label={label}>
-      <p className={styles.label}>{label}</p>
+    <section
+      id={id}
+      className={`${styles.section} portfolio-section surface-paper`}
+      aria-label={label}
+    >
+      <div className="portfolio-container">
+        <p className={styles.label}>{label}</p>
+      </div>
     </section>
   );
 }
