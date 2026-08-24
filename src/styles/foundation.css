@@ -19,7 +19,10 @@ body {
   overflow-x: hidden;
   background: #000;
   color: var(--text-primary);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-primary);
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: var(--leading-body);
 }
 
 a {
@@ -51,6 +54,57 @@ a {
 
 .portfolio-prose {
   max-width: var(--content-width-prose);
+}
+
+.type-display {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-synthesis: none;
+  font-weight: 400;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-display);
+}
+
+.type-heading {
+  font-family: var(--font-primary);
+  font-size: var(--text-heading);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+.type-lead {
+  font-family: var(--font-primary);
+  font-size: var(--text-lead);
+  font-weight: 400;
+  line-height: var(--leading-body);
+}
+
+.type-body {
+  font-family: var(--font-primary);
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: var(--leading-body);
+}
+
+.type-meta {
+  font-family: var(--font-technical);
+  font-size: var(--text-meta);
+  font-weight: 400;
+  letter-spacing: var(--tracking-meta);
+  line-height: var(--leading-body);
+}
+
+.type-micro {
+  font-family: var(--font-technical);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  letter-spacing: var(--tracking-meta);
+  line-height: var(--leading-body);
+}
+
+.type-mono {
+  font-family: var(--font-technical);
 }
 
 .surface-paper {

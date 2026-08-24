@@ -14,6 +14,27 @@
   --text-on-dark: var(--color-paper);
   --text-muted: var(--color-muted);
 
+  --font-primary: var(--font-sans), Arial, Helvetica, sans-serif;
+  --font-display: var(--font-serif), Georgia, "Times New Roman", serif;
+  --font-technical: var(--font-mono), "Courier New", monospace;
+
+  --text-micro: clamp(0.625rem, calc(0.6rem + 0.1vw), 0.75rem);
+  --text-meta: clamp(0.75rem, calc(0.7rem + 0.2vw), 0.875rem);
+  --text-body: clamp(1rem, calc(0.95rem + 0.2vw), 1.1875rem);
+  --text-lead: clamp(1.5rem, calc(1.25rem + 1vw), 2.125rem);
+  --text-heading: clamp(3rem, calc(2.25rem + 4vw), 6rem);
+  --text-display: clamp(4.5rem, calc(3rem + 8vw), 11.25rem);
+  --text-mega: clamp(5rem, calc(3.5rem + 12vw), 15rem);
+
+  --leading-tight: 0.95;
+  --leading-display: 0.9;
+  --leading-body: 1.5;
+  --leading-relaxed: 1.7;
+
+  --tracking-tight: -0.04em;
+  --tracking-normal: 0;
+  --tracking-meta: 0.08em;
+
   --layout-columns: 12;
   --page-gutter: clamp(2rem, 4vw, 4rem);
   --content-width-full: 100%;

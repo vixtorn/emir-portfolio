@@ -16,7 +16,7 @@ export default function SectionPlaceholder({
       aria-label={label}
     >
       <div className="portfolio-container">
-        <p className={styles.label}>{label}</p>
+        <p className={`${styles.label} type-meta`}>{label}</p>
       </div>
     </section>
   );
