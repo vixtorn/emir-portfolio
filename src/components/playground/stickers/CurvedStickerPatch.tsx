@@ -8,12 +8,18 @@ import {
   useMemo,
   useRef,
 } from "react";
-import type { ThreeEvent } from "@react-three/fiber";
-import { BufferAttribute, BufferGeometry, DoubleSide } from "three";
+import { useFrame, type ThreeEvent } from "@react-three/fiber";
+import {
+  BufferAttribute,
+  BufferGeometry,
+  DoubleSide,
+  MathUtils,
+} from "three";
 
 import { cylinderSurface, stickerSurface } from "./sticker-surface";
 
 export type CurvedStickerPatchHandle = {
+  setInteractionLift: (lift: number) => void;
   setPosition: (theta: number, verticalY: number) => void;
 };
 
@@ -35,11 +41,15 @@ function updatePatchGeometry(
   theta: number,
   verticalY: number,
   layerOffset: number,
+  interactionLift: number,
 ) {
   const positions = geometry.getAttribute("position") as BufferAttribute;
   const angularWidth = stickerSurface.width / cylinderSurface.radius;
   const radius =
-    cylinderSurface.radius + cylinderSurface.surfaceOffset + layerOffset;
+    cylinderSurface.radius +
+    cylinderSurface.surfaceOffset +
+    layerOffset +
+    interactionLift;
   const columns = stickerSurface.horizontalSegments + 1;
 
   for (let row = 0; row <= stickerSurface.verticalSegments; row += 1) {
@@ -103,19 +113,61 @@ const CurvedStickerPatch = forwardRef<
 ) {
   const geometry = useMemo(createPatchGeometry, []);
   const poseRef = useRef({ theta: initialTheta, verticalY: initialVerticalY });
+  const layerOffsetRef = useRef(layerOffset);
+  const currentLiftRef = useRef(0);
+  const targetLiftRef = useRef(0);
+  const redrawGeometry = useCallback(() => {
+    updatePatchGeometry(
+      geometry,
+      poseRef.current.theta,
+      poseRef.current.verticalY,
+      layerOffsetRef.current,
+      currentLiftRef.current,
+    );
+  }, [geometry]);
   const setPosition = useCallback(
     (theta: number, verticalY: number) => {
       poseRef.current = { theta, verticalY };
-      updatePatchGeometry(geometry, theta, verticalY, layerOffset);
+      redrawGeometry();
     },
-    [geometry, layerOffset],
+    [redrawGeometry],
   );
+  const setInteractionLift = useCallback((lift: number) => {
+    targetLiftRef.current = lift;
+  }, []);
 
   useLayoutEffect(() => {
-    setPosition(poseRef.current.theta, poseRef.current.verticalY);
-  }, [setPosition]);
+    layerOffsetRef.current = layerOffset;
+    redrawGeometry();
+  }, [layerOffset, redrawGeometry]);
 
-  useImperativeHandle(ref, () => ({ setPosition }), [setPosition]);
+  useFrame((_, delta) => {
+    const damping =
+      targetLiftRef.current > currentLiftRef.current ? 24 : 12;
+    const nextLift = MathUtils.damp(
+      currentLiftRef.current,
+      targetLiftRef.current,
+      damping,
+      delta,
+    );
+
+    if (Math.abs(nextLift - currentLiftRef.current) < 0.0001) {
+      if (currentLiftRef.current !== targetLiftRef.current) {
+        currentLiftRef.current = targetLiftRef.current;
+        redrawGeometry();
+      }
+      return;
+    }
+
+    currentLiftRef.current = nextLift;
+    redrawGeometry();
+  });
+
+  useImperativeHandle(
+    ref,
+    () => ({ setInteractionLift, setPosition }),
+    [setInteractionLift, setPosition],
+  );
 
   return (
     <mesh

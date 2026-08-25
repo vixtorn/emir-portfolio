@@ -17,6 +17,7 @@ import {
 import styles from "./StickerSystemSpike.module.css";
 
 const sceneId = "lab-sticker-system";
+const activeStickerLift = 0.04;
 const stickerDefinitions = [
   { id: "sticker-01", theta: -0.58, verticalY: 0.48, color: 0xf1eee7 },
   { id: "sticker-02", theta: 0, verticalY: -0.48, color: 0xb8bab7 },
@@ -105,7 +106,12 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
         return;
       }
 
+      const activeStickerId = dragRef.current.activeStickerId;
+
       dragRef.current.target?.releasePointerCapture?.(dragRef.current.pointerId);
+      if (activeStickerId) {
+        stickerRefs.current.get(activeStickerId)?.setInteractionLift(0);
+      }
       dragRef.current.activeStickerId = null;
       dragRef.current.pointerId = null;
       dragRef.current.target = null;
@@ -145,6 +151,7 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
       dragRef.current.verticalY = pose.verticalY;
       target.setPointerCapture?.(event.pointerId);
       updateStickerFromRay(event.ray);
+      stickerRefs.current.get(stickerId)?.setInteractionLift(activeStickerLift);
       setInteractionOrder((currentOrder) => [
         ...currentOrder.filter((id) => id !== stickerId),
         stickerId,
