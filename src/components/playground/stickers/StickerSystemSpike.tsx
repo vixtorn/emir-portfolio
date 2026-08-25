@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, type ThreeEvent } from "@react-three/fiber";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MathUtils, Raycaster, type Mesh, type Ray } from "three";
 
 import { useGpuSceneActivity } from "@/hooks/useGpuSceneActivity";
@@ -20,33 +20,77 @@ const sceneId = "lab-sticker-system";
 const activeStickerLift = 0.04;
 const maxDragTilt = MathUtils.degToRad(2.5);
 const dragTiltSensitivity = 3;
+type StickerId =
+  | "sticker-01"
+  | "sticker-02"
+  | "sticker-03"
+  | "sticker-04"
+  | "sticker-05"
+  | "sticker-rare";
+type StickerDefinition = {
+  id: StickerId;
+  initialTheta: number;
+  initialVerticalY: number;
+  color: number;
+  restingRotation: number;
+  unlock: "initial" | "rare";
+};
 const stickerDefinitions = [
   {
     id: "sticker-01",
-    theta: -0.58,
-    verticalY: 0.48,
-    rotation: MathUtils.degToRad(-5),
+    initialTheta: -0.58,
+    initialVerticalY: 0.54,
     color: 0xf1eee7,
+    restingRotation: MathUtils.degToRad(-5),
+    unlock: "initial",
   },
   {
     id: "sticker-02",
-    theta: 0,
-    verticalY: -0.48,
-    rotation: MathUtils.degToRad(3),
+    initialTheta: -0.12,
+    initialVerticalY: -0.56,
     color: 0xb8bab7,
+    restingRotation: MathUtils.degToRad(3),
+    unlock: "initial",
   },
   {
     id: "sticker-03",
-    theta: 0.58,
-    verticalY: 0.42,
-    rotation: MathUtils.degToRad(-2),
+    initialTheta: 0.62,
+    initialVerticalY: 0.5,
     color: 0xb85a2d,
+    restingRotation: MathUtils.degToRad(-2),
+    unlock: "initial",
   },
-] as const;
+  {
+    id: "sticker-04",
+    initialTheta: -1.12,
+    initialVerticalY: -0.08,
+    color: 0xf1eee7,
+    restingRotation: MathUtils.degToRad(5),
+    unlock: "initial",
+  },
+  {
+    id: "sticker-05",
+    initialTheta: 1.08,
+    initialVerticalY: -0.2,
+    color: 0xb8bab7,
+    restingRotation: MathUtils.degToRad(-6),
+    unlock: "initial",
+  },
+  {
+    id: "sticker-rare",
+    initialTheta: 0.28,
+    initialVerticalY: 0.02,
+    color: 0xb85a2d,
+    restingRotation: MathUtils.degToRad(2),
+    unlock: "rare",
+  },
+] as const satisfies readonly StickerDefinition[];
 
-type StickerId = (typeof stickerDefinitions)[number]["id"];
-const stickerDefinitionById = new Map(
-  stickerDefinitions.map((sticker) => [sticker.id, sticker]),
+const initialStickerDefinitions = stickerDefinitions.filter(
+  (sticker) => sticker.unlock === "initial",
+);
+const stickerDefinitionById = new Map<StickerId, StickerDefinition>(
+  stickerDefinitions.map((sticker) => [sticker.id, sticker] as const),
 );
 type StickerPose = {
   theta: number;
@@ -66,20 +110,37 @@ type DragState = {
   verticalY: number;
 };
 
-function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: string) => void }) {
+function StickerSystemScene({
+  onCursorChange,
+  rareUnlocked,
+}: {
+  onCursorChange: (cursor: string) => void;
+  rareUnlocked: boolean;
+}) {
+  const activeStickerDefinitions = useMemo(
+    () => (rareUnlocked ? stickerDefinitions : initialStickerDefinitions),
+    [rareUnlocked],
+  );
+  const activeStickerIds = useMemo(
+    () => new Set(activeStickerDefinitions.map((sticker) => sticker.id)),
+    [activeStickerDefinitions],
+  );
   const cylinderRef = useRef<Mesh>(null);
   const stickerRefs = useRef(new Map<StickerId, CurvedStickerPatchHandle>());
   const stickerPosesRef = useRef(
     new Map<StickerId, StickerPose>(
-      stickerDefinitions.map((sticker) => [
+      initialStickerDefinitions.map((sticker) => [
         sticker.id,
-        { theta: sticker.theta, verticalY: sticker.verticalY },
+        {
+          theta: sticker.initialTheta,
+          verticalY: sticker.initialVerticalY,
+        },
       ]),
     ),
   );
   const raycasterRef = useRef(new Raycaster());
   const [interactionOrder, setInteractionOrder] = useState<StickerId[]>(() =>
-    stickerDefinitions.map((sticker) => sticker.id),
+    initialStickerDefinitions.map((sticker) => sticker.id),
   );
   const dragRef = useRef<DragState>({
     activeStickerId: null,
@@ -105,7 +166,7 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
 
     const activeStickerId = dragRef.current.activeStickerId;
 
-    if (!activeStickerId) {
+    if (!activeStickerId || !activeStickerIds.has(activeStickerId)) {
       return false;
     }
 
@@ -118,7 +179,7 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
     const currentPose = stickerPoseFromPoint(
       hit.point,
       dragRef.current.theta,
-      activeSticker.rotation,
+      activeSticker.restingRotation,
     );
     const interactionRotation = shouldTilt
       ? MathUtils.clamp(
@@ -130,7 +191,7 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
     const nextPose = stickerPoseFromPoint(
       hit.point,
       dragRef.current.theta,
-      activeSticker.rotation + interactionRotation,
+      activeSticker.restingRotation + interactionRotation,
     );
 
     dragRef.current.theta = nextPose.theta;
@@ -146,7 +207,7 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
     }
 
     return true;
-  }, []);
+  }, [activeStickerIds]);
 
   const endDrag = useCallback(
     (pointerId?: number) => {
@@ -191,12 +252,18 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
       const target = event.target as PointerCaptureTarget;
 
       endDrag();
-      const pose = stickerPosesRef.current.get(stickerId);
+      const definition = stickerDefinitionById.get(stickerId);
+      const pose = stickerPosesRef.current.get(stickerId) ??
+        (definition && {
+          theta: definition.initialTheta,
+          verticalY: definition.initialVerticalY,
+        });
 
       if (!pose) {
         return;
       }
 
+      stickerPosesRef.current.set(stickerId, pose);
       dragRef.current.activeStickerId = stickerId;
       dragRef.current.pointerId = event.pointerId;
       dragRef.current.target = target;
@@ -246,6 +313,12 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
     },
     [endDrag],
   );
+  const activeInteractionOrder = [
+    ...interactionOrder.filter((id) => activeStickerIds.has(id)),
+    ...activeStickerDefinitions
+      .filter((sticker) => !interactionOrder.includes(sticker.id))
+      .map((sticker) => sticker.id),
+  ];
 
   return (
     <>
@@ -262,8 +335,8 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
         />
         <meshStandardMaterial color={0x89867f} roughness={0.85} />
       </mesh>
-      {stickerDefinitions.map((sticker) => {
-        const layerOffset = interactionOrder.indexOf(sticker.id) * 0.001;
+      {activeStickerDefinitions.map((sticker) => {
+        const layerOffset = activeInteractionOrder.indexOf(sticker.id) * 0.001;
 
         return (
           <CurvedStickerPatch
@@ -277,10 +350,10 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
               stickerRefs.current.delete(sticker.id);
             }}
             color={sticker.color}
-            initialTheta={sticker.theta}
-            initialVerticalY={sticker.verticalY}
+            initialTheta={sticker.initialTheta}
+            initialVerticalY={sticker.initialVerticalY}
             layerOffset={layerOffset}
-            restingRotation={sticker.rotation}
+            restingRotation={sticker.restingRotation}
             onPointerCancel={handlePointerCancel}
             onPointerDown={(event) => handlePointerDown(sticker.id, event)}
             onPointerMove={handlePointerMove}
@@ -302,7 +375,11 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
   );
 }
 
-export default function StickerSystemSpike() {
+export default function StickerSystemSpike({
+  rareUnlocked = false,
+}: {
+  rareUnlocked?: boolean;
+}) {
   const sceneElementRef = useRef<HTMLDivElement>(null);
   const { isActive } = useGpuSceneActivity({
     id: sceneId,
@@ -326,7 +403,10 @@ export default function StickerSystemSpike() {
         gl={{ antialias: true, powerPreference: "high-performance" }}
       >
         <color attach="background" args={[0x080808]} />
-        <StickerSystemScene onCursorChange={setCursor} />
+        <StickerSystemScene
+          onCursorChange={setCursor}
+          rareUnlocked={rareUnlocked}
+        />
       </Canvas>
       <p className={`${styles.note} type-micro`}>
         DRAG THE PATCH ACROSS THE CYLINDER SURFACE
