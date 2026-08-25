@@ -16,7 +16,7 @@ export const stickerSurface = {
 } as const;
 
 export const stickerInteraction = {
-  visibleArcHalfAngle: 1.25,
+  visibleArcHalfAngle: 1.77,
 } as const;
 
 export const stickerAngularHalfWidth =
