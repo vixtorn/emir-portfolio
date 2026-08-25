@@ -15,6 +15,16 @@ export const stickerSurface = {
   verticalMargin: 0.12,
 } as const;
 
+export const stickerInteraction = {
+  visibleArcHalfAngle: 1.25,
+} as const;
+
+export const stickerAngularHalfWidth =
+  (stickerSurface.width / cylinderSurface.radius) / 2;
+
+export const safeStickerCenterTheta =
+  stickerInteraction.visibleArcHalfAngle - stickerAngularHalfWidth;
+
 export const stickerVerticalRange = {
   min:
     -cylinderSurface.height / 2 +
@@ -33,6 +43,13 @@ export function clampStickerVerticalY(verticalY: number) {
   );
 }
 
+export function clampStickerTheta(theta: number) {
+  return Math.min(
+    safeStickerCenterTheta,
+    Math.max(-safeStickerCenterTheta, theta),
+  );
+}
+
 export function normalizeAngle(angle: number) {
   return Math.atan2(Math.sin(angle), Math.cos(angle));
 }
@@ -43,7 +60,9 @@ export function unwrapAngle(previousAngle: number, nextAngle: number) {
 
 export function stickerPoseFromPoint(point: Vector3, previousTheta: number) {
   return {
-    theta: unwrapAngle(previousTheta, Math.atan2(point.x, point.z)),
+    theta: clampStickerTheta(
+      unwrapAngle(previousTheta, Math.atan2(point.x, point.z)),
+    ),
     verticalY: clampStickerVerticalY(point.y),
   };
 }

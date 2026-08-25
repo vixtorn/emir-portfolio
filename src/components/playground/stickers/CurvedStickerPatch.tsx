@@ -6,6 +6,7 @@ import {
   useImperativeHandle,
   useLayoutEffect,
   useMemo,
+  useRef,
 } from "react";
 import type { ThreeEvent } from "@react-three/fiber";
 import { BufferAttribute, BufferGeometry, DoubleSide } from "three";
@@ -17,8 +18,10 @@ export type CurvedStickerPatchHandle = {
 };
 
 type CurvedStickerPatchProps = {
+  color: number;
   initialTheta: number;
   initialVerticalY: number;
+  layerOffset: number;
   onPointerDown: (event: ThreeEvent<PointerEvent>) => void;
   onPointerMove: (event: ThreeEvent<PointerEvent>) => void;
   onPointerUp: (event: ThreeEvent<PointerEvent>) => void;
@@ -31,10 +34,12 @@ function updatePatchGeometry(
   geometry: BufferGeometry,
   theta: number,
   verticalY: number,
+  layerOffset: number,
 ) {
   const positions = geometry.getAttribute("position") as BufferAttribute;
   const angularWidth = stickerSurface.width / cylinderSurface.radius;
-  const radius = cylinderSurface.radius + cylinderSurface.surfaceOffset;
+  const radius =
+    cylinderSurface.radius + cylinderSurface.surfaceOffset + layerOffset;
   const columns = stickerSurface.horizontalSegments + 1;
 
   for (let row = 0; row <= stickerSurface.verticalSegments; row += 1) {
@@ -85,6 +90,8 @@ const CurvedStickerPatch = forwardRef<
   {
     initialTheta,
     initialVerticalY,
+    color,
+    layerOffset,
     onPointerDown,
     onPointerMove,
     onPointerUp,
@@ -95,16 +102,18 @@ const CurvedStickerPatch = forwardRef<
   ref,
 ) {
   const geometry = useMemo(createPatchGeometry, []);
+  const poseRef = useRef({ theta: initialTheta, verticalY: initialVerticalY });
   const setPosition = useCallback(
     (theta: number, verticalY: number) => {
-      updatePatchGeometry(geometry, theta, verticalY);
+      poseRef.current = { theta, verticalY };
+      updatePatchGeometry(geometry, theta, verticalY, layerOffset);
     },
-    [geometry],
+    [geometry, layerOffset],
   );
 
   useLayoutEffect(() => {
-    setPosition(initialTheta, initialVerticalY);
-  }, [initialTheta, initialVerticalY, setPosition]);
+    setPosition(poseRef.current.theta, poseRef.current.verticalY);
+  }, [setPosition]);
 
   useImperativeHandle(ref, () => ({ setPosition }), [setPosition]);
 
@@ -118,7 +127,7 @@ const CurvedStickerPatch = forwardRef<
       onPointerOver={onPointerOver}
       onPointerUp={onPointerUp}
     >
-      <meshBasicMaterial color={0xf1eee7} depthWrite side={DoubleSide} />
+      <meshBasicMaterial color={color} depthWrite side={DoubleSide} />
     </mesh>
   );
 });

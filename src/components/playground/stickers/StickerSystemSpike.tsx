@@ -17,7 +17,17 @@ import {
 import styles from "./StickerSystemSpike.module.css";
 
 const sceneId = "lab-sticker-system";
-const initialStickerPose = { theta: 0, verticalY: 0 };
+const stickerDefinitions = [
+  { id: "sticker-01", theta: -0.58, verticalY: 0.48, color: 0xf1eee7 },
+  { id: "sticker-02", theta: 0, verticalY: -0.48, color: 0xb8bab7 },
+  { id: "sticker-03", theta: 0.58, verticalY: 0.42, color: 0xb85a2d },
+] as const;
+
+type StickerId = (typeof stickerDefinitions)[number]["id"];
+type StickerPose = {
+  theta: number;
+  verticalY: number;
+};
 
 type PointerCaptureTarget = EventTarget & {
   releasePointerCapture?: (pointerId: number) => void;
@@ -25,6 +35,7 @@ type PointerCaptureTarget = EventTarget & {
 };
 
 type DragState = {
+  activeStickerId: StickerId | null;
   pointerId: number | null;
   target: PointerCaptureTarget | null;
   theta: number;
@@ -33,12 +44,25 @@ type DragState = {
 
 function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: string) => void }) {
   const cylinderRef = useRef<Mesh>(null);
-  const stickerRef = useRef<CurvedStickerPatchHandle>(null);
+  const stickerRefs = useRef(new Map<StickerId, CurvedStickerPatchHandle>());
+  const stickerPosesRef = useRef(
+    new Map<StickerId, StickerPose>(
+      stickerDefinitions.map((sticker) => [
+        sticker.id,
+        { theta: sticker.theta, verticalY: sticker.verticalY },
+      ]),
+    ),
+  );
   const raycasterRef = useRef(new Raycaster());
+  const [interactionOrder, setInteractionOrder] = useState<StickerId[]>(() =>
+    stickerDefinitions.map((sticker) => sticker.id),
+  );
   const dragRef = useRef<DragState>({
+    activeStickerId: null,
     pointerId: null,
     target: null,
-    ...initialStickerPose,
+    theta: 0,
+    verticalY: 0,
   });
 
   const updateStickerFromRay = useCallback((ray: Ray) => {
@@ -55,10 +79,19 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
       return false;
     }
 
+    const activeStickerId = dragRef.current.activeStickerId;
+
+    if (!activeStickerId) {
+      return false;
+    }
+
     const nextPose = stickerPoseFromPoint(hit.point, dragRef.current.theta);
     dragRef.current.theta = nextPose.theta;
     dragRef.current.verticalY = nextPose.verticalY;
-    stickerRef.current?.setPosition(nextPose.theta, nextPose.verticalY);
+    stickerPosesRef.current.set(activeStickerId, nextPose);
+    stickerRefs.current
+      .get(activeStickerId)
+      ?.setPosition(nextPose.theta, nextPose.verticalY);
 
     return true;
   }, []);
@@ -73,6 +106,7 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
       }
 
       dragRef.current.target?.releasePointerCapture?.(dragRef.current.pointerId);
+      dragRef.current.activeStickerId = null;
       dragRef.current.pointerId = null;
       dragRef.current.target = null;
       onCursorChange("grab");
@@ -93,22 +127,39 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
   }, [endDrag]);
 
   const handlePointerDown = useCallback(
-    (event: ThreeEvent<PointerEvent>) => {
+    (stickerId: StickerId, event: ThreeEvent<PointerEvent>) => {
       event.stopPropagation();
       const target = event.target as PointerCaptureTarget;
 
+      endDrag();
+      const pose = stickerPosesRef.current.get(stickerId);
+
+      if (!pose) {
+        return;
+      }
+
+      dragRef.current.activeStickerId = stickerId;
       dragRef.current.pointerId = event.pointerId;
       dragRef.current.target = target;
+      dragRef.current.theta = pose.theta;
+      dragRef.current.verticalY = pose.verticalY;
       target.setPointerCapture?.(event.pointerId);
       updateStickerFromRay(event.ray);
+      setInteractionOrder((currentOrder) => [
+        ...currentOrder.filter((id) => id !== stickerId),
+        stickerId,
+      ]);
       onCursorChange("grabbing");
     },
-    [onCursorChange, updateStickerFromRay],
+    [endDrag, onCursorChange, updateStickerFromRay],
   );
 
   const handlePointerMove = useCallback(
     (event: ThreeEvent<PointerEvent>) => {
-      if (dragRef.current.pointerId !== event.pointerId) {
+      if (
+        dragRef.current.activeStickerId === null ||
+        dragRef.current.pointerId !== event.pointerId
+      ) {
         return;
       }
 
@@ -149,21 +200,41 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
         />
         <meshStandardMaterial color={0x89867f} roughness={0.85} />
       </mesh>
-      <CurvedStickerPatch
-        ref={stickerRef}
-        initialTheta={initialStickerPose.theta}
-        initialVerticalY={initialStickerPose.verticalY}
-        onPointerCancel={handlePointerCancel}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerOut={() => {
-          if (dragRef.current.pointerId === null) {
-            onCursorChange("default");
-          }
-        }}
-        onPointerOver={() => onCursorChange("grab")}
-        onPointerUp={handlePointerUp}
-      />
+      {stickerDefinitions.map((sticker) => {
+        const layerOffset = interactionOrder.indexOf(sticker.id) * 0.001;
+
+        return (
+          <CurvedStickerPatch
+            key={sticker.id}
+            ref={(handle) => {
+              if (handle) {
+                stickerRefs.current.set(sticker.id, handle);
+                return;
+              }
+
+              stickerRefs.current.delete(sticker.id);
+            }}
+            color={sticker.color}
+            initialTheta={sticker.theta}
+            initialVerticalY={sticker.verticalY}
+            layerOffset={layerOffset}
+            onPointerCancel={handlePointerCancel}
+            onPointerDown={(event) => handlePointerDown(sticker.id, event)}
+            onPointerMove={handlePointerMove}
+            onPointerOut={() => {
+              if (dragRef.current.pointerId === null) {
+                onCursorChange("default");
+              }
+            }}
+            onPointerOver={() => {
+              if (dragRef.current.pointerId === null) {
+                onCursorChange("grab");
+              }
+            }}
+            onPointerUp={handlePointerUp}
+          />
+        );
+      })}
     </>
   );
 }
