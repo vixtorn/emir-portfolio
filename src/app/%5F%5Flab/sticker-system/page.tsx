@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import LabShell from "@/components/lab/LabShell";
+import StickerSystemLabHarness from "@/components/playground/stickers/StickerSystemLabHarness";
 
 export const metadata: Metadata = {
   title: "Sticker System",
@@ -11,7 +12,9 @@ export default function StickerSystemLabPage() {
     <LabShell
       number="02"
       title="STICKER SYSTEM"
-      purpose="Cylindrical sticker projection, drag constraints, overlap, and settle behavior."
-    />
+      purpose="Raycast-constrained curved sticker drag on a simple cylindrical surface."
+    >
+      <StickerSystemLabHarness />
+    </LabShell>
   );
 }
