@@ -1,0 +1,38 @@
+.spike {
+  position: relative;
+  width: min(100%, 70rem);
+  height: clamp(30rem, 62svh, 48rem);
+  overflow: hidden;
+  cursor: default;
+  background: var(--surface-dark);
+}
+
+.spike[data-cursor="grab"] {
+  cursor: grab;
+}
+
+.spike[data-cursor="grabbing"] {
+  cursor: grabbing;
+}
+
+.canvas,
+.canvas canvas {
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.note {
+  position: absolute;
+  right: var(--page-gutter);
+  bottom: var(--page-gutter);
+  margin: 0;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+@media (max-width: 680px) {
+  .spike {
+    height: 58svh;
+  }
+}
