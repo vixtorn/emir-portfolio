@@ -20,6 +20,7 @@ import { cylinderSurface, stickerSurface } from "./sticker-surface";
 
 export type CurvedStickerPatchHandle = {
   setInteractionLift: (lift: number) => void;
+  setInteractionRotation: (rotation: number) => void;
   setPosition: (theta: number, verticalY: number) => void;
 };
 
@@ -28,6 +29,7 @@ type CurvedStickerPatchProps = {
   initialTheta: number;
   initialVerticalY: number;
   layerOffset: number;
+  restingRotation: number;
   onPointerDown: (event: ThreeEvent<PointerEvent>) => void;
   onPointerMove: (event: ThreeEvent<PointerEvent>) => void;
   onPointerUp: (event: ThreeEvent<PointerEvent>) => void;
@@ -42,26 +44,38 @@ function updatePatchGeometry(
   verticalY: number,
   layerOffset: number,
   interactionLift: number,
+  restingRotation: number,
+  interactionRotation: number,
 ) {
   const positions = geometry.getAttribute("position") as BufferAttribute;
-  const angularWidth = stickerSurface.width / cylinderSurface.radius;
   const radius =
     cylinderSurface.radius +
     cylinderSurface.surfaceOffset +
     layerOffset +
     interactionLift;
   const columns = stickerSurface.horizontalSegments + 1;
+  const rotation = restingRotation + interactionRotation;
+  const cosine = Math.cos(rotation);
+  const sine = Math.sin(rotation);
 
   for (let row = 0; row <= stickerSurface.verticalSegments; row += 1) {
     const verticalProgress = row / stickerSurface.verticalSegments;
-    const y = verticalY + (verticalProgress - 0.5) * stickerSurface.height;
+    const localY = (verticalProgress - 0.5) * stickerSurface.height;
 
     for (let column = 0; column <= stickerSurface.horizontalSegments; column += 1) {
       const horizontalProgress = column / stickerSurface.horizontalSegments;
-      const angle = theta + (horizontalProgress - 0.5) * angularWidth;
+      const localX = (horizontalProgress - 0.5) * stickerSurface.width;
+      const rotatedX = localX * cosine - localY * sine;
+      const rotatedY = localX * sine + localY * cosine;
+      const angle = theta + rotatedX / cylinderSurface.radius;
       const index = row * columns + column;
 
-      positions.setXYZ(index, Math.sin(angle) * radius, y, Math.cos(angle) * radius);
+      positions.setXYZ(
+        index,
+        Math.sin(angle) * radius,
+        verticalY + rotatedY,
+        Math.cos(angle) * radius,
+      );
     }
   }
 
@@ -102,6 +116,7 @@ const CurvedStickerPatch = forwardRef<
     initialVerticalY,
     color,
     layerOffset,
+    restingRotation,
     onPointerDown,
     onPointerMove,
     onPointerUp,
@@ -116,6 +131,8 @@ const CurvedStickerPatch = forwardRef<
   const layerOffsetRef = useRef(layerOffset);
   const currentLiftRef = useRef(0);
   const targetLiftRef = useRef(0);
+  const currentInteractionRotationRef = useRef(0);
+  const targetInteractionRotationRef = useRef(0);
   const redrawGeometry = useCallback(() => {
     updatePatchGeometry(
       geometry,
@@ -123,8 +140,10 @@ const CurvedStickerPatch = forwardRef<
       poseRef.current.verticalY,
       layerOffsetRef.current,
       currentLiftRef.current,
+      restingRotation,
+      currentInteractionRotationRef.current,
     );
-  }, [geometry]);
+  }, [geometry, restingRotation]);
   const setPosition = useCallback(
     (theta: number, verticalY: number) => {
       poseRef.current = { theta, verticalY };
@@ -134,6 +153,9 @@ const CurvedStickerPatch = forwardRef<
   );
   const setInteractionLift = useCallback((lift: number) => {
     targetLiftRef.current = lift;
+  }, []);
+  const setInteractionRotation = useCallback((rotation: number) => {
+    targetInteractionRotationRef.current = rotation;
   }, []);
 
   useLayoutEffect(() => {
@@ -150,23 +172,49 @@ const CurvedStickerPatch = forwardRef<
       damping,
       delta,
     );
+    const rotationDamping =
+      Math.abs(targetInteractionRotationRef.current) >
+      Math.abs(currentInteractionRotationRef.current)
+        ? 24
+        : 12;
+    const nextInteractionRotation = MathUtils.damp(
+      currentInteractionRotationRef.current,
+      targetInteractionRotationRef.current,
+      rotationDamping,
+      delta,
+    );
+    const shouldSnapLift = Math.abs(nextLift - currentLiftRef.current) < 0.0001;
+    const shouldSnapRotation =
+      Math.abs(
+        nextInteractionRotation - currentInteractionRotationRef.current,
+      ) < 0.0001;
+    const liftChanged = nextLift !== currentLiftRef.current;
+    const rotationChanged =
+      nextInteractionRotation !== currentInteractionRotationRef.current;
 
-    if (Math.abs(nextLift - currentLiftRef.current) < 0.0001) {
-      if (currentLiftRef.current !== targetLiftRef.current) {
-        currentLiftRef.current = targetLiftRef.current;
-        redrawGeometry();
-      }
+    if (!liftChanged && !rotationChanged) {
       return;
     }
 
-    currentLiftRef.current = nextLift;
+    if (shouldSnapLift) {
+      currentLiftRef.current = targetLiftRef.current;
+    } else {
+      currentLiftRef.current = nextLift;
+    }
+    if (shouldSnapRotation) {
+      currentInteractionRotationRef.current =
+        targetInteractionRotationRef.current;
+    } else {
+      currentInteractionRotationRef.current = nextInteractionRotation;
+    }
+
     redrawGeometry();
   });
 
   useImperativeHandle(
     ref,
-    () => ({ setInteractionLift, setPosition }),
-    [setInteractionLift, setPosition],
+    () => ({ setInteractionLift, setInteractionRotation, setPosition }),
+    [setInteractionLift, setInteractionRotation, setPosition],
   );
 
   return (

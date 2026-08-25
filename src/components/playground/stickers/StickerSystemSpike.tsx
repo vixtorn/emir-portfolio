@@ -2,7 +2,7 @@
 
 import { Canvas, type ThreeEvent } from "@react-three/fiber";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Raycaster, type Mesh, type Ray } from "three";
+import { MathUtils, Raycaster, type Mesh, type Ray } from "three";
 
 import { useGpuSceneActivity } from "@/hooks/useGpuSceneActivity";
 import { gpuSceneConfig } from "@/lib/performance/gpu-config";
@@ -18,13 +18,36 @@ import styles from "./StickerSystemSpike.module.css";
 
 const sceneId = "lab-sticker-system";
 const activeStickerLift = 0.04;
+const maxDragTilt = MathUtils.degToRad(2.5);
+const dragTiltSensitivity = 3;
 const stickerDefinitions = [
-  { id: "sticker-01", theta: -0.58, verticalY: 0.48, color: 0xf1eee7 },
-  { id: "sticker-02", theta: 0, verticalY: -0.48, color: 0xb8bab7 },
-  { id: "sticker-03", theta: 0.58, verticalY: 0.42, color: 0xb85a2d },
+  {
+    id: "sticker-01",
+    theta: -0.58,
+    verticalY: 0.48,
+    rotation: MathUtils.degToRad(-5),
+    color: 0xf1eee7,
+  },
+  {
+    id: "sticker-02",
+    theta: 0,
+    verticalY: -0.48,
+    rotation: MathUtils.degToRad(3),
+    color: 0xb8bab7,
+  },
+  {
+    id: "sticker-03",
+    theta: 0.58,
+    verticalY: 0.42,
+    rotation: MathUtils.degToRad(-2),
+    color: 0xb85a2d,
+  },
 ] as const;
 
 type StickerId = (typeof stickerDefinitions)[number]["id"];
+const stickerDefinitionById = new Map(
+  stickerDefinitions.map((sticker) => [sticker.id, sticker]),
+);
 type StickerPose = {
   theta: number;
   verticalY: number;
@@ -66,7 +89,7 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
     verticalY: 0,
   });
 
-  const updateStickerFromRay = useCallback((ray: Ray) => {
+  const updateStickerFromRay = useCallback((ray: Ray, shouldTilt = true) => {
     const cylinder = cylinderRef.current;
 
     if (!cylinder) {
@@ -86,13 +109,41 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
       return false;
     }
 
-    const nextPose = stickerPoseFromPoint(hit.point, dragRef.current.theta);
+    const activeSticker = stickerDefinitionById.get(activeStickerId);
+
+    if (!activeSticker) {
+      return false;
+    }
+
+    const currentPose = stickerPoseFromPoint(
+      hit.point,
+      dragRef.current.theta,
+      activeSticker.rotation,
+    );
+    const interactionRotation = shouldTilt
+      ? MathUtils.clamp(
+          (currentPose.theta - dragRef.current.theta) * dragTiltSensitivity,
+          -maxDragTilt,
+          maxDragTilt,
+        )
+      : 0;
+    const nextPose = stickerPoseFromPoint(
+      hit.point,
+      dragRef.current.theta,
+      activeSticker.rotation + interactionRotation,
+    );
+
     dragRef.current.theta = nextPose.theta;
     dragRef.current.verticalY = nextPose.verticalY;
     stickerPosesRef.current.set(activeStickerId, nextPose);
     stickerRefs.current
       .get(activeStickerId)
       ?.setPosition(nextPose.theta, nextPose.verticalY);
+    if (shouldTilt) {
+      stickerRefs.current
+        .get(activeStickerId)
+        ?.setInteractionRotation(interactionRotation);
+    }
 
     return true;
   }, []);
@@ -110,7 +161,9 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
 
       dragRef.current.target?.releasePointerCapture?.(dragRef.current.pointerId);
       if (activeStickerId) {
-        stickerRefs.current.get(activeStickerId)?.setInteractionLift(0);
+        const activeSticker = stickerRefs.current.get(activeStickerId);
+        activeSticker?.setInteractionLift(0);
+        activeSticker?.setInteractionRotation(0);
       }
       dragRef.current.activeStickerId = null;
       dragRef.current.pointerId = null;
@@ -150,8 +203,10 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
       dragRef.current.theta = pose.theta;
       dragRef.current.verticalY = pose.verticalY;
       target.setPointerCapture?.(event.pointerId);
-      updateStickerFromRay(event.ray);
-      stickerRefs.current.get(stickerId)?.setInteractionLift(activeStickerLift);
+      updateStickerFromRay(event.ray, false);
+      const activeSticker = stickerRefs.current.get(stickerId);
+      activeSticker?.setInteractionLift(activeStickerLift);
+      activeSticker?.setInteractionRotation(0);
       setInteractionOrder((currentOrder) => [
         ...currentOrder.filter((id) => id !== stickerId),
         stickerId,
@@ -225,6 +280,7 @@ function StickerSystemScene({ onCursorChange }: { onCursorChange: (cursor: strin
             initialTheta={sticker.theta}
             initialVerticalY={sticker.verticalY}
             layerOffset={layerOffset}
+            restingRotation={sticker.rotation}
             onPointerCancel={handlePointerCancel}
             onPointerDown={(event) => handlePointerDown(sticker.id, event)}
             onPointerMove={handlePointerMove}
