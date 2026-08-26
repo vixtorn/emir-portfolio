@@ -10,6 +10,10 @@ export const canConfig = {
   radialSegments: 96,
   idleRotationDuration: 24,
   idleAngularVelocity: (Math.PI * 2) / 24,
+  // The Blender GLB is the production geometry source of truth.
+  modelScale: 1,
+  // Offsets the raw GLB bounds center (-0.00010991096 on Y).
+  modelPositionY: 0.00010991096496582031,
 } as const;
 
 export const canMaterialConfig = {

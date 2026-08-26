@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
 import { Group, MathUtils } from "three";
 
 import { useGpuSceneActivity } from "@/hooks/useGpuSceneActivity";
 import { gpuSceneConfig } from "@/lib/performance/gpu-config";
 
-import CanMesh from "./CanMesh";
+import CanModel from "./CanModel";
 import { canConfig } from "./can-config";
 import styles from "./PlaygroundCanSpike.module.css";
 import StudioEnvironment from "./StudioEnvironment";
@@ -66,10 +66,12 @@ function CanScene({
 
   return (
     <group ref={canGroupRef}>
-      <CanMesh
-        onPointerOut={handlePointerOut}
-        onPointerOver={() => onHoverChange(true)}
-      />
+      <Suspense fallback={null}>
+        <CanModel
+          onPointerOut={handlePointerOut}
+          onPointerOver={() => onHoverChange(true)}
+        />
+      </Suspense>
     </group>
   );
 }

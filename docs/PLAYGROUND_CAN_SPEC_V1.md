@@ -1,18 +1,27 @@
 # Playground Can Spec V1
 
-Status: production handoff for a future GLB replacement. This document records the current procedural can as the visual and interaction contract. It does **not** authorize a runtime integration or a sticker-system change.
+Status: production handoff and runtime contract. The Blender GLB is the production geometry source of truth; the procedural can remains a retained reference/fallback. This document does **not** authorize sticker-system changes.
 
 ## Scope and sources of truth
 
 The current reference implementation is:
 
 - `src/components/playground/can/can-config.ts`
+- `src/components/playground/can/CanModel.tsx`
 - `src/components/playground/can/CanMesh.tsx`
 - `src/components/playground/can/PlaygroundCanSpike.tsx`
 - `src/components/playground/stickers/sticker-surface.ts`
 - `src/lib/performance/gpu-config.ts`
 
-The future asset path is `public/models/playground/can-v1.glb`. Do not create a placeholder, load a GLB, or change the procedural can as part of this handoff.
+The production asset path is `public/models/playground/can-v1.glb`, loaded by `CanModel` at `/models/playground/can-v1.glb`.
+
+## Production GLB runtime decision
+
+The Blender-authored GLB is the visible production can. Its inspected native runtime bounds are approximately `2 × 3.6800005 × 2` world units (width × height × depth), with a near-zero center offset on Y. It renders at `modelScale: 1`; the tiny configured Y correction recenters the raw bounds without changing its geometry or proportions.
+
+The production visible can therefore has an approximately radius-`1` cylindrical footprint. The historical procedural can's derived overall height of approximately `2.95` is reference information only, not a production scale requirement. Do not normalize the GLB to that old height.
+
+The next dedicated sticker integration task will match the invisible analytical interaction cylinder, usable straight-body height, and vertical constraints to the Blender model's actual straight body region. Sticker files remain unchanged until that task.
 
 ## Frozen runtime reference
 
@@ -46,19 +55,21 @@ The following values reproduce the present procedural silhouette. They are the t
 | Bottom rim | Torus major radius `0.91`, tube radius `0.045` (outer radius `0.955`) |
 | Bottom inset | Radius `0.85`, thickness `0.024`, center `Y = -1.408` |
 
-The current code does not expose one authoritative `overallHeight` value. Derived from the outer rim extents, the visible can is approximately `2.95` units tall (`-1.465` to `1.485`). The GLB should preserve this apparent overall proportion, but the strict integration contract is the central cylindrical body: radius `1`, height `2.52`.
+The current code does not expose one authoritative procedural `overallHeight` value. Derived from the procedural outer rim extents, it was approximately `2.95` units tall (`-1.465` to `1.485`). This is historical prototype information only: the production GLB's native approximately `3.68`-unit height is authoritative.
 
 ### Origin and scale convention for Blender
 
 Set the asset origin at the total can's visual vertical center and at the radial center: `(0, 0, 0)`. Use `+Y` as upright, with the cylindrical body centered at `Y = 0`. Apply all object transforms before export.
 
-No real-world unit conversion is encoded in the current app. For modeling comfort, a normal 330 mL can-sized reference (roughly 66 mm diameter and 120–130 mm overall height) is reasonable, but export the final, applied GLB so that its Three.js dimensions match the runtime contract above. In particular, after any export scale is baked, the clean cylindrical panel must resolve to radius `1` and height `2.52` in runtime world units. Do not rely on a non-unit import scale to correct the asset.
+No real-world unit conversion is encoded in the current app. For modeling comfort, a normal 330 mL can-sized reference (roughly 66 mm diameter and 120–130 mm overall height) is reasonable, but export the final, applied GLB so that it keeps its authored runtime dimensions. The current production GLB uses native runtime scale `1`; do not use a non-unit import scale to force the historical procedural height.
 
 ## Sticker and interaction contract
 
 The existing sticker system is an analytical curved-surface system, not a raycast against can mesh triangles. Its current cylinder math uses radius `1`, which already matches the can body exactly.
 
-For the eventual GLB integration, retain an invisible interaction cylinder with:
+For the next dedicated sticker integration, retain an invisible interaction cylinder rather than raycasting the visible GLB. Its radius is expected to remain `1`, matching the production GLB's diameter of approximately `2`; its height and vertical bounds must be measured from the actual straight body region before changing sticker logic.
+
+The previous procedural target was:
 
 ```ts
 {
@@ -70,7 +81,7 @@ For the eventual GLB integration, retain an invisible interaction cylinder with:
 
 It is a logic-only surface: stickers should continue to calculate positions, normals, angular placement, vertical clamping, seam behavior, and curved-surface geometry analytically. The rendered GLB must not become the source of sticker hit testing or placement. This protects draggable behavior from mesh topology, tab details, and material-slot changes.
 
-Important current integration note: `sticker-surface.ts` still declares `cylinderSurface.height: 3` for the standalone spike, while the can's actual stickerable body is `2.52`. Do not silently change that value during asset production. A later dedicated integration task must align the interaction-cylinder height and its vertical clamping with the `2.52` body contract as one coordinated change, while preserving the existing sticker pose semantics and curved-surface behavior.
+Important current integration note: `sticker-surface.ts` still declares `cylinderSurface.height: 3` for the standalone spike. Do not silently change that value during asset production. A later dedicated integration task must align the interaction-cylinder height and vertical clamping with the Blender model's measured straight body region as one coordinated change, while preserving the existing sticker pose semantics and curved-surface behavior.
 
 The active interaction visibility setting is `visibleArcHalfAngle: 1.77`. Its intended partial wrap near the silhouette remains valid; do not compensate for it in the GLB geometry.
 
@@ -172,33 +183,29 @@ Export a glTF 2.0 binary (`.glb`) with:
 - compact geometry and only necessary textures;
 - a final visual comparison against the current procedural silhouette under the existing studio scene.
 
-The intended destination is:
+The current production asset destination is:
 
 ```text
 public/models/playground/can-v1.glb
 ```
 
-Do not add this file until a later asset-delivery/integration task provides the actual GLB.
+The asset is loaded at native scale; do not add a scale normalization step for the historical procedural height.
 
 ## Replacement API contract
 
-The later code replacement should keep the scene boundary intact. `PlaygroundCanSpike` continues to own the canvas, camera, lights, PMREM environment, GPU activity, idle rotation, hover pause, reduced-motion handling, and sticker interaction surface. The procedural `CanMesh` is the only rendering unit to replace.
+The completed code replacement keeps the scene boundary intact. `PlaygroundCanSpike` continues to own the canvas, camera, lights, PMREM environment, GPU activity, idle rotation, hover pause, reduced-motion handling, and future sticker interaction surface. `CanModel` is the active visible rendering unit; procedural `CanMesh` remains a retained reference/fallback.
 
 Conceptually, the later swap is:
 
 ```tsx
-// Current scene responsibility remains unchanged.
-<CanMesh />
-
-// Future rendering-only replacement.
+// Current rendering-only asset.
 <CanModel />
 ```
 
-`CanModel` should load and render the GLB at its baked world scale with no transform compensation. It may expose only the minimal presentation hooks needed by the existing scene (for example, pointer handlers on the rendered can group). It must not absorb sticker state, analytical placement math, drag handling, canvas lifecycle, or scene lighting setup.
+`CanModel` loads and renders the GLB at native world scale (`1`) with only a tiny deterministic center correction. It exposes the minimal presentation hooks needed by the existing scene. It must not absorb sticker state, analytical placement math, drag handling, canvas lifecycle, or scene lighting setup.
 
 ## Explicit non-goals for V1
 
-- No runtime GLB integration in this task.
-- No changes to the can geometry, material constants, camera, lighting, GPU lifecycle, or idle behavior.
+- No changes to GLB geometry, material constants, camera, lighting, GPU lifecycle, or idle behavior.
 - No changes to sticker geometry, drag logic, theta calculation, seam logic, interaction visibility, or final placement behavior.
 - No branding, label art, multiple can variants, animation clips, or new dependencies.
