@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import styles from "./BoardingPassFoil.module.css";
+import ScratchSurface from "./ScratchSurface";
 
 const boardingPassSrc = "/images/playground/boarding-pass/boarding-pass-v1.png";
 const damping = 0.14;
@@ -13,6 +14,12 @@ type FoilMotion = {
   my: number;
   rx: number;
   ry: number;
+};
+
+type BoardingPassFoilProps = {
+  onUnlock?: () => void;
+  onUnlockedChange?: (unlocked: boolean) => void;
+  resetKey?: number;
 };
 
 function usePrefersReducedMotion() {
@@ -31,7 +38,11 @@ function usePrefersReducedMotion() {
   return prefersReducedMotion;
 }
 
-export default function BoardingPassFoil() {
+export default function BoardingPassFoil({
+  onUnlock,
+  onUnlockedChange,
+  resetKey,
+}: BoardingPassFoilProps) {
   const passRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<number | null>(null);
   const currentMotionRef = useRef<FoilMotion>({ mx: 50, my: 50, rx: 0, ry: 0 });
@@ -157,6 +168,19 @@ export default function BoardingPassFoil() {
         <div aria-hidden="true" className={styles.foil}>
           <div className={styles.glare} />
         </div>
+        <div className={styles.scratchReveal} aria-live="polite">
+          <span className="type-meta">RARE</span>
+          <strong>UNLOCKED</strong>
+        </div>
+        <ScratchSurface
+          className={styles.scratchSurface}
+          resetKey={resetKey}
+          onUnlock={onUnlock}
+          onUnlockedChange={onUnlockedChange}
+        />
+        <p id="scratch-surface-description" className="sr-only">
+          Scratch the gray panel to reveal the technical result.
+        </p>
       </div>
     </div>
   );

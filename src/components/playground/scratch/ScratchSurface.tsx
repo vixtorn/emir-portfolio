@@ -238,12 +238,14 @@ export default function ScratchSurface({
       aria-describedby="scratch-surface-description"
       aria-label="Scratch to reveal the technical result"
       onPointerCancel={(event) => {
+        event.stopPropagation();
         if (event.currentTarget.hasPointerCapture(event.pointerId)) {
           event.currentTarget.releasePointerCapture(event.pointerId);
         }
         finishStroke(event.pointerId);
       }}
       onPointerDown={(event) => {
+        event.stopPropagation();
         event.preventDefault();
         const point = getPoint(event);
 
@@ -252,6 +254,7 @@ export default function ScratchSurface({
         eraseStroke(point, point);
       }}
       onPointerMove={(event) => {
+        event.stopPropagation();
         if (pointerRef.current.id !== event.pointerId || !pointerRef.current.point) {
           return;
         }
@@ -263,6 +266,7 @@ export default function ScratchSurface({
         pointerRef.current.point = point;
       }}
       onPointerUp={(event) => {
+        event.stopPropagation();
         event.preventDefault();
         if (event.currentTarget.hasPointerCapture(event.pointerId)) {
           event.currentTarget.releasePointerCapture(event.pointerId);

@@ -43,7 +43,7 @@
 
 .lab {
   display: grid;
-  width: min(100%, 42rem);
+  width: min(100%, 52rem);
   gap: 1rem;
 }
 

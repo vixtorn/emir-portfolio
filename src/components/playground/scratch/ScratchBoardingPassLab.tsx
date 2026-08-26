@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 
-import ScratchBoardingPass from "./ScratchBoardingPass";
+import BoardingPassFoil from "./BoardingPassFoil";
 import styles from "./ScratchBoardingPass.module.css";
 
 export default function ScratchBoardingPassLab() {
@@ -22,9 +22,9 @@ export default function ScratchBoardingPassLab() {
           RESET
         </button>
       </div>
-      <ScratchBoardingPass
+      <BoardingPassFoil
         resetKey={resetKey}
-        onUnlockedChange={setIsUnlocked}
+        onUnlock={() => setIsUnlocked(true)}
       />
     </div>
   );

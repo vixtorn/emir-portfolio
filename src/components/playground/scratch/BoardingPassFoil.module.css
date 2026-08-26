@@ -14,6 +14,10 @@
   --foil-brightness: 0.98;
   --foil-opacity: 0.72;
   --foil-glare: 0.38;
+  --scratch-left: 29.875%;
+  --scratch-top: 68.222222%;
+  --scratch-width: 26.625%;
+  --scratch-height: 10.888889%;
   position: relative;
   width: min(100%, 52rem);
   perspective: 70rem;
@@ -150,6 +154,51 @@
     );
   mix-blend-mode: screen;
   opacity: var(--foil-glare);
+}
+
+.scratchReveal,
+.scratchSurface {
+  position: absolute;
+  top: var(--scratch-top);
+  left: var(--scratch-left);
+  width: var(--scratch-width);
+  height: var(--scratch-height);
+}
+
+.scratchReveal {
+  z-index: 2;
+  display: grid;
+  place-content: center;
+  gap: 0.08rem;
+  overflow: hidden;
+  border-radius: 0.08rem;
+  background: linear-gradient(135deg, #e7e4dc, #c6c3bb 48%, #e4e1da);
+  color: #171817;
+  text-align: center;
+}
+
+.scratchReveal span,
+.scratchReveal strong {
+  margin: 0;
+  line-height: 1;
+}
+
+.scratchReveal span {
+  font-size: clamp(0.28rem, 0.55vw, 0.42rem);
+  letter-spacing: 0.16em;
+}
+
+.scratchReveal strong {
+  font-size: clamp(0.42rem, 0.95vw, 0.72rem);
+  letter-spacing: 0.08em;
+}
+
+.scratchSurface {
+  z-index: 3;
+  display: block;
+  cursor: cell;
+  touch-action: none;
+  user-select: none;
 }
 
 .pass[data-reduced-motion="true"] .ticket,
