@@ -1,13 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { ThreeEvent } from "@react-three/fiber";
-import { MathUtils, Raycaster, type Mesh, type Ray } from "three";
+import { useThree, type ThreeEvent } from "@react-three/fiber";
+import { MathUtils, Raycaster, Vector2, type Mesh, type Ray } from "three";
 
 import CurvedStickerPatch, {
   type CurvedStickerPatchHandle,
 } from "./CurvedStickerPatch";
-import { cylinderSurface, stickerPoseFromPoint } from "./sticker-surface";
+import {
+  cylinderSurface,
+  stickerInteraction,
+  stickerPoseFromPoint,
+} from "./sticker-surface";
 
 const activeStickerLift = 0.04;
 const maxDragTilt = MathUtils.degToRad(2.5);
@@ -57,6 +61,8 @@ type DragState = {
   target: PointerCaptureTarget | null;
   theta: number;
   verticalY: number;
+  lastClientX: number;
+  interactionRotation: number;
 };
 
 type StickerCollectionProps = {
@@ -74,6 +80,7 @@ export default function StickerCollection({
   rareUnlocked = false,
   showInteractionSurface = false,
 }: StickerCollectionProps) {
+  const { camera, gl } = useThree();
   const activeStickerDefinitions = useMemo(
     () => (rareUnlocked ? stickerDefinitions : initialStickerDefinitions),
     [rareUnlocked],
@@ -93,6 +100,7 @@ export default function StickerCollection({
     ),
   );
   const raycasterRef = useRef(new Raycaster());
+  const pointerNdcRef = useRef(new Vector2());
   const [interactionOrder, setInteractionOrder] = useState<StickerId[]>(() =>
     initialStickerDefinitions.map((sticker) => sticker.id),
   );
@@ -102,10 +110,12 @@ export default function StickerCollection({
     target: null,
     theta: 0,
     verticalY: 0,
+    lastClientX: 0,
+    interactionRotation: 0,
   });
 
-  const updateStickerFromRay = useCallback(
-    (ray: Ray, shouldTilt = true) => {
+  const updateStickerVerticalFromRay = useCallback(
+    (ray: Ray) => {
       const cylinder = cylinderRef.current;
       if (!cylinder) return false;
 
@@ -120,38 +130,74 @@ export default function StickerCollection({
       if (!activeSticker) return false;
 
       const localPoint = cylinder.worldToLocal(hit.point.clone());
-      const currentPose = stickerPoseFromPoint(
-        localPoint,
-        dragRef.current.theta,
-        activeSticker.restingRotation,
-      );
-      const interactionRotation = shouldTilt
-        ? MathUtils.clamp(
-            (currentPose.theta - dragRef.current.theta) * dragTiltSensitivity,
-            -maxDragTilt,
-            maxDragTilt,
-          )
-        : 0;
       const nextPose = stickerPoseFromPoint(
         localPoint,
         dragRef.current.theta,
-        activeSticker.restingRotation + interactionRotation,
+        activeSticker.restingRotation + dragRef.current.interactionRotation,
       );
 
-      dragRef.current.theta = nextPose.theta;
       dragRef.current.verticalY = nextPose.verticalY;
       stickerPosesRef.current.set(activeStickerId, nextPose);
       stickerRefs.current
         .get(activeStickerId)
         ?.setPosition(nextPose.theta, nextPose.verticalY);
-      if (shouldTilt) {
-        stickerRefs.current
-          .get(activeStickerId)
-          ?.setInteractionRotation(interactionRotation);
-      }
       return true;
     },
     [activeStickerIds],
+  );
+
+  const updateStickerThetaFromPointer = useCallback((clientX: number) => {
+    const activeStickerId = dragRef.current.activeStickerId;
+    if (!activeStickerId) return;
+
+    const deltaX = clientX - dragRef.current.lastClientX;
+    dragRef.current.lastClientX = clientX;
+    if (deltaX === 0) return;
+
+    const activeSticker = stickerDefinitionById.get(activeStickerId);
+    if (!activeSticker) return;
+
+    const deltaTheta = deltaX * stickerInteraction.angularDragSensitivity;
+    const nextTheta = dragRef.current.theta + deltaTheta;
+    const interactionRotation = MathUtils.clamp(
+      deltaTheta * dragTiltSensitivity,
+      -maxDragTilt,
+      maxDragTilt,
+    );
+    const nextPose = {
+      theta: nextTheta,
+      verticalY: dragRef.current.verticalY,
+    };
+
+    dragRef.current.theta = nextTheta;
+    dragRef.current.interactionRotation = interactionRotation;
+    stickerPosesRef.current.set(activeStickerId, nextPose);
+    const activeStickerHandle = stickerRefs.current.get(activeStickerId);
+    activeStickerHandle?.setPosition(nextPose.theta, nextPose.verticalY);
+    activeStickerHandle?.setInteractionRotation(interactionRotation);
+  }, []);
+
+  const rayFromPointerEvent = useCallback(
+    (event: PointerEvent) => {
+      const bounds = gl.domElement.getBoundingClientRect();
+      if (bounds.width === 0 || bounds.height === 0) return null;
+
+      pointerNdcRef.current.set(
+        ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
+        -((event.clientY - bounds.top) / bounds.height) * 2 + 1,
+      );
+      raycasterRef.current.setFromCamera(pointerNdcRef.current, camera);
+      return raycasterRef.current.ray;
+    },
+    [camera, gl],
+  );
+
+  const updateStickerFromPointer = useCallback(
+    (clientX: number, ray: Ray | null) => {
+      updateStickerThetaFromPointer(clientX);
+      if (ray) updateStickerVerticalFromRay(ray);
+    },
+    [updateStickerThetaFromPointer, updateStickerVerticalFromRay],
   );
 
   const endDrag = useCallback(
@@ -173,6 +219,7 @@ export default function StickerCollection({
       dragRef.current.activeStickerId = null;
       dragRef.current.pointerId = null;
       dragRef.current.target = null;
+      dragRef.current.interactionRotation = 0;
       onCursorChange?.("grab");
       onDraggingChange?.(false);
     },
@@ -180,14 +227,21 @@ export default function StickerCollection({
   );
 
   useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) => {
+      if (dragRef.current.pointerId !== event.pointerId) return;
+
+      updateStickerFromPointer(event.clientX, rayFromPointerEvent(event));
+    };
     const handlePointerEnd = (event: PointerEvent) => endDrag(event.pointerId);
+    window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointercancel", handlePointerEnd);
     window.addEventListener("pointerup", handlePointerEnd);
     return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointercancel", handlePointerEnd);
       window.removeEventListener("pointerup", handlePointerEnd);
     };
-  }, [endDrag]);
+  }, [endDrag, rayFromPointerEvent, updateStickerFromPointer]);
 
   const handlePointerDown = useCallback(
     (stickerId: StickerId, event: ThreeEvent<PointerEvent>) => {
@@ -208,8 +262,10 @@ export default function StickerCollection({
       dragRef.current.target = target;
       dragRef.current.theta = pose.theta;
       dragRef.current.verticalY = pose.verticalY;
+      dragRef.current.lastClientX = event.clientX;
+      dragRef.current.interactionRotation = 0;
       target.setPointerCapture?.(event.pointerId);
-      updateStickerFromRay(event.ray, false);
+      updateStickerVerticalFromRay(event.ray);
       const activeSticker = stickerRefs.current.get(stickerId);
       activeSticker?.setInteractionLift(activeStickerLift);
       activeSticker?.setInteractionRotation(0);
@@ -220,7 +276,7 @@ export default function StickerCollection({
       onCursorChange?.("grabbing");
       onDraggingChange?.(true);
     },
-    [endDrag, onCursorChange, onDraggingChange, updateStickerFromRay],
+    [endDrag, onCursorChange, onDraggingChange, updateStickerVerticalFromRay],
   );
 
   const handlePointerMove = useCallback(
@@ -230,9 +286,9 @@ export default function StickerCollection({
         dragRef.current.pointerId !== event.pointerId
       ) return;
       event.stopPropagation();
-      updateStickerFromRay(event.ray);
+      updateStickerFromPointer(event.clientX, event.ray);
     },
-    [updateStickerFromRay],
+    [updateStickerFromPointer],
   );
 
   const handlePointerUp = useCallback(
