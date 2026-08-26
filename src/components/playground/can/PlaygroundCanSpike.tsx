@@ -31,17 +31,33 @@ function usePrefersReducedMotion() {
 }
 
 function CanScene({
-  paused,
+  isHovered,
+  prefersReducedMotion,
   onHoverChange,
 }: {
-  paused: boolean;
+  isHovered: boolean;
+  prefersReducedMotion: boolean;
   onHoverChange: (hovered: boolean) => void;
 }) {
-  const canGroupRef = useRef<Group>(null);
+  const rotationGroupRef = useRef<Group>(null);
+  const floatingGroupRef = useRef<Group>(null);
   const rotationVelocityRef = useRef(canConfig.idleAngularVelocity);
 
-  useFrame((_, delta) => {
-    const targetVelocity = paused ? 0 : canConfig.idleAngularVelocity;
+  useFrame((state, delta) => {
+    if (prefersReducedMotion) {
+      rotationVelocityRef.current = 0;
+
+      if (rotationGroupRef.current) {
+        rotationGroupRef.current.rotation.y = 0;
+      }
+      if (floatingGroupRef.current) {
+        floatingGroupRef.current.position.y = 0;
+      }
+
+      return;
+    }
+
+    const targetVelocity = isHovered ? 0 : canConfig.idleAngularVelocity;
 
     rotationVelocityRef.current = MathUtils.damp(
       rotationVelocityRef.current,
@@ -49,8 +65,13 @@ function CanScene({
       4,
       delta,
     );
-    if (canGroupRef.current) {
-      canGroupRef.current.rotation.y += rotationVelocityRef.current * delta;
+    if (rotationGroupRef.current) {
+      rotationGroupRef.current.rotation.y += rotationVelocityRef.current * delta;
+    }
+    if (floatingGroupRef.current) {
+      floatingGroupRef.current.position.y =
+        Math.sin(state.clock.elapsedTime * canConfig.floatAngularVelocity) *
+        canConfig.floatAmplitude;
     }
   });
 
@@ -65,13 +86,18 @@ function CanScene({
   };
 
   return (
-    <group ref={canGroupRef}>
-      <Suspense fallback={null}>
-        <CanModel
-          onPointerOut={handlePointerOut}
-          onPointerOver={() => onHoverChange(true)}
-        />
-      </Suspense>
+    <group ref={rotationGroupRef}>
+      <group
+        ref={floatingGroupRef}
+        rotation={[canConfig.idleTiltX, 0, canConfig.idleTiltZ]}
+      >
+        <Suspense fallback={null}>
+          <CanModel
+            onPointerOut={handlePointerOut}
+            onPointerOver={() => onHoverChange(true)}
+          />
+        </Suspense>
+      </group>
     </group>
   );
 }
@@ -104,8 +130,9 @@ export default function PlaygroundCanSpike() {
         <directionalLight intensity={2.1} position={[4, 5, 6]} />
         <directionalLight intensity={0.75} position={[-4, 1.5, 3]} />
         <CanScene
-          paused={isHovered || prefersReducedMotion}
+          isHovered={isHovered}
           onHoverChange={setIsHovered}
+          prefersReducedMotion={prefersReducedMotion}
         />
       </Canvas>
     </div>

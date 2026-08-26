@@ -9,7 +9,13 @@ export const canConfig = {
   bottomTaperHeight: 0.16,
   radialSegments: 96,
   idleRotationDuration: 24,
-  idleAngularVelocity: (Math.PI * 2) / 24,
+  // Negative Y rotation reads clockwise when viewed from above.
+  idleAngularVelocity: -(Math.PI * 2) / 24,
+  floatAmplitude: 0.04,
+  floatDuration: 4.8,
+  floatAngularVelocity: (Math.PI * 2) / 4.8,
+  idleTiltX: 0,
+  idleTiltZ: -(4.5 * Math.PI) / 180,
   // The Blender GLB is the production geometry source of truth.
   modelScale: 1,
   // Offsets the raw GLB bounds center (-0.00010991096 on Y).
