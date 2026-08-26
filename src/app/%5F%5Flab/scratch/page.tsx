@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 
 import LabShell from "@/components/lab/LabShell";
-import ScratchBoardingPassLab from "@/components/playground/scratch/ScratchBoardingPassLab";
+import BoardingPassFoil from "@/components/playground/scratch/BoardingPassFoil";
 
 export const metadata: Metadata = {
-  title: "Scratch",
+  title: "Boarding Pass Foil",
 };
 
 export default function ScratchLabPage() {
   return (
     <LabShell
       number="03"
-      title="SCRATCH"
-      purpose="Scratchable boarding-pass masking, completion detection, and rare-sticker unlock state."
+      title="BOARDING PASS FOIL"
+      purpose="Pointer-reactive iridescent foil treatment for the Playground boarding pass asset."
     >
-      <ScratchBoardingPassLab />
+      <BoardingPassFoil />
     </LabShell>
   );
 }
