@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
-import { Group, MathUtils } from "three";
+import { DirectionalLight, Group, MathUtils } from "three";
 
 import { useGpuSceneActivity } from "@/hooks/useGpuSceneActivity";
 import { gpuSceneConfig } from "@/lib/performance/gpu-config";
@@ -102,6 +102,33 @@ function CanScene({
   );
 }
 
+function CanLightSweep({
+  prefersReducedMotion,
+}: {
+  prefersReducedMotion: boolean;
+}) {
+  const lightRef = useRef<DirectionalLight>(null);
+
+  useFrame((state) => {
+    if (prefersReducedMotion || !lightRef.current) {
+      return;
+    }
+
+    lightRef.current.position.x =
+      Math.sin(state.clock.elapsedTime * canConfig.lightSweepAngularVelocity) *
+      canConfig.lightSweepTravel;
+  });
+
+  return (
+    <directionalLight
+      ref={lightRef}
+      intensity={canConfig.lightSweepIntensity}
+      position={[0, 2.8, 6]}
+      visible={!prefersReducedMotion}
+    />
+  );
+}
+
 export default function PlaygroundCanSpike() {
   const sceneElementRef = useRef<HTMLDivElement>(null);
   const { isActive } = useGpuSceneActivity({
@@ -129,6 +156,7 @@ export default function PlaygroundCanSpike() {
         <hemisphereLight intensity={0.32} />
         <directionalLight intensity={2.1} position={[4, 5, 6]} />
         <directionalLight intensity={0.75} position={[-4, 1.5, 3]} />
+        <CanLightSweep prefersReducedMotion={prefersReducedMotion} />
         <CanScene
           isHovered={isHovered}
           onHoverChange={setIsHovered}

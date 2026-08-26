@@ -16,6 +16,10 @@ export const canConfig = {
   floatAngularVelocity: (Math.PI * 2) / 4.8,
   idleTiltX: 0,
   idleTiltZ: -(4.5 * Math.PI) / 180,
+  lightSweepIntensity: 0.16,
+  lightSweepDuration: 10,
+  lightSweepAngularVelocity: (Math.PI * 2) / 10,
+  lightSweepTravel: 1.6,
   // The Blender GLB is the production geometry source of truth.
   modelScale: 1,
   // Offsets the raw GLB bounds center (-0.00010991096 on Y).
