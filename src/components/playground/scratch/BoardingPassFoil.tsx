@@ -48,6 +48,23 @@ export default function BoardingPassFoil() {
     pass.style.setProperty("--my", `${current.my}%`);
     pass.style.setProperty("--rx", `${current.rx}deg`);
     pass.style.setProperty("--ry", `${current.ry}deg`);
+    pass.style.setProperty("--foil-x", `${current.mx}%`);
+    pass.style.setProperty("--foil-y", `${current.my}%`);
+
+    const dx = current.mx - 50;
+    const dy = current.my - 50;
+    const pointerDistance = Math.min(
+      1,
+      Math.hypot(dx, dy) / Math.hypot(50, 50),
+    );
+    const foilAngle =
+      pointerDistance < 0.015 ? 132 : (Math.atan2(dy, dx) * 180) / Math.PI;
+
+    pass.style.setProperty("--foil-angle", `${(foilAngle + 360) % 360}deg`);
+    pass.style.setProperty("--foil-intensity", `${1.08 + pointerDistance * 0.58}`);
+    pass.style.setProperty("--foil-brightness", `${0.98 + pointerDistance * 0.15}`);
+    pass.style.setProperty("--foil-opacity", `${0.72 + pointerDistance * 0.18}`);
+    pass.style.setProperty("--foil-glare", `${0.38 + pointerDistance * 0.38}`);
   }, []);
 
   const animateMotion = useCallback(function animateMotion() {
