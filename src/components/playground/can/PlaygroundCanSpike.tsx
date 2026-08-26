@@ -11,6 +11,7 @@ import CanModel from "./CanModel";
 import { canConfig } from "./can-config";
 import styles from "./PlaygroundCanSpike.module.css";
 import StudioEnvironment from "./StudioEnvironment";
+import StickerCollection from "../stickers/StickerCollection";
 
 const sceneId = "lab-playground-can";
 
@@ -32,12 +33,18 @@ function usePrefersReducedMotion() {
 
 function CanScene({
   isHovered,
+  isStickerDragging,
   prefersReducedMotion,
+  onCursorChange,
   onHoverChange,
+  onStickerDraggingChange,
 }: {
   isHovered: boolean;
+  isStickerDragging: boolean;
   prefersReducedMotion: boolean;
+  onCursorChange: (cursor: string) => void;
   onHoverChange: (hovered: boolean) => void;
+  onStickerDraggingChange: (dragging: boolean) => void;
 }) {
   const rotationGroupRef = useRef<Group>(null);
   const floatingGroupRef = useRef<Group>(null);
@@ -57,7 +64,8 @@ function CanScene({
       return;
     }
 
-    const targetVelocity = isHovered ? 0 : canConfig.idleAngularVelocity;
+    const targetVelocity =
+      isHovered || isStickerDragging ? 0 : canConfig.idleAngularVelocity;
 
     rotationVelocityRef.current = MathUtils.damp(
       rotationVelocityRef.current,
@@ -69,9 +77,18 @@ function CanScene({
       rotationGroupRef.current.rotation.y += rotationVelocityRef.current * delta;
     }
     if (floatingGroupRef.current) {
-      floatingGroupRef.current.position.y =
-        Math.sin(state.clock.elapsedTime * canConfig.floatAngularVelocity) *
-        canConfig.floatAmplitude;
+      if (!isStickerDragging) {
+        const targetFloatY =
+          Math.sin(state.clock.elapsedTime * canConfig.floatAngularVelocity) *
+          canConfig.floatAmplitude;
+
+        floatingGroupRef.current.position.y = MathUtils.damp(
+          floatingGroupRef.current.position.y,
+          targetFloatY,
+          12,
+          delta,
+        );
+      }
     }
   });
 
@@ -97,6 +114,11 @@ function CanScene({
             onPointerOver={() => onHoverChange(true)}
           />
         </Suspense>
+        <StickerCollection
+          onCursorChange={onCursorChange}
+          onDraggingChange={onStickerDraggingChange}
+          onHoverChange={onHoverChange}
+        />
       </group>
     </group>
   );
@@ -138,9 +160,15 @@ export default function PlaygroundCanSpike() {
   });
   const prefersReducedMotion = usePrefersReducedMotion();
   const [isHovered, setIsHovered] = useState(false);
+  const [isStickerDragging, setIsStickerDragging] = useState(false);
+  const [cursor, setCursor] = useState("default");
 
   return (
-    <div ref={sceneElementRef} className={styles.spike}>
+    <div
+      ref={sceneElementRef}
+      className={styles.spike}
+      data-cursor={cursor}
+    >
       <Canvas
         className={styles.canvas}
         aria-label="Unbranded brushed aluminium beverage can"
@@ -159,7 +187,10 @@ export default function PlaygroundCanSpike() {
         <CanLightSweep prefersReducedMotion={prefersReducedMotion} />
         <CanScene
           isHovered={isHovered}
+          isStickerDragging={isStickerDragging}
+          onCursorChange={setCursor}
           onHoverChange={setIsHovered}
+          onStickerDraggingChange={setIsStickerDragging}
           prefersReducedMotion={prefersReducedMotion}
         />
       </Canvas>

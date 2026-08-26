@@ -1,8 +1,10 @@
 import type { Vector3 } from "three";
 
+import { canConfig } from "../can/can-config";
+
 export const cylinderSurface = {
-  radius: 1,
-  height: 3,
+  radius: canConfig.bodyRadius,
+  height: canConfig.bodyHeight,
   radialSegments: 96,
   surfaceOffset: 0.012,
 } as const;

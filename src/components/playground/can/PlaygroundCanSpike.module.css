@@ -4,6 +4,15 @@
   height: clamp(28rem, 62svh, 50rem);
   overflow: hidden;
   background: var(--surface-dark);
+  cursor: default;
+}
+
+.spike[data-cursor="grab"] {
+  cursor: grab;
+}
+
+.spike[data-cursor="grabbing"] {
+  cursor: grabbing;
 }
 
 .canvas,
