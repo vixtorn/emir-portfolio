@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Suspense,
   forwardRef,
   useCallback,
   useImperativeHandle,
@@ -8,12 +9,21 @@ import {
   useMemo,
   useRef,
 } from "react";
-import { useFrame, type ThreeEvent } from "@react-three/fiber";
+import {
+  useFrame,
+  useLoader,
+  useThree,
+  type ThreeEvent,
+} from "@react-three/fiber";
 import {
   BufferAttribute,
   BufferGeometry,
   DoubleSide,
+  LinearFilter,
+  LinearMipmapLinearFilter,
   MathUtils,
+  SRGBColorSpace,
+  TextureLoader,
 } from "three";
 
 import { cylinderSurface, stickerSurface } from "./sticker-surface";
@@ -25,11 +35,14 @@ export type CurvedStickerPatchHandle = {
 };
 
 type CurvedStickerPatchProps = {
-  color: number;
+  artworkSrc?: string;
+  fallbackColor: number;
+  height: number;
   initialTheta: number;
   initialVerticalY: number;
   layerOffset: number;
   restingRotation: number;
+  width: number;
   onPointerDown: (event: ThreeEvent<PointerEvent>) => void;
   onPointerMove: (event: ThreeEvent<PointerEvent>) => void;
   onPointerUp: (event: ThreeEvent<PointerEvent>) => void;
@@ -46,6 +59,8 @@ function updatePatchGeometry(
   interactionLift: number,
   restingRotation: number,
   interactionRotation: number,
+  width: number,
+  height: number,
 ) {
   const positions = geometry.getAttribute("position") as BufferAttribute;
   const radius =
@@ -60,11 +75,11 @@ function updatePatchGeometry(
 
   for (let row = 0; row <= stickerSurface.verticalSegments; row += 1) {
     const verticalProgress = row / stickerSurface.verticalSegments;
-    const localY = (verticalProgress - 0.5) * stickerSurface.height;
+    const localY = (verticalProgress - 0.5) * height;
 
     for (let column = 0; column <= stickerSurface.horizontalSegments; column += 1) {
       const horizontalProgress = column / stickerSurface.horizontalSegments;
-      const localX = (horizontalProgress - 0.5) * stickerSurface.width;
+      const localX = (horizontalProgress - 0.5) * width;
       const rotatedX = localX * cosine - localY * sine;
       const rotatedY = localX * sine + localY * cosine;
       const angle = theta + rotatedX / cylinderSurface.radius;
@@ -88,6 +103,7 @@ function createPatchGeometry() {
   const rows = stickerSurface.verticalSegments + 1;
   const geometry = new BufferGeometry();
   const positions = new Float32Array(columns * rows * 3);
+  const uvs = new Float32Array(columns * rows * 2);
   const indices: number[] = [];
 
   for (let row = 0; row < stickerSurface.verticalSegments; row += 1) {
@@ -97,14 +113,50 @@ function createPatchGeometry() {
       const bottomLeft = (row + 1) * columns + column;
       const bottomRight = bottomLeft + 1;
 
+      uvs.set([column / stickerSurface.horizontalSegments, row / stickerSurface.verticalSegments], topLeft * 2);
+      uvs.set([(column + 1) / stickerSurface.horizontalSegments, row / stickerSurface.verticalSegments], topRight * 2);
+      uvs.set([column / stickerSurface.horizontalSegments, (row + 1) / stickerSurface.verticalSegments], bottomLeft * 2);
+      uvs.set([(column + 1) / stickerSurface.horizontalSegments, (row + 1) / stickerSurface.verticalSegments], bottomRight * 2);
+
       indices.push(topLeft, bottomLeft, topRight, topRight, bottomLeft, bottomRight);
     }
   }
 
   geometry.setAttribute("position", new BufferAttribute(positions, 3));
+  geometry.setAttribute("uv", new BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
 
   return geometry;
+}
+
+function StickerArtworkMaterial({ artworkSrc }: { artworkSrc: string }) {
+  const texture = useLoader(TextureLoader, artworkSrc);
+  const { gl } = useThree();
+  const configuredTexture = useMemo(() => {
+    const artworkTexture = texture.clone();
+
+    artworkTexture.colorSpace = SRGBColorSpace;
+    artworkTexture.minFilter = LinearMipmapLinearFilter;
+    artworkTexture.magFilter = LinearFilter;
+    artworkTexture.anisotropy = Math.min(4, gl.capabilities.getMaxAnisotropy());
+    artworkTexture.needsUpdate = true;
+
+    return artworkTexture;
+  }, [gl, texture]);
+
+  useLayoutEffect(() => {
+    return () => configuredTexture.dispose();
+  }, [configuredTexture]);
+
+  return (
+    <meshBasicMaterial
+      alphaTest={0.08}
+      depthWrite
+      map={configuredTexture}
+      side={DoubleSide}
+      transparent
+    />
+  );
 }
 
 const CurvedStickerPatch = forwardRef<
@@ -114,9 +166,12 @@ const CurvedStickerPatch = forwardRef<
   {
     initialTheta,
     initialVerticalY,
-    color,
+    artworkSrc,
+    fallbackColor,
+    height,
     layerOffset,
     restingRotation,
+    width,
     onPointerDown,
     onPointerMove,
     onPointerUp,
@@ -126,7 +181,7 @@ const CurvedStickerPatch = forwardRef<
   },
   ref,
 ) {
-  const geometry = useMemo(createPatchGeometry, []);
+  const geometry = useMemo(() => createPatchGeometry(), []);
   const poseRef = useRef({ theta: initialTheta, verticalY: initialVerticalY });
   const layerOffsetRef = useRef(layerOffset);
   const currentLiftRef = useRef(0);
@@ -142,8 +197,10 @@ const CurvedStickerPatch = forwardRef<
       currentLiftRef.current,
       restingRotation,
       currentInteractionRotationRef.current,
+      width,
+      height,
     );
-  }, [geometry, restingRotation]);
+  }, [geometry, height, restingRotation, width]);
   const setPosition = useCallback(
     (theta: number, verticalY: number) => {
       poseRef.current = { theta, verticalY };
@@ -227,7 +284,21 @@ const CurvedStickerPatch = forwardRef<
       onPointerOver={onPointerOver}
       onPointerUp={onPointerUp}
     >
-      <meshBasicMaterial color={color} depthWrite side={DoubleSide} />
+      {artworkSrc ? (
+        <Suspense
+          fallback={
+            <meshBasicMaterial
+              color={fallbackColor}
+              depthWrite
+              side={DoubleSide}
+            />
+          }
+        >
+          <StickerArtworkMaterial artworkSrc={artworkSrc} />
+        </Suspense>
+      ) : (
+        <meshBasicMaterial color={fallbackColor} depthWrite side={DoubleSide} />
+      )}
     </mesh>
   );
 });
