@@ -25,23 +25,26 @@ type StickerId =
   | "sticker-05"
   | "sticker-rare";
 
-type StickerDefinition = {
+export type StickerDefinition = {
   id: StickerId;
   initialTheta: number;
   initialVerticalY: number;
-  color: number;
   restingRotation: number;
   unlock: "initial" | "rare";
+  width: number;
+  height: number;
+  artworkSrc?: string;
+  fallbackColor: number;
 };
 
-const stickerDefinitions = [
-  { id: "sticker-01", initialTheta: -0.58, initialVerticalY: 0.54, color: 0xf1eee7, restingRotation: MathUtils.degToRad(-5), unlock: "initial" },
-  { id: "sticker-02", initialTheta: -0.12, initialVerticalY: -0.56, color: 0xb8bab7, restingRotation: MathUtils.degToRad(3), unlock: "initial" },
-  { id: "sticker-03", initialTheta: 0.62, initialVerticalY: 0.5, color: 0xb85a2d, restingRotation: MathUtils.degToRad(-2), unlock: "initial" },
-  { id: "sticker-04", initialTheta: -1.12, initialVerticalY: -0.08, color: 0xf1eee7, restingRotation: MathUtils.degToRad(5), unlock: "initial" },
-  { id: "sticker-05", initialTheta: 1.08, initialVerticalY: -0.2, color: 0xb8bab7, restingRotation: MathUtils.degToRad(-6), unlock: "initial" },
-  { id: "sticker-rare", initialTheta: 0.28, initialVerticalY: 0.02, color: 0xb85a2d, restingRotation: MathUtils.degToRad(2), unlock: "rare" },
-] as const satisfies readonly StickerDefinition[];
+const stickerDefinitions: readonly StickerDefinition[] = [
+  { id: "sticker-01", initialTheta: -0.58, initialVerticalY: 0.54, restingRotation: MathUtils.degToRad(-5), unlock: "initial", width: 0.9, height: 0.5, fallbackColor: 0xf1eee7 },
+  { id: "sticker-02", initialTheta: -0.12, initialVerticalY: -0.56, restingRotation: MathUtils.degToRad(3), unlock: "initial", width: 0.9, height: 0.5, fallbackColor: 0xb8bab7 },
+  { id: "sticker-03", initialTheta: 0.62, initialVerticalY: 0.5, restingRotation: MathUtils.degToRad(-2), unlock: "initial", width: 0.9, height: 0.5, fallbackColor: 0xb85a2d },
+  { id: "sticker-04", initialTheta: -1.12, initialVerticalY: -0.08, restingRotation: MathUtils.degToRad(5), unlock: "initial", width: 0.9, height: 0.5, fallbackColor: 0xf1eee7 },
+  { id: "sticker-05", initialTheta: 1.08, initialVerticalY: -0.2, restingRotation: MathUtils.degToRad(-6), unlock: "initial", width: 0.9, height: 0.5, fallbackColor: 0xb8bab7 },
+  { id: "sticker-rare", initialTheta: 0.28, initialVerticalY: 0.02, restingRotation: MathUtils.degToRad(2), unlock: "rare", width: 0.9, height: 0.5, fallbackColor: 0xb85a2d },
+];
 
 const initialStickerDefinitions = stickerDefinitions.filter(
   (sticker) => sticker.unlock === "initial",
@@ -133,6 +136,8 @@ export default function StickerCollection({
       const nextPose = stickerPoseFromPoint(
         localPoint,
         dragRef.current.theta,
+        activeSticker.width,
+        activeSticker.height,
         activeSticker.restingRotation + dragRef.current.interactionRotation,
       );
 
@@ -334,11 +339,14 @@ export default function StickerCollection({
               if (handle) stickerRefs.current.set(sticker.id, handle);
               else stickerRefs.current.delete(sticker.id);
             }}
-            color={sticker.color}
+            artworkSrc={sticker.artworkSrc}
+            fallbackColor={sticker.fallbackColor}
+            height={sticker.height}
             initialTheta={sticker.initialTheta}
             initialVerticalY={sticker.initialVerticalY}
             layerOffset={layerOffset}
             restingRotation={sticker.restingRotation}
+            width={sticker.width}
             onPointerCancel={handlePointerCancel}
             onPointerDown={(event) => handlePointerDown(sticker.id, event)}
             onPointerMove={handlePointerMove}

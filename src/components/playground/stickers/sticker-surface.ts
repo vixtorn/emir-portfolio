@@ -10,8 +10,6 @@ export const cylinderSurface = {
 } as const;
 
 export const stickerSurface = {
-  width: 0.9,
-  height: 0.5,
   horizontalSegments: 18,
   verticalSegments: 4,
   verticalMargin: 0.12,
@@ -21,31 +19,27 @@ export const stickerInteraction = {
   angularDragSensitivity: 0.012,
 } as const;
 
-export const stickerVerticalRange = {
-  min:
-    -cylinderSurface.height / 2 +
-    stickerSurface.height / 2 +
-    stickerSurface.verticalMargin,
-  max:
-    cylinderSurface.height / 2 -
-    stickerSurface.height / 2 -
-    stickerSurface.verticalMargin,
-} as const;
-
-export function rotatedStickerHalfExtents(rotation: number) {
+export function rotatedStickerHalfExtents(
+  width: number,
+  height: number,
+  rotation: number,
+) {
   const cosine = Math.abs(Math.cos(rotation));
   const sine = Math.abs(Math.sin(rotation));
 
   return {
-    horizontal:
-      cosine * (stickerSurface.width / 2) + sine * (stickerSurface.height / 2),
-    vertical:
-      sine * (stickerSurface.width / 2) + cosine * (stickerSurface.height / 2),
+    horizontal: cosine * (width / 2) + sine * (height / 2),
+    vertical: sine * (width / 2) + cosine * (height / 2),
   };
 }
 
-export function clampStickerVerticalY(verticalY: number, rotation = 0) {
-  const { vertical } = rotatedStickerHalfExtents(rotation);
+export function clampStickerVerticalY(
+  verticalY: number,
+  width: number,
+  height: number,
+  rotation = 0,
+) {
+  const { vertical } = rotatedStickerHalfExtents(width, height, rotation);
   const limit = cylinderSurface.height / 2 - vertical - stickerSurface.verticalMargin;
 
   return Math.min(
@@ -57,10 +51,12 @@ export function clampStickerVerticalY(verticalY: number, rotation = 0) {
 export function stickerPoseFromPoint(
   point: Vector3,
   theta: number,
+  width: number,
+  height: number,
   rotation = 0,
 ) {
   return {
     theta,
-    verticalY: clampStickerVerticalY(point.y, rotation),
+    verticalY: clampStickerVerticalY(point.y, width, height, rotation),
   };
 }
