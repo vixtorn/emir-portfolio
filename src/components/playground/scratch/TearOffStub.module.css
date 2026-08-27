@@ -1,0 +1,38 @@
+.stub {
+  position: absolute;
+  top: 0;
+  z-index: 4;
+  height: 100%;
+  background-image: url("/images/playground/boarding-pass/boarding-pass-v1.png");
+  background-repeat: no-repeat;
+  background-position: right top;
+  background-size: auto 100%;
+  transform-origin: left center;
+  will-change: transform, filter;
+}
+
+.stub[data-stressed="true"] {
+  filter: brightness(1.045) contrast(1.02);
+}
+
+.hitArea {
+  position: absolute;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.hitArea:focus-visible {
+  outline: 1px solid rgb(232 233 228 / 78%);
+  outline-offset: 0.2rem;
+}
+
+.stub[data-dragging="true"] .hitArea {
+  cursor: grabbing;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stub {
+    transition: none;
+  }
+}

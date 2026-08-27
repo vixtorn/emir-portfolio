@@ -32,6 +32,14 @@
   will-change: transform;
 }
 
+.mainArtwork {
+  overflow: hidden;
+}
+
+.mainImage {
+  max-width: none;
+}
+
 .image {
   display: block;
   width: 100%;

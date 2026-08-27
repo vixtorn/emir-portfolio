@@ -6,6 +6,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import styles from "./BoardingPassFoil.module.css";
 import { scratchInteractionGuard } from "./scratch-config";
 import ScratchSurface from "./ScratchSurface";
+import { tearConfig } from "./tear-config";
+import TearOffStub from "./TearOffStub";
 
 const boardingPassSrc = "/images/playground/boarding-pass/boarding-pass-v1.png";
 const damping = 0.14;
@@ -17,7 +19,7 @@ type FoilMotion = {
   ry: number;
 };
 
-type ScratchGuardBounds = {
+type SourceBounds = {
   left: number;
   top: number;
   right: number;
@@ -30,20 +32,23 @@ type BoardingPassFoilProps = {
   resetKey?: number;
 };
 
-function isWithinScratchGuard(
+function isWithinSourceBounds(
   normalizedX: number,
   normalizedY: number,
-  guard: ScratchGuardBounds,
+  bounds: SourceBounds,
+  sourceSize: { width: number; height: number },
 ) {
-  const { width, height } = scratchInteractionGuard.sourceSize;
+  const { width, height } = sourceSize;
 
   return (
-    normalizedX >= guard.left / width &&
-    normalizedX <= guard.right / width &&
-    normalizedY >= guard.top / height &&
-    normalizedY <= guard.bottom / height
+    normalizedX >= bounds.left / width &&
+    normalizedX <= bounds.right / width &&
+    normalizedY >= bounds.top / height &&
+    normalizedY <= bounds.bottom / height
   );
 }
+
+const toPercent = (value: number, total: number) => `${(value / total) * 100}%`;
 
 function usePrefersReducedMotion() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -72,10 +77,15 @@ export default function BoardingPassFoil({
   const targetMotionRef = useRef<FoilMotion>({ mx: 50, my: 50, rx: 0, ry: 0 });
   const scratchGuardActiveRef = useRef(false);
   const scratchingRef = useRef(false);
+  const tearGuardActiveRef = useRef(false);
+  const tearingRef = useRef(false);
   const [isScratchGuardActive, setIsScratchGuardActive] = useState(false);
   const [isScratching, setIsScratching] = useState(false);
+  const [isTearGuardActive, setIsTearGuardActive] = useState(false);
+  const [isTearing, setIsTearing] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
-  const scratchInteractionLocked = isScratchGuardActive || isScratching;
+  const interactionMotionLocked =
+    isScratchGuardActive || isScratching || isTearGuardActive || isTearing;
 
   const applyMotion = useCallback(() => {
     const pass = passRef.current;
@@ -164,10 +174,10 @@ export default function BoardingPassFoil({
   }, [applyMotion]);
 
   useLayoutEffect(() => {
-    if (!scratchInteractionLocked) return;
+    if (!interactionMotionLocked) return;
 
     neutralizeScratchMotion();
-  }, [neutralizeScratchMotion, scratchInteractionLocked]);
+  }, [interactionMotionLocked, neutralizeScratchMotion]);
 
   const setScratchGuardActive = useCallback((isActive: boolean) => {
     if (scratchGuardActiveRef.current === isActive) return;
@@ -182,6 +192,24 @@ export default function BoardingPassFoil({
   const handleScratchActiveChange = useCallback((isActive: boolean) => {
     scratchingRef.current = isActive;
     setIsScratching(isActive);
+    if (isActive) {
+      neutralizeScratchMotion();
+    }
+  }, [neutralizeScratchMotion]);
+
+  const setTearGuardActive = useCallback((isActive: boolean) => {
+    if (tearGuardActiveRef.current === isActive) return;
+
+    tearGuardActiveRef.current = isActive;
+    setIsTearGuardActive(isActive);
+    if (isActive) {
+      neutralizeScratchMotion();
+    }
+  }, [neutralizeScratchMotion]);
+
+  const handleTearDragChange = useCallback((isActive: boolean) => {
+    tearingRef.current = isActive;
+    setIsTearing(isActive);
     if (isActive) {
       neutralizeScratchMotion();
     }
@@ -202,9 +230,10 @@ export default function BoardingPassFoil({
       className={styles.pass}
       data-reduced-motion={prefersReducedMotion}
       onPointerLeave={() => {
-        if (prefersReducedMotion || scratchingRef.current) return;
+        if (prefersReducedMotion || scratchingRef.current || tearingRef.current) return;
 
         setScratchGuardActive(false);
+        setTearGuardActive(false);
 
         targetMotionRef.current = { mx: 50, my: 50, rx: 0, ry: 0 };
         queueMotion();
@@ -217,21 +246,37 @@ export default function BoardingPassFoil({
 
         const normalizedX = (event.clientX - bounds.left) / bounds.width;
         const normalizedY = (event.clientY - bounds.top) / bounds.height;
-        const guard = scratchGuardActiveRef.current
+        const scratchGuard = scratchGuardActiveRef.current
           ? scratchInteractionGuard.exit
           : scratchInteractionGuard.enter;
-        const isWithinGuard = isWithinScratchGuard(normalizedX, normalizedY, guard);
+        const isWithinScratchGuard = isWithinSourceBounds(
+          normalizedX,
+          normalizedY,
+          scratchGuard,
+          scratchInteractionGuard.sourceSize,
+        );
+        const isWithinTearGuard = isWithinSourceBounds(
+          normalizedX,
+          normalizedY,
+          tearConfig.preActivationGuard,
+          tearConfig.sourceSize,
+        );
 
-        if (isWithinGuard) {
-          setScratchGuardActive(true);
+        if (!scratchingRef.current) {
+          setScratchGuardActive(isWithinScratchGuard);
+        }
+        if (!tearingRef.current) {
+          setTearGuardActive(isWithinTearGuard);
+        }
+
+        if (
+          scratchGuardActiveRef.current ||
+          scratchingRef.current ||
+          tearGuardActiveRef.current ||
+          tearingRef.current
+        ) {
           return;
         }
-
-        if (!scratchingRef.current && scratchGuardActiveRef.current) {
-          setScratchGuardActive(false);
-        }
-
-        if (scratchGuardActiveRef.current || scratchingRef.current) return;
 
         const mx = normalizedX * 100;
         const my = normalizedY * 100;
@@ -246,15 +291,24 @@ export default function BoardingPassFoil({
       }}
     >
       <div className={styles.ticket}>
-        <Image
-          alt="Boarding pass for the Playground experience"
-          className={styles.image}
-          height={416}
-          priority
-          sizes="(max-width: 680px) calc(100vw - 3rem), min(100vw - 4rem, 52rem)"
-          src={boardingPassSrc}
-          width={800}
-        />
+        <div
+          className={styles.mainArtwork}
+          style={{ width: toPercent(tearConfig.tearX, tearConfig.sourceSize.width) }}
+        >
+          <Image
+            alt="Boarding pass for the Playground experience"
+            className={`${styles.image} ${styles.mainImage}`}
+            height={416}
+            priority
+            sizes="(max-width: 680px) calc(100vw - 3rem), min(100vw - 4rem, 52rem)"
+            src={boardingPassSrc}
+            style={{
+              width: toPercent(tearConfig.sourceSize.width, tearConfig.tearX),
+            }}
+            width={800}
+          />
+        </div>
+        <TearOffStub key={resetKey} onDragChange={handleTearDragChange} />
         <div aria-hidden="true" className={styles.foil}>
           <div className={styles.glare} />
         </div>
