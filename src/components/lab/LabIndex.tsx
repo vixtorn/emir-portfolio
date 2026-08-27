@@ -9,6 +9,7 @@ const experiments = [
   { number: "04", href: "/__lab/work-stack", label: "WORK STACK" },
   { number: "05", href: "/__lab/memory", label: "MEMORY" },
   { number: "06", href: "/__lab/signpost", label: "SIGNPOST" },
+  { number: "07", href: "/__lab/terminal", label: "PLAYGROUND TERMINAL" },
 ];
 
 export default function LabIndex() {
