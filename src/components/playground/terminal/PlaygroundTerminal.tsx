@@ -5,10 +5,16 @@ import {
   type KeyboardEvent,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 
+import {
+  resolveProject,
+  terminalProjects,
+  type TerminalProject,
+} from "./project-catalog";
 import styles from "./PlaygroundTerminal.module.css";
 
 type TerminalLineTone = "accent" | "command" | "error" | "muted" | "output";
@@ -21,64 +27,138 @@ type TerminalLine = {
 
 type TerminalOutput = Omit<TerminalLine, "id">;
 
+type TerminalCommandContext = {
+  args: string[];
+  rawInput: string;
+};
+
 type TerminalCommand = {
   description: string;
-  execute: () => TerminalOutput[];
+  execute: (context: TerminalCommandContext) => TerminalOutput[];
   name: string;
+  usage?: string;
   clearsHistory?: boolean;
+};
+
+type PlaygroundTerminalProps = {
+  onProjectOpenRequest?: (projectId: string) => void;
 };
 
 const prompt = "emir@playground:~ $";
 
-const commandRegistry: readonly TerminalCommand[] = [
-  {
-    name: "help",
-    description: "list available commands",
-    execute: () => [
-      { tone: "accent", text: "AVAILABLE COMMANDS" },
-      ...commandRegistry.map(({ name, description }) => ({
-        tone: "output" as const,
-        text: `${name.padEnd(10)}${description}`,
-      })),
-    ],
-  },
-  {
-    name: "whoami",
-    description: "identify this operator",
-    execute: () => [
-      { tone: "output", text: "Creative Developer" },
-      { tone: "output", text: "Product-minded Engineer" },
-      { tone: "output", text: "Visual Experimenter" },
-    ],
-  },
-  {
-    name: "projects",
-    description: "show selected experiments",
-    execute: () => [
-      { tone: "accent", text: "SELECTED EXPERIMENTS" },
-      { tone: "output", text: "BOARDING PASS  / tactile unlock surface" },
-      { tone: "output", text: "PLAYGROUND CAN / material study" },
-      { tone: "output", text: "INTERACTION LAB / objects in progress" },
-    ],
-  },
-  {
-    name: "stack",
-    description: "show the working stack",
-    execute: () => [
-      { tone: "output", text: "Next.js / React / TypeScript" },
-      { tone: "output", text: "Three.js / R3F / GLSL" },
-      { tone: "output", text: "GSAP / Lenis / Blender / Figma" },
-    ],
-  },
-  {
-    name: "clear",
-    description: "clear terminal history",
-    clearsHistory: true,
-    execute: () => [],
-  },
-] as const;
+const projectNotFound = (identifier: string): TerminalOutput[] => [
+  { tone: "error", text: `project not found: ${identifier}` },
+  { tone: "muted", text: 'run "projects" for available ids' },
+];
 
-const commandsByName = new Map(commandRegistry.map((command) => [command.name, command]));
+const renderProjectDossier = (project: TerminalProject): TerminalOutput[] => [
+  { tone: "accent", text: `PROJECT / ${project.index}` },
+  { tone: "output", text: project.title },
+  { tone: "muted", text: `TYPE        ${project.type}` },
+  { tone: "muted", text: `STATUS      ${project.status}` },
+  { tone: "accent", text: "STACK" },
+  { tone: "output", text: project.stack.join(" / ") },
+  { tone: "accent", text: "FOCUS" },
+  ...project.focus.map((focus) => ({ tone: "output" as const, text: focus })),
+  { tone: "accent", text: "COMMAND" },
+  { tone: "output", text: `open ${project.id}` },
+];
+
+function createCommandRegistry(
+  onProjectOpenRequest?: (projectId: string) => void,
+): readonly TerminalCommand[] {
+  const commands: TerminalCommand[] = [
+    {
+      name: "help",
+      description: "list available commands",
+      execute: () => [
+        { tone: "accent", text: "AVAILABLE COMMANDS" },
+        ...commands.map(({ description, name, usage }) => ({
+          tone: "output" as const,
+          text: `${(usage ?? name).padEnd(20)}${description}`,
+        })),
+      ],
+    },
+    {
+      name: "whoami",
+      description: "identify this operator",
+      execute: () => [
+        { tone: "output", text: "Creative Developer" },
+        { tone: "output", text: "Product-minded Engineer" },
+        { tone: "output", text: "Visual Experimenter" },
+      ],
+    },
+    {
+      name: "projects",
+      description: "show selected projects",
+      execute: () => [
+        { tone: "accent", text: "SELECTED PROJECTS" },
+        ...terminalProjects.flatMap((project) => [
+          { tone: "output" as const, text: `${project.index}  ${project.title}` },
+          { tone: "muted" as const, text: `    ${project.summary}` },
+        ]),
+        { tone: "muted", text: "inspect <id>" },
+      ],
+    },
+    {
+      name: "inspect",
+      description: "view a project dossier",
+      usage: "inspect <project>",
+      execute: ({ args }) => {
+        const [identifier] = args;
+        if (!identifier) {
+          return [{ tone: "error", text: "usage: inspect <project>" }];
+        }
+
+        const project = resolveProject(identifier);
+        return project ? renderProjectDossier(project) : projectNotFound(identifier);
+      },
+    },
+    {
+      name: "open",
+      description: "request a project route",
+      usage: "open <project>",
+      execute: ({ args }) => {
+        const [identifier] = args;
+        if (!identifier) {
+          return [{ tone: "error", text: "usage: open <project>" }];
+        }
+
+        const project = resolveProject(identifier);
+        if (!project) {
+          return projectNotFound(identifier);
+        }
+
+        onProjectOpenRequest?.(project.id);
+
+        return [
+          { tone: "accent", text: `OPEN REQUEST / ${project.title}` },
+          {
+            tone: "muted",
+            text: project.route ?? "route not wired in lab",
+          },
+        ];
+      },
+    },
+    {
+      name: "stack",
+      description: "show the working stack",
+      execute: () => [
+        { tone: "output", text: "Next.js / React / TypeScript" },
+        { tone: "output", text: "Three.js / R3F / GLSL" },
+        { tone: "output", text: "GSAP / Lenis / Blender / Figma" },
+      ],
+    },
+    {
+      name: "clear",
+      description: "clear visible output",
+      clearsHistory: true,
+      execute: () => [],
+    },
+  ];
+
+  return commands;
+}
 
 const initialLines: TerminalLine[] = [
   { id: 0, tone: "accent", text: "PLAYGROUND TERMINAL / 01" },
@@ -86,7 +166,9 @@ const initialLines: TerminalLine[] = [
   { id: 2, tone: "muted", text: 'type "help"' },
 ];
 
-export default function PlaygroundTerminal() {
+export default function PlaygroundTerminal({
+  onProjectOpenRequest,
+}: PlaygroundTerminalProps) {
   const terminalRef = useRef<HTMLElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const outputRef = useRef<HTMLDivElement>(null);
@@ -96,6 +178,14 @@ export default function PlaygroundTerminal() {
   const [submittedCommands, setSubmittedCommands] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const commandRegistry = useMemo(
+    () => createCommandRegistry(onProjectOpenRequest),
+    [onProjectOpenRequest],
+  );
+  const commandsByName = useMemo(
+    () => new Map(commandRegistry.map((command) => [command.name, command])),
+    [commandRegistry],
+  );
 
   useEffect(() => {
     const output = outputRef.current;
@@ -131,13 +221,15 @@ export default function PlaygroundTerminal() {
   }, []);
 
   const submitCommand = useCallback(() => {
-    const value = input.trim();
-    if (!value) return;
+    const rawInput = input;
+    const tokens = rawInput.trim().split(/\s+/);
+    const [commandName = "", ...args] = tokens;
+    if (!commandName) return;
 
-    const [commandName] = value.toLowerCase().split(/\s+/, 1);
-    const command = commandsByName.get(commandName);
+    const normalizedCommandName = commandName.toLowerCase();
+    const command = commandsByName.get(normalizedCommandName);
 
-    setSubmittedCommands((currentHistory) => [...currentHistory, value]);
+    setSubmittedCommands((currentHistory) => [...currentHistory, rawInput]);
     setHistoryIndex(null);
     setInput("");
 
@@ -147,12 +239,15 @@ export default function PlaygroundTerminal() {
     }
 
     appendLines([
-      { tone: "command", text: `${prompt} ${value}` },
-      ...(command?.execute() ?? [
-        { tone: "error", text: `command not found: ${commandName}` },
+      { tone: "command", text: `${prompt} ${rawInput}` },
+      ...(command?.execute({ args, rawInput }) ?? [
+        {
+          tone: "error",
+          text: `command not found: ${normalizedCommandName}`,
+        },
       ]),
     ]);
-  }, [appendLines, input]);
+  }, [appendLines, commandsByName, input]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
