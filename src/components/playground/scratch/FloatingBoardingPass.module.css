@@ -1,7 +1,7 @@
 .presentation {
   position: relative;
   width: min(100%, 52rem);
-  animation: ambient-float 7.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation: ambient-float 6.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
   will-change: transform;
 }
 
@@ -27,7 +27,7 @@
   opacity: 0.46;
   pointer-events: none;
   transform: scaleX(0.9);
-  animation: ambient-shadow 7.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation: ambient-shadow 6.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
   will-change: opacity, transform;
 }
 
@@ -44,42 +44,42 @@
 @keyframes ambient-float {
   0%,
   100% {
-    transform: translate3d(-0.45px, -3.4px, 0);
+    transform: translate3d(-1.55px, -7.2px, 0);
   }
 
   27% {
-    transform: translate3d(0.85px, -0.35px, 0);
+    transform: translate3d(1.7px, -0.7px, 0);
   }
 
   53% {
-    transform: translate3d(0.25px, 3.5px, 0);
+    transform: translate3d(0.45px, 7.8px, 0);
   }
 
   78% {
-    transform: translate3d(-0.95px, 1.1px, 0);
+    transform: translate3d(-1.8px, 2.35px, 0);
   }
 }
 
 @keyframes ambient-shadow {
   0%,
   100% {
-    opacity: 0.31;
-    transform: scaleX(1.08);
+    opacity: 0.28;
+    transform: scaleX(1.16);
   }
 
   27% {
-    opacity: 0.39;
-    transform: scaleX(1);
+    opacity: 0.42;
+    transform: scaleX(1.01);
   }
 
   53% {
-    opacity: 0.53;
-    transform: scaleX(0.87);
+    opacity: 0.58;
+    transform: scaleX(0.84);
   }
 
   78% {
-    opacity: 0.45;
-    transform: scaleX(0.94);
+    opacity: 0.47;
+    transform: scaleX(0.93);
   }
 }
 
@@ -99,18 +99,18 @@
 @keyframes ambient-float-coarse {
   0%,
   100% {
-    transform: translate3d(-0.25px, -2px, 0);
+    transform: translate3d(-1.05px, -4.7px, 0);
   }
 
   27% {
-    transform: translate3d(0.45px, -0.2px, 0);
+    transform: translate3d(1.15px, -0.45px, 0);
   }
 
   53% {
-    transform: translate3d(0.15px, 2.1px, 0);
+    transform: translate3d(0.3px, 5.2px, 0);
   }
 
   78% {
-    transform: translate3d(-0.5px, 0.65px, 0);
+    transform: translate3d(-1.2px, 1.55px, 0);
   }
 }
