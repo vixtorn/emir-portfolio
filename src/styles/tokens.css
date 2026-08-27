@@ -35,6 +35,15 @@
   --tracking-normal: 0;
   --tracking-meta: 0.08em;
 
+  --duration-micro: 200ms;
+  --duration-ui: 360ms;
+  --duration-physical: 700ms;
+  --duration-cinematic: 1400ms;
+
+  --ease-ui: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-cinematic: cubic-bezier(0.76, 0, 0.24, 1);
+
   --layout-columns: 12;
   --page-gutter: clamp(2rem, 4vw, 4rem);
   --content-width-full: 100%;

@@ -4,6 +4,8 @@ import {
   Instrument_Sans,
   Instrument_Serif,
 } from "next/font/google";
+import MotionProvider from "@/components/providers/MotionProvider";
+import GpuSceneProvider from "@/components/providers/GpuSceneProvider";
 import "./globals.css";
 
 const instrumentSans = Instrument_Sans({
@@ -38,7 +40,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       lang="en"
       className={`${instrumentSans.variable} ${instrumentSerif.variable} ${ibmPlexMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <MotionProvider>
+          <GpuSceneProvider>{children}</GpuSceneProvider>
+        </MotionProvider>
+      </body>
     </html>
   );
 }
