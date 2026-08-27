@@ -37,6 +37,7 @@
   width: 100%;
   height: auto;
   filter: drop-shadow(0 1.2rem 2.4rem rgb(0 0 0 / 35%));
+  pointer-events: none;
 }
 
 .pass:hover .image {
@@ -84,6 +85,12 @@
   pointer-events: none;
   transform: translateZ(0.1rem);
   will-change: background, filter, transform;
+}
+
+.foil,
+.foil *,
+.scratchReveal {
+  pointer-events: none;
 }
 
 .foil::before,
@@ -196,7 +203,8 @@
 .scratchSurface {
   z-index: 3;
   display: block;
-  cursor: cell;
+  cursor: crosshair;
+  pointer-events: auto;
   touch-action: none;
   user-select: none;
 }

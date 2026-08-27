@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import styles from "./BoardingPassFoil.module.css";
+import { scratchInteractionGuard } from "./scratch-config";
 import ScratchSurface from "./ScratchSurface";
 
 const boardingPassSrc = "/images/playground/boarding-pass/boarding-pass-v1.png";
@@ -16,11 +17,33 @@ type FoilMotion = {
   ry: number;
 };
 
+type ScratchGuardBounds = {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+};
+
 type BoardingPassFoilProps = {
   onUnlock?: () => void;
   onUnlockedChange?: (unlocked: boolean) => void;
   resetKey?: number;
 };
+
+function isWithinScratchGuard(
+  normalizedX: number,
+  normalizedY: number,
+  guard: ScratchGuardBounds,
+) {
+  const { width, height } = scratchInteractionGuard.sourceSize;
+
+  return (
+    normalizedX >= guard.left / width &&
+    normalizedX <= guard.right / width &&
+    normalizedY >= guard.top / height &&
+    normalizedY <= guard.bottom / height
+  );
+}
 
 function usePrefersReducedMotion() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -47,7 +70,12 @@ export default function BoardingPassFoil({
   const frameRef = useRef<number | null>(null);
   const currentMotionRef = useRef<FoilMotion>({ mx: 50, my: 50, rx: 0, ry: 0 });
   const targetMotionRef = useRef<FoilMotion>({ mx: 50, my: 50, rx: 0, ry: 0 });
+  const scratchGuardActiveRef = useRef(false);
+  const scratchingRef = useRef(false);
+  const [isScratchGuardActive, setIsScratchGuardActive] = useState(false);
+  const [isScratching, setIsScratching] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
+  const scratchInteractionLocked = isScratchGuardActive || isScratching;
 
   const applyMotion = useCallback(() => {
     const pass = passRef.current;
@@ -119,6 +147,46 @@ export default function BoardingPassFoil({
     applyMotion();
   }, [applyMotion, prefersReducedMotion]);
 
+  const neutralizeScratchMotion = useCallback(() => {
+    if (frameRef.current !== null) {
+      cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
+    }
+
+    currentMotionRef.current.rx = 0;
+    currentMotionRef.current.ry = 0;
+    targetMotionRef.current = {
+      ...currentMotionRef.current,
+      rx: 0,
+      ry: 0,
+    };
+    applyMotion();
+  }, [applyMotion]);
+
+  useLayoutEffect(() => {
+    if (!scratchInteractionLocked) return;
+
+    neutralizeScratchMotion();
+  }, [neutralizeScratchMotion, scratchInteractionLocked]);
+
+  const setScratchGuardActive = useCallback((isActive: boolean) => {
+    if (scratchGuardActiveRef.current === isActive) return;
+
+    scratchGuardActiveRef.current = isActive;
+    setIsScratchGuardActive(isActive);
+    if (isActive) {
+      neutralizeScratchMotion();
+    }
+  }, [neutralizeScratchMotion]);
+
+  const handleScratchActiveChange = useCallback((isActive: boolean) => {
+    scratchingRef.current = isActive;
+    setIsScratching(isActive);
+    if (isActive) {
+      neutralizeScratchMotion();
+    }
+  }, [neutralizeScratchMotion]);
+
   useEffect(
     () => () => {
       if (frameRef.current !== null) {
@@ -134,7 +202,9 @@ export default function BoardingPassFoil({
       className={styles.pass}
       data-reduced-motion={prefersReducedMotion}
       onPointerLeave={() => {
-        if (prefersReducedMotion) return;
+        if (prefersReducedMotion || scratchingRef.current) return;
+
+        setScratchGuardActive(false);
 
         targetMotionRef.current = { mx: 50, my: 50, rx: 0, ry: 0 };
         queueMotion();
@@ -142,9 +212,29 @@ export default function BoardingPassFoil({
       onPointerMove={(event) => {
         if (prefersReducedMotion) return;
 
-        const bounds = event.currentTarget.getBoundingClientRect();
-        const mx = ((event.clientX - bounds.left) / bounds.width) * 100;
-        const my = ((event.clientY - bounds.top) / bounds.height) * 100;
+        const bounds = passRef.current?.getBoundingClientRect();
+        if (!bounds) return;
+
+        const normalizedX = (event.clientX - bounds.left) / bounds.width;
+        const normalizedY = (event.clientY - bounds.top) / bounds.height;
+        const guard = scratchGuardActiveRef.current
+          ? scratchInteractionGuard.exit
+          : scratchInteractionGuard.enter;
+        const isWithinGuard = isWithinScratchGuard(normalizedX, normalizedY, guard);
+
+        if (isWithinGuard) {
+          setScratchGuardActive(true);
+          return;
+        }
+
+        if (!scratchingRef.current && scratchGuardActiveRef.current) {
+          setScratchGuardActive(false);
+        }
+
+        if (scratchGuardActiveRef.current || scratchingRef.current) return;
+
+        const mx = normalizedX * 100;
+        const my = normalizedY * 100;
 
         targetMotionRef.current = {
           mx: Math.min(100, Math.max(0, mx)),
@@ -175,6 +265,7 @@ export default function BoardingPassFoil({
         <ScratchSurface
           className={styles.scratchSurface}
           resetKey={resetKey}
+          onScratchActiveChange={handleScratchActiveChange}
           onUnlock={onUnlock}
           onUnlockedChange={onUnlockedChange}
         />
