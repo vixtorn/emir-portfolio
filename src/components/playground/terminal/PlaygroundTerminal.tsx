@@ -15,6 +15,7 @@ import {
   terminalProjects,
   type TerminalProject,
 } from "./project-catalog";
+import { useTerminalDevice } from "./TerminalDevice";
 import styles from "./PlaygroundTerminal.module.css";
 
 type TerminalLineTone = "accent" | "command" | "error" | "muted" | "output";
@@ -169,6 +170,8 @@ const initialLines: TerminalLine[] = [
 export default function PlaygroundTerminal({
   onProjectOpenRequest,
 }: PlaygroundTerminalProps) {
+  const terminalDevice = useTerminalDevice();
+  const isPowered = terminalDevice?.isPowered ?? true;
   const terminalRef = useRef<HTMLElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const outputRef = useRef<HTMLDivElement>(null);
@@ -206,9 +209,17 @@ export default function PlaygroundTerminal({
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, []);
 
+  useEffect(() => {
+    if (!isPowered) {
+      inputRef.current?.blur();
+    }
+  }, [isPowered]);
+
   const focusInput = useCallback(() => {
-    inputRef.current?.focus();
-  }, []);
+    if (isPowered) {
+      inputRef.current?.focus();
+    }
+  }, [isPowered]);
 
   const appendLines = useCallback((newLines: TerminalOutput[]) => {
     setLines((currentLines) => [
@@ -300,10 +311,9 @@ export default function PlaygroundTerminal({
       aria-label="Playground terminal"
       className={styles.terminal}
       data-focused={isFocused || undefined}
+      data-powered={isPowered || undefined}
       onPointerDown={focusInput}
     >
-      <div aria-hidden="true" className={styles.cornerMark} />
-      <div aria-hidden="true" className={styles.statusLed} />
       <div className={styles.bezel}>
         <header className={styles.header}>
           <span>LAB TERMINAL / 01</span>
@@ -341,9 +351,16 @@ export default function PlaygroundTerminal({
               autoComplete="off"
               autoCorrect="off"
               className={styles.input}
-              onBlur={() => setIsFocused(false)}
+              disabled={!isPowered}
+              onBlur={() => {
+                setIsFocused(false);
+                terminalDevice?.setTerminalFocused(false);
+              }}
               onChange={(event) => setInput(event.target.value)}
-              onFocus={() => setIsFocused(true)}
+              onFocus={() => {
+                setIsFocused(true);
+                terminalDevice?.setTerminalFocused(true);
+              }}
               onKeyDown={handleKeyDown}
               spellCheck={false}
               value={input}
