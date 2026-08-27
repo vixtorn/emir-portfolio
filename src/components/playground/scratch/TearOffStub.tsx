@@ -9,6 +9,7 @@ type Point = { x: number; y: number };
 
 type TearOffStubProps = {
   onDragChange?: (isDragging: boolean) => void;
+  onHoverChange?: (isHovering: boolean) => void;
   onTear?: () => void;
 };
 
@@ -19,6 +20,7 @@ const toPercent = (value: number, total: number) => `${(value / total) * 100}%`;
 
 export default function TearOffStub({
   onDragChange,
+  onHoverChange,
   onTear,
 }: TearOffStubProps) {
   const stubRef = useRef<HTMLDivElement>(null);
@@ -43,12 +45,12 @@ export default function TearOffStub({
   const tornRef = useRef(false);
   const tearFiredRef = useRef(false);
   const frameRef = useRef<number | null>(null);
-  const callbacksRef = useRef({ onDragChange, onTear });
+  const callbacksRef = useRef({ onDragChange, onHoverChange, onTear });
   const [isTorn, setIsTorn] = useState(false);
 
   useEffect(() => {
-    callbacksRef.current = { onDragChange, onTear };
-  }, [onDragChange, onTear]);
+    callbacksRef.current = { onDragChange, onHoverChange, onTear };
+  }, [onDragChange, onHoverChange, onTear]);
 
   const applyTransform = useCallback((x: number, y: number, rotation: number) => {
     const stub = stubRef.current;
@@ -171,6 +173,16 @@ export default function TearOffStub({
           top: toPercent(hitArea.top, sourceHeight),
           width: toPercent(hitArea.right - hitArea.left, stubSourceWidth),
           height: toPercent(hitArea.bottom - hitArea.top, sourceHeight),
+        }}
+        onPointerEnter={(event) => {
+          event.stopPropagation();
+          callbacksRef.current.onHoverChange?.(true);
+        }}
+        onPointerLeave={(event) => {
+          event.stopPropagation();
+          if (pointerRef.current.id === null) {
+            callbacksRef.current.onHoverChange?.(false);
+          }
         }}
         onPointerCancel={(event) => {
           event.stopPropagation();
