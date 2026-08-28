@@ -2,6 +2,7 @@ import styles from "./SelectedWorkSection.module.css";
 
 const technologies = ["NEXT.JS", "WEBGL", "MOTION", "UI SYSTEMS"];
 const neoDexTechnologies = ["NEXT.JS", "TYPESCRIPT", "REACT THREE FIBER", "THREE.JS"];
+const sneakerTechnologies = ["NEXT.JS", "REACT THREE FIBER", "THREE.JS", "REAL-TIME MATERIALS"];
 
 function CncMediaPlaceholder() {
   return (
@@ -51,6 +52,32 @@ function NeoDexMediaPlaceholder() {
       <div className={styles.neoDexMediaFooter}>
         <span>SPECIMEN VIEW</span>
         <span>INTERFACE PREVIEW</span>
+      </div>
+    </div>
+  );
+}
+
+function SneakerMediaPlaceholder() {
+  return (
+    <div
+      className={styles.sneakerMedia}
+      role="img"
+      aria-label="Abstract material-study media placeholder for Sneaker Configurator"
+    >
+      <div className={styles.sneakerMediaHeader}>
+        <span>MATERIAL STUDY / 03</span>
+        <span>SURFACE / ACTIVE</span>
+      </div>
+      <div className={styles.sneakerReferenceFrame} aria-hidden="true" />
+      <div className={styles.sneakerSwatches} aria-label="Abstract material swatches">
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className={styles.sneakerMediaFooter}>
+        <span>PRODUCT VIEW</span>
+        <span>REAL-TIME MATERIAL PREVIEW</span>
       </div>
     </div>
   );
@@ -121,6 +148,43 @@ export default function SelectedWorkSection() {
             </div>
 
             <a className={styles.neoDexCaseStudyLink} href="#work" aria-label="NeoDex case study coming soon">
+              <span>VIEW CASE STUDY</span>
+              <span className={styles.arrow} aria-hidden="true">
+                ↗
+              </span>
+            </a>
+          </div>
+        </article>
+
+        <article className={styles.sneakerProject} aria-labelledby="sneaker-title">
+          <header className={styles.sneakerHeader}>
+            <p className="type-meta">03 / PRODUCT EXPERIENCE</p>
+            <p className={`${styles.projectCount} type-meta`}>03 / 04</p>
+          </header>
+
+          <div className={styles.sneakerComposition}>
+            <div className={styles.sneakerTitleBlock}>
+              <p className={`${styles.sneakerCategory} type-meta`}>PRODUCT EXPERIENCE / 2026</p>
+              <h2 id="sneaker-title" className={styles.sneakerTitle}>
+                SNEAKER <span>CONFIGURATOR</span>
+              </h2>
+            </div>
+
+            <SneakerMediaPlaceholder />
+
+            <div className={styles.sneakerContent}>
+              <p className={styles.sneakerDescription}>
+                An interactive product configurator exploring real-time material, color and detail
+                customization in 3D.
+              </p>
+              <ul className={styles.sneakerTechnologyList} aria-label="Technologies used">
+                {sneakerTechnologies.map((technology) => (
+                  <li key={technology}>{technology}</li>
+                ))}
+              </ul>
+            </div>
+
+            <a className={styles.sneakerCaseStudyLink} href="#work" aria-label="Sneaker Configurator case study coming soon">
               <span>VIEW CASE STUDY</span>
               <span className={styles.arrow} aria-hidden="true">
                 ↗

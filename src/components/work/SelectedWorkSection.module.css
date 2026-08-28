@@ -73,21 +73,59 @@
 .neoDexCaseStudyLink:hover { color: var(--color-accent); }
 .neoDexCaseStudyLink:hover .arrow { transform: translate(0.25rem, -0.25rem); }
 
+.sneakerProject { margin-top: clamp(9rem, 16vw, 17rem); padding-top: clamp(1.25rem, 2vw, 2rem); border-top: 1px solid rgb(23 22 20 / 18%); }
+.sneakerHeader { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: clamp(2.5rem, 5vw, 5.5rem); }
+.sneakerHeader p { margin: 0; }
+.sneakerComposition { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(0.75rem, 1.6vw, 1.8rem); row-gap: clamp(1.75rem, 4vw, 4.5rem); align-items: start; }
+.sneakerTitleBlock { position: relative; z-index: 1; grid-column: 1 / span 9; grid-row: 1; }
+.sneakerCategory { margin: 0 0 clamp(1rem, 2vw, 1.75rem); color: var(--color-accent); }
+.sneakerTitle { max-width: 8ch; margin: 0; font-family: var(--font-display); font-size: clamp(4.5rem, 9.25vw, 10.75rem); font-synthesis: none; font-weight: 400; letter-spacing: -0.07em; line-height: 0.75; }
+.sneakerTitle span { display: block; margin-top: 0.08em; margin-left: clamp(1.25rem, 4.25vw, 5rem); font-family: var(--font-primary); font-size: 0.32em; font-weight: 500; letter-spacing: -0.07em; line-height: 0.82; }
+.sneakerMedia { position: relative; z-index: 0; grid-column: 7 / span 4; grid-row: 1 / span 3; min-height: clamp(34rem, 49vw, 47rem); margin-top: clamp(4rem, 9vw, 9rem); overflow: hidden; border: 1px solid rgb(23 22 20 / 72%); background: #20201e; box-shadow: inset 0 0 0 1px rgb(241 238 231 / 6%); color: var(--color-paper); }
+.sneakerMedia::before, .sneakerMedia::after { position: absolute; content: ""; pointer-events: none; }
+.sneakerMedia::before { top: 16%; right: 12%; left: 12%; height: 1px; background: rgb(241 238 231 / 38%); box-shadow: 0 11.5rem 0 rgb(241 238 231 / 24%), 0 23rem 0 rgb(241 238 231 / 14%); }
+.sneakerMedia::after { top: 15%; right: 12%; width: 0.42rem; aspect-ratio: 1; background: var(--color-accent); }
+.sneakerMediaHeader, .sneakerMediaFooter { position: absolute; right: 1rem; left: 1rem; display: flex; justify-content: space-between; gap: 0.75rem; font-family: var(--font-technical); font-size: var(--text-micro); letter-spacing: var(--tracking-meta); line-height: 1.2; }
+.sneakerMediaHeader { top: 1rem; color: var(--color-silver); }
+.sneakerMediaFooter { bottom: 1rem; }
+.sneakerMediaFooter span:last-child { max-width: 11ch; color: var(--color-silver); text-align: right; }
+.sneakerReferenceFrame { position: absolute; top: 28%; right: 18%; left: 18%; height: 46%; border: 1px solid rgb(241 238 231 / 48%); }
+.sneakerReferenceFrame::before, .sneakerReferenceFrame::after { position: absolute; content: ""; }
+.sneakerReferenceFrame::before { top: 12%; right: 11%; bottom: 12%; left: 11%; border: 1px solid rgb(184 186 183 / 32%); transform: translate(8%, -8%); }
+.sneakerReferenceFrame::after { right: -0.22rem; bottom: -0.22rem; width: 0.42rem; aspect-ratio: 1; background: var(--color-accent); }
+.sneakerSwatches { position: absolute; right: 1rem; bottom: 5.2rem; display: grid; grid-template-columns: repeat(4, 0.78rem); gap: 0.38rem; }
+.sneakerSwatches span { aspect-ratio: 1; border: 1px solid rgb(241 238 231 / 52%); background: #b9b4a8; }
+.sneakerSwatches span:nth-child(2) { background: #767870; }
+.sneakerSwatches span:nth-child(3) { background: var(--color-accent); }
+.sneakerSwatches span:nth-child(4) { background: #121210; }
+.sneakerContent { grid-column: 1 / span 4; grid-row: 2; align-self: end; padding-bottom: clamp(1rem, 4vw, 5rem); }
+.sneakerDescription { max-width: 24ch; margin: 0; font-size: clamp(1.1rem, 1.45vw, 1.45rem); line-height: 1.4; }
+.sneakerTechnologyList { display: flex; flex-wrap: wrap; gap: 0.55rem 1rem; margin: clamp(1.75rem, 3vw, 2.75rem) 0 0; padding: 0; color: var(--color-muted); font-family: var(--font-technical); font-size: var(--text-micro); letter-spacing: var(--tracking-meta); list-style: none; }
+.sneakerTechnologyList li::before { margin-right: 0.45rem; color: var(--color-accent); content: "+"; }
+.sneakerCaseStudyLink { display: inline-flex; grid-column: 1 / span 4; grid-row: 3; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; border-top: 1px solid var(--color-ink); padding-top: 0.85rem; font-family: var(--font-technical); font-size: var(--text-meta); letter-spacing: var(--tracking-meta); text-decoration: none; transition: color var(--duration-ui) var(--ease-ui); }
+.sneakerCaseStudyLink:hover { color: var(--color-accent); }
+.sneakerCaseStudyLink:hover .arrow { transform: translate(0.25rem, -0.25rem); }
+
 @media (prefers-reduced-motion: no-preference) {
-  .titleBlock, .media, .details, .caseStudyLink, .neoDexMedia, .neoDexContent, .neoDexCaseStudyLink { animation: work-enter 900ms var(--ease-soft) both; }
+  .titleBlock, .media, .details, .caseStudyLink, .neoDexMedia, .neoDexContent, .neoDexCaseStudyLink, .sneakerTitleBlock, .sneakerMedia, .sneakerContent, .sneakerCaseStudyLink { animation: work-enter 900ms var(--ease-soft) both; }
   .media { animation-delay: 100ms; transition: transform var(--duration-physical) var(--ease-soft); }
   .details { animation-delay: 180ms; }
   .caseStudyLink { animation-delay: 240ms; }
   .neoDexMedia { animation-delay: 80ms; transition: transform var(--duration-physical) var(--ease-soft); }
   .neoDexContent { animation-delay: 160ms; }
   .neoDexCaseStudyLink { animation-delay: 240ms; }
+  .sneakerTitleBlock { animation-delay: 80ms; }
+  .sneakerMedia { animation-delay: 140ms; transition: transform var(--duration-physical) var(--ease-soft); }
+  .sneakerContent { animation-delay: 190ms; }
+  .sneakerCaseStudyLink { animation-delay: 250ms; }
   .media:hover { transform: translateY(-0.35rem); }
   .neoDexMedia:hover { transform: translateY(-0.35rem); }
+  .sneakerMedia:hover { transform: translateY(-0.35rem); }
 }
 
 @keyframes work-enter { from { opacity: 0; transform: translateY(1.25rem); } to { opacity: 1; transform: translateY(0); } }
 
-@media (max-width: 980px) { .titleBlock { grid-column: 1 / span 7; } .media { grid-column: 5 / -1; } .details { grid-column: 1 / span 4; } .caseStudyLink { grid-column: 8 / -1; } .neoDexMedia { grid-column: 1 / span 5; } .neoDexContent, .neoDexCaseStudyLink { grid-column: 7 / -1; } }
+@media (max-width: 980px) { .titleBlock { grid-column: 1 / span 7; } .media { grid-column: 5 / -1; } .details { grid-column: 1 / span 4; } .caseStudyLink { grid-column: 8 / -1; } .neoDexMedia { grid-column: 1 / span 5; } .neoDexContent, .neoDexCaseStudyLink { grid-column: 7 / -1; } .sneakerTitleBlock { grid-column: 1 / span 8; } .sneakerMedia { grid-column: 7 / span 4; } .sneakerContent, .sneakerCaseStudyLink { grid-column: 1 / span 4; } }
 
 @media (max-width: 680px) {
   .section { min-height: auto; }
@@ -108,4 +146,11 @@
   .neoDexTitle { font-size: clamp(4rem, 20vw, 6rem); }
   .neoDexDescription { margin-top: 2rem; }
   .neoDexCaseStudyLink { margin-top: 0.5rem; }
+  .sneakerProject { margin-top: 7rem; }
+  .sneakerHeader { margin-bottom: 3.25rem; }
+  .sneakerComposition { display: flex; flex-direction: column; align-items: stretch; gap: 2.25rem; }
+  .sneakerTitle { font-size: clamp(4rem, 20vw, 6rem); }
+  .sneakerMedia { width: min(100%, 26rem); min-height: min(145vw, 37rem); margin: 0 auto; }
+  .sneakerContent { padding-bottom: 0; }
+  .sneakerCaseStudyLink { margin-top: 0.5rem; }
 }
