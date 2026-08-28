@@ -1,0 +1,19 @@
+.spike {
+  position: relative;
+  width: min(100%, 58rem);
+  height: clamp(28rem, 62svh, 50rem);
+  overflow: hidden;
+  background: var(--surface-dark);
+}
+
+.canvas,
+.canvas canvas {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 680px) {
+  .spike {
+    height: min(62svh, 38rem);
+  }
+}

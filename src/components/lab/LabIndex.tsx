@@ -11,6 +11,7 @@ const experiments = [
   { number: "06", href: "/__lab/signpost", label: "SIGNPOST" },
   { number: "07", href: "/__lab/terminal", label: "PLAYGROUND TERMINAL" },
   { number: "08", href: "/__lab/tamagotchi", label: "PLAYGROUND TAMAGOTCHI" },
+  { number: "09", href: "/__lab/keychain", label: "PLAYGROUND KEYCHAIN" },
 ];
 
 export default function LabIndex() {
