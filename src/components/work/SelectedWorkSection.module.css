@@ -82,8 +82,6 @@
 .sneakerTitle { max-width: 8ch; margin: 0; font-family: var(--font-display); font-size: clamp(4.5rem, 9.25vw, 10.75rem); font-synthesis: none; font-weight: 400; letter-spacing: -0.07em; line-height: 0.75; }
 .sneakerTitle span { display: block; margin-top: 0.08em; margin-left: clamp(1.25rem, 4.25vw, 5rem); font-family: var(--font-primary); font-size: 0.32em; font-weight: 500; letter-spacing: -0.07em; line-height: 0.82; }
 .sneakerMedia { position: relative; z-index: 0; grid-column: 7 / span 4; grid-row: 1 / span 3; min-height: clamp(34rem, 49vw, 47rem); margin-top: clamp(4rem, 9vw, 9rem); overflow: hidden; border: 1px solid rgb(23 22 20 / 72%); background: #20201e; box-shadow: inset 0 0 0 1px rgb(241 238 231 / 6%); color: var(--color-paper); }
-.sneakerMedia::after { position: absolute; z-index: 2; content: ""; pointer-events: none; }
-.sneakerMedia::after { top: 15%; right: 12%; width: 0.42rem; aspect-ratio: 1; background: var(--color-accent); }
 .sneakerContent { grid-column: 1 / span 4; grid-row: 2; align-self: end; padding-bottom: clamp(1rem, 4vw, 5rem); }
 .sneakerDescription { max-width: 24ch; margin: 0; font-size: clamp(1.1rem, 1.45vw, 1.45rem); line-height: 1.4; }
 .sneakerTechnologyList { display: flex; flex-wrap: wrap; gap: 0.55rem 1rem; margin: clamp(1.75rem, 3vw, 2.75rem) 0 0; padding: 0; color: var(--color-muted); font-family: var(--font-technical); font-size: var(--text-micro); letter-spacing: var(--tracking-meta); list-style: none; }

@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
-import { Box3, Color, Group, MathUtils, type Material, type Mesh, Vector3 } from "three";
+import { Box3, Color, Group, type Material, type Mesh, Vector3 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 import { useGpuSceneActivity } from "@/hooks/useGpuSceneActivity";
@@ -13,10 +13,18 @@ import styles from "./SneakerPreview.module.css";
 const sneakerPreview = {
   camera: [1.35, 0.7, 2.1] as const,
   targetModelSize: 1.2,
+
+  basePositionX: -1.35,
+
   baseRotation: [-0.08, -0.62, 0.04] as const,
-  idleAngularVelocity: (Math.PI * 2) / 22,
-  floatAmplitude: 0.035,
-  floatAngularVelocity: (Math.PI * 2) / 4.8,
+  floatAmplitude: 0.052,
+  floatAngularVelocity: (Math.PI * 2) / 5.2,
+  driftAmplitude: 0.018,
+  driftAngularVelocity: (Math.PI * 2) / 7.1,
+  pitchAmplitude: (0.75 * Math.PI) / 180,
+  pitchAngularVelocity: (Math.PI * 2) / 6.3,
+  rollAmplitude: (0.55 * Math.PI) / 180,
+  rollAngularVelocity: (Math.PI * 2) / 8.4,
 } as const;
 
 const upperSwatches = [
@@ -48,16 +56,13 @@ function supportsColor(material: Material): material is Material & { color: Colo
 
 function SneakerModel({
   upperColor,
-  isHovered,
   prefersReducedMotion,
 }: {
   upperColor: string;
-  isHovered: boolean;
   prefersReducedMotion: boolean;
 }) {
   const gltf = useLoader(GLTFLoader, "/models/work/sneaker/sneaker-v1.glb");
   const motionRef = useRef<Group>(null);
-  const velocityRef = useRef(sneakerPreview.idleAngularVelocity);
   const { invalidate } = useThree();
 
   const model = useMemo(() => {
@@ -102,24 +107,31 @@ function SneakerModel({
     invalidate();
   }, [invalidate, model, upperColor]);
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (!motionRef.current) return;
 
-    if (prefersReducedMotion) {
-      motionRef.current.position.y = 0;
-      motionRef.current.rotation.set(...sneakerPreview.baseRotation);
-      velocityRef.current = 0;
-      return;
-    }
+  if (prefersReducedMotion) {
+  motionRef.current.position.set(sneakerPreview.basePositionX, 0, 0);
+  motionRef.current.rotation.set(...sneakerPreview.baseRotation);
+  return;
+}
 
-    const targetVelocity = isHovered ? sneakerPreview.idleAngularVelocity * 0.12 : sneakerPreview.idleAngularVelocity;
-    velocityRef.current = MathUtils.damp(velocityRef.current, targetVelocity, 4.5, delta);
-    motionRef.current.rotation.y += velocityRef.current * delta;
-    motionRef.current.position.y = MathUtils.damp(
-      motionRef.current.position.y,
-      Math.sin(state.clock.elapsedTime * sneakerPreview.floatAngularVelocity) * sneakerPreview.floatAmplitude,
-      8,
-      delta,
+const elapsedTime = state.clock.elapsedTime;
+
+motionRef.current.position.set(
+  sneakerPreview.basePositionX +
+    Math.sin(elapsedTime * sneakerPreview.driftAngularVelocity + 0.9) *
+      sneakerPreview.driftAmplitude,
+  Math.sin(elapsedTime * sneakerPreview.floatAngularVelocity) *
+    sneakerPreview.floatAmplitude,
+  0,
+);
+    motionRef.current.rotation.set(
+      sneakerPreview.baseRotation[0] +
+        Math.sin(elapsedTime * sneakerPreview.pitchAngularVelocity + 0.35) * sneakerPreview.pitchAmplitude,
+      sneakerPreview.baseRotation[1],
+      sneakerPreview.baseRotation[2] +
+        Math.sin(elapsedTime * sneakerPreview.rollAngularVelocity + 1.15) * sneakerPreview.rollAmplitude,
     );
   });
 
@@ -132,11 +144,9 @@ function SneakerModel({
 
 function SneakerCanvas({
   upperColor,
-  isHovered,
   prefersReducedMotion,
 }: {
   upperColor: string;
-  isHovered: boolean;
   prefersReducedMotion: boolean;
 }) {
   const elementRef = useRef<HTMLDivElement>(null);
@@ -161,7 +171,6 @@ function SneakerCanvas({
         <Suspense fallback={null}>
           <SneakerModel
             upperColor={upperColor}
-            isHovered={isHovered}
             prefersReducedMotion={prefersReducedMotion}
           />
         </Suspense>
@@ -172,19 +181,12 @@ function SneakerCanvas({
 
 export default function SneakerPreview({ className }: { className: string }) {
   const [upperColor, setUpperColor] = useState<string>(upperSwatches[2].color);
-  const [isHovered, setIsHovered] = useState(false);
   const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   return (
-    <div
-      className={`${className} ${styles.preview}`}
-      aria-label="Real-time sneaker material study preview"
-      onPointerEnter={() => setIsHovered(true)}
-      onPointerLeave={() => setIsHovered(false)}
-    >
+    <div className={`${className} ${styles.preview}`} aria-label="Real-time sneaker material study preview">
       <SneakerCanvas
         upperColor={upperColor}
-        isHovered={isHovered}
         prefersReducedMotion={prefersReducedMotion}
       />
       <div className={styles.header}>
