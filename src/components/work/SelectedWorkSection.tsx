@@ -1,4 +1,5 @@
 import styles from "./SelectedWorkSection.module.css";
+import SneakerPreview from "./SneakerPreview";
 
 const technologies = ["NEXT.JS", "WEBGL", "MOTION", "UI SYSTEMS"];
 const neoDexTechnologies = ["NEXT.JS", "TYPESCRIPT", "REACT THREE FIBER", "THREE.JS"];
@@ -52,32 +53,6 @@ function NeoDexMediaPlaceholder() {
       <div className={styles.neoDexMediaFooter}>
         <span>SPECIMEN VIEW</span>
         <span>INTERFACE PREVIEW</span>
-      </div>
-    </div>
-  );
-}
-
-function SneakerMediaPlaceholder() {
-  return (
-    <div
-      className={styles.sneakerMedia}
-      role="img"
-      aria-label="Abstract material-study media placeholder for Sneaker Configurator"
-    >
-      <div className={styles.sneakerMediaHeader}>
-        <span>MATERIAL STUDY / 03</span>
-        <span>SURFACE / ACTIVE</span>
-      </div>
-      <div className={styles.sneakerReferenceFrame} aria-hidden="true" />
-      <div className={styles.sneakerSwatches} aria-label="Abstract material swatches">
-        <span />
-        <span />
-        <span />
-        <span />
-      </div>
-      <div className={styles.sneakerMediaFooter}>
-        <span>PRODUCT VIEW</span>
-        <span>REAL-TIME MATERIAL PREVIEW</span>
       </div>
     </div>
   );
@@ -170,7 +145,7 @@ export default function SelectedWorkSection() {
               </h2>
             </div>
 
-            <SneakerMediaPlaceholder />
+            <SneakerPreview className={styles.sneakerMedia} />
 
             <div className={styles.sneakerContent}>
               <p className={styles.sneakerDescription}>

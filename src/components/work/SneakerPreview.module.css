@@ -1,0 +1,80 @@
+.preview {
+  cursor: default;
+}
+
+.canvasSurface {
+  position: absolute;
+  z-index: 1;
+  inset: 8% 0 10%;
+  pointer-events: none;
+}
+
+.canvasSurface canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.header,
+.footer {
+  position: absolute;
+  z-index: 2;
+  right: 1rem;
+  left: 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  pointer-events: none;
+  font-family: var(--font-technical);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-meta);
+  line-height: 1.2;
+}
+
+.header {
+  top: 1rem;
+  color: var(--color-silver);
+}
+
+.footer {
+  bottom: 1rem;
+  color: var(--color-paper);
+}
+
+.footer span:last-child {
+  max-width: 11ch;
+  color: var(--color-silver);
+  text-align: right;
+}
+
+.swatches {
+  position: absolute;
+  z-index: 3;
+  right: 1rem;
+  bottom: 5.2rem;
+  display: grid;
+  grid-template-columns: repeat(4, 0.78rem);
+  gap: 0.38rem;
+}
+
+.swatch {
+  width: 0.78rem;
+  aspect-ratio: 1;
+  border: 1px solid rgb(241 238 231 / 52%);
+  padding: 0;
+  background: var(--swatch-color);
+  cursor: pointer;
+  transition: transform var(--duration-micro) var(--ease-ui), border-color var(--duration-micro) var(--ease-ui);
+}
+
+.swatch:hover,
+.swatch[aria-pressed="true"] {
+  border-color: var(--color-paper);
+  transform: scale(1.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swatch {
+    transition: none;
+  }
+}
