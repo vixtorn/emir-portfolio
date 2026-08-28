@@ -1,354 +1,58 @@
 "use client";
 
-import {
-  Suspense,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-
-import {
-  Canvas,
-  useFrame,
-  type ThreeEvent,
-} from "@react-three/fiber";
-
-import {
-  Group,
-  MathUtils,
-} from "three";
+import { useEffect, useRef, useState } from "react";
+import { Canvas } from "@react-three/fiber";
 
 import { useGpuSceneActivity } from "@/hooks/useGpuSceneActivity";
 import { gpuSceneConfig } from "@/lib/performance/gpu-config";
 
 import StudioEnvironment from "../can/StudioEnvironment";
-
-import KeychainModel, {
-  type KeychainBounds,
-} from "./KeychainModel";
-
 import { keychainConfig } from "./keychain-config";
+import KeychainPendulum from "./KeychainPendulum";
 import styles from "./KeychainSpike.module.css";
 
-
-function Pendulum({
-  finePointer,
-  reducedMotion,
-}: {
-  finePointer: boolean;
-  reducedMotion: boolean;
-}) {
-  const ambientRef = useRef<Group>(null);
-  const swingRef = useRef<Group>(null);
-  const twistRef = useRef<Group>(null);
-
-  const [bounds, setBounds] =
-    useState<KeychainBounds | null>(null);
-
-  const state = useRef({
-    angle: 0,
-    angularVelocity: 0,
-    idleAngle: 0,
-    isHovering: false,
-    lastInteractionAt: 0,
-    previousPointerTime: 0,
-    previousPointerX: 0,
-  });
-
-  const onBoundsReady = useCallback(
-    (next: KeychainBounds) => {
-      setBounds(next);
-    },
-    [],
-  );
-
-  useFrame((frame, dt) => {
-    const ambient = ambientRef.current;
-    const swing = swingRef.current;
-    const twist = twistRef.current;
-
-    if (!ambient || !swing || !twist) {
-      return;
-    }
-
-    if (reducedMotion) {
-    ambient.position.y = 0;
-    swing.rotation.set(0, 0, 0);
-    twist.rotation.y = keychainConfig.baseRotationY;
-    return;
-    }
-
-    const p = state.current;
-
-    const acceleration =
-      -keychainConfig.gravity * Math.sin(p.angle) -
-      keychainConfig.damping * p.angularVelocity;
-
-    p.angularVelocity = MathUtils.clamp(
-      p.angularVelocity + acceleration * dt,
-      -keychainConfig.angularVelocityMax,
-      keychainConfig.angularVelocityMax,
-    );
-
-    p.angle = MathUtils.clamp(
-      p.angle + p.angularVelocity * dt,
-      -keychainConfig.absoluteAngleMax,
-      keychainConfig.absoluteAngleMax,
-    );
-
-    const settled =
-      Math.abs(p.angle) < 0.004 &&
-      Math.abs(p.angularVelocity) < 0.01;
-
-    const idle =
-      !p.isHovering &&
-      settled &&
-      performance.now() / 1000 - p.lastInteractionAt >
-        keychainConfig.idleResumeDelay;
-
-    p.idleAngle = MathUtils.damp(
-      p.idleAngle,
-      idle
-        ? Math.sin(
-            frame.clock.elapsedTime *
-              keychainConfig.idleSwayAngularVelocity,
-          ) * keychainConfig.idleSwayAngle
-        : 0,
-      5,
-      dt,
-    );
-
-    ambient.position.y =
-      Math.sin(
-        frame.clock.elapsedTime *
-          keychainConfig.floatAngularVelocity,
-      ) * keychainConfig.floatAmplitude;
-
-    swing.rotation.z =
-      p.angle + p.idleAngle;
-
-    swing.rotation.x = MathUtils.clamp(
-      -p.angularVelocity * 0.025,
-      -keychainConfig.secondaryXMax,
-      keychainConfig.secondaryXMax,
-    );
-
-    swing.rotation.y = MathUtils.clamp(
-      p.angle * 0.18,
-      -keychainConfig.secondaryYMax,
-      keychainConfig.secondaryYMax,
-    );
-
-    twist.rotation.y =
-  keychainConfig.baseRotationY +
-  Math.sin(frame.clock.elapsedTime * keychainConfig.twistAngularVelocity) *
-    keychainConfig.twistAngle *
-    (settled ? 1 : keychainConfig.activeTwistMultiplier);
-  });
-
-  const move = (
-    e: ThreeEvent<PointerEvent>,
-  ) => {
-    if (!finePointer || reducedMotion) {
-      return;
-    }
-
-    const p = state.current;
-
-    const x = MathUtils.clamp(
-      e.pointer.x,
-      -1,
-      1,
-    );
-
-    const time =
-      e.nativeEvent.timeStamp / 1000;
-
-    if (p.previousPointerTime) {
-      const elapsed = MathUtils.clamp(
-        time - p.previousPointerTime,
-        1 / 240,
-        0.1,
-      );
-
-      const pointerVelocity =
-        MathUtils.clamp(
-          (x - p.previousPointerX) /
-            elapsed,
-          -keychainConfig.pointerVelocityMax,
-          keychainConfig.pointerVelocityMax,
-        );
-
-      p.angularVelocity =
-        MathUtils.clamp(
-          p.angularVelocity +
-            pointerVelocity *
-              keychainConfig.impulseMultiplier,
-          -keychainConfig.angularVelocityMax,
-          keychainConfig.angularVelocityMax,
-        );
-    }
-
-    p.previousPointerX = x;
-    p.previousPointerTime = time;
-
-    p.lastInteractionAt =
-      performance.now() / 1000;
-  };
-
-  return (
-    <group>
-      {bounds && (
-        <mesh
-          position={bounds.center}
-          onPointerEnter={() => {
-            state.current.isHovering = true;
-          }}
-          onPointerMove={move}
-          onPointerLeave={() => {
-            state.current.isHovering = false;
-            state.current.previousPointerTime = 0;
-          }}
-        >
-          <boxGeometry
-            args={[
-              bounds.size[0] * 1.12,
-              bounds.size[1] * 1.1,
-              bounds.size[2] * 1.18,
-            ]}
-          />
-
-          <meshBasicMaterial
-            transparent
-            opacity={0}
-            depthWrite={false}
-          />
-        </mesh>
-      )}
-
-      <group ref={ambientRef}>
-        <group
-          ref={swingRef}
-          position={[
-            0,
-            keychainConfig.swingPivotY,
-            0,
-          ]}
-        >
-          <group ref={twistRef}>
-            <Suspense fallback={null}>
-              <KeychainModel
-                onBoundsReady={onBoundsReady}
-              />
-            </Suspense>
-          </group>
-        </group>
-      </group>
-    </group>
-  );
-}
-
-
 function useMedia(query: string) {
-  const [value, setValue] =
-    useState(false);
+  const [value, setValue] = useState(false);
 
   useEffect(() => {
-    const media =
-      matchMedia(query);
-
-    const update = () => {
-      setValue(media.matches);
-    };
+    const media = matchMedia(query);
+    const update = () => setValue(media.matches);
 
     update();
+    media.addEventListener("change", update);
 
-    media.addEventListener(
-      "change",
-      update,
-    );
-
-    return () => {
-      media.removeEventListener(
-        "change",
-        update,
-      );
-    };
+    return () => media.removeEventListener("change", update);
   }, [query]);
 
   return value;
 }
 
-
 export default function KeychainSpike() {
-  const elementRef =
-    useRef<HTMLDivElement>(null);
-
-  const { isActive } =
-    useGpuSceneActivity({
-      id: "lab-keychain",
-      elementRef,
-      priority: 1,
-    });
-
-  const reducedMotion = useMedia(
-    "(prefers-reduced-motion: reduce)",
-  );
-
-  const finePointer = useMedia(
-    "(pointer: fine)",
-  );
+  const elementRef = useRef<HTMLDivElement>(null);
+  const { isActive } = useGpuSceneActivity({
+    id: "lab-keychain",
+    elementRef,
+    priority: 1,
+  });
+  const reducedMotion = useMedia("(prefers-reduced-motion: reduce)");
+  const finePointer = useMedia("(pointer: fine)");
 
   return (
-    <div
-      ref={elementRef}
-      className={styles.spike}
-    >
+    <div ref={elementRef} className={styles.spike}>
       <Canvas
         aria-label="Raze chibi hanging keychain"
-        camera={{
-          fov: 32,
-          position:
-            keychainConfig.cameraPosition,
-        }}
+        camera={{ fov: 32, position: keychainConfig.cameraPosition }}
         className={styles.canvas}
-        dpr={[
-          1,
-          gpuSceneConfig.desktopMaxDpr,
-        ]}
-        frameloop={
-          isActive
-            ? "always"
-            : "never"
-        }
+        dpr={[1, gpuSceneConfig.desktopMaxDpr]}
+        frameloop={isActive ? "always" : "never"}
       >
-        <color
-          attach="background"
-          args={[0x080808]}
-        />
-
+        <color attach="background" args={[0x080808]} />
         <StudioEnvironment />
-
-        <ambientLight
-          intensity={0.2}
-        />
-
-        <hemisphereLight
-          intensity={0.4}
-        />
-
-        <directionalLight
-          intensity={2.1}
-          position={[4, 5, 6]}
-        />
-
-        <directionalLight
-          intensity={0.7}
-          position={[-4, 1.5, 3]}
-        />
-
-        <Pendulum
+        <ambientLight intensity={0.2} />
+        <hemisphereLight intensity={0.4} />
+        <directionalLight intensity={2.1} position={[4, 5, 6]} />
+        <directionalLight intensity={0.7} position={[-4, 1.5, 3]} />
+        <KeychainPendulum
           finePointer={finePointer}
           reducedMotion={reducedMotion}
         />

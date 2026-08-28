@@ -1,0 +1,115 @@
+.composition {
+  position: relative;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 110svh;
+
+  justify-self: stretch;
+
+  overflow: hidden;
+  isolation: isolate;
+  background: #080808;
+}
+
+.canvas {
+  position: absolute !important;
+  z-index: 0;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.boarding,
+.terminal {
+  position: absolute;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.boarding {
+  top: 8%;
+  left: 5%;
+  width: min(29vw, 32rem);
+}
+
+.terminal {
+  top: 10%;
+  right: 5%;
+  width: min(24vw, 28rem);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.boarding{transform:rotate(-9deg);transform-origin:center}
+
+.modal {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 4rem);
+  background: rgb(8 8 8 / 64%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modalContent {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(76vw, 70rem, calc(84svh * 1.36));
+  max-width: 100%;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.expandedTerminal {
+  width: 100%;
+  max-height: 84svh;
+}
+
+.close {
+  position: absolute;
+  z-index: 1;
+  top: -1.25rem;
+  right: -0.25rem;
+  border: 0;
+  background: transparent;
+  color: rgb(255 255 255 / 82%);
+  font: 700 0.72rem/1 var(--font-technical);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.close:focus-visible {
+  outline: 2px solid #df8a61;
+  outline-offset: 0.25rem;
+}
+
+@media (max-width: 700px) {
+  .composition {
+    min-height: 150svh;
+  }
+
+  .boarding {
+    top: 3%;
+    left: 5%;
+    width: 70vw;
+  }
+
+  .terminal {
+    top: auto;
+    right: 5%;
+    bottom: 4%;
+    width: 62vw;
+  }
+
+  .modalContent {
+    width: min(92vw, calc(82svh * 1.36));
+  }
+}

@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  type MouseEvent,
   type ReactNode,
   useCallback,
   useContext,
@@ -24,9 +25,15 @@ export function useTerminalDevice() {
 
 type TerminalDeviceProps = {
   children: ReactNode;
+  onPowerChange?: (isPowered: boolean) => void;
+  className?: string;
 };
 
-export default function TerminalDevice({ children }: TerminalDeviceProps) {
+export default function TerminalDevice({
+  children,
+  onPowerChange,
+  className,
+}: TerminalDeviceProps) {
   const [isPowered, setIsPowered] = useState(true);
   const [isTerminalFocused, setIsTerminalFocused] = useState(false);
 
@@ -39,18 +46,22 @@ export default function TerminalDevice({ children }: TerminalDeviceProps) {
     [isPowered, setTerminalFocused],
   );
 
-  const togglePower = () => {
-    setIsPowered((currentPower) => {
-      if (currentPower) setIsTerminalFocused(false);
-      return !currentPower;
-    });
+  const togglePower = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+
+    const nextPower = !isPowered;
+
+    if (isPowered) setIsTerminalFocused(false);
+
+    setIsPowered(nextPower);
+    onPowerChange?.(nextPower);
   };
 
   return (
     <TerminalDeviceContext.Provider value={contextValue}>
       <section
         aria-label="ET-01 lab terminal device"
-        className={styles.device}
+        className={`${styles.device}${className ? ` ${className}` : ""}`}
         data-focused={isTerminalFocused || undefined}
         data-powered={isPowered || undefined}
       >
@@ -83,7 +94,13 @@ export default function TerminalDevice({ children }: TerminalDeviceProps) {
                 className={styles.statusLed}
                 role="img"
               />
-              <button aria-pressed={isPowered} className={styles.powerButton} onClick={togglePower} type="button">
+              <button
+                aria-pressed={isPowered}
+                className={styles.powerButton}
+                type="button"
+                onClick={togglePower}
+                onKeyDown={(event) => event.stopPropagation()}
+              >
                 <span className={styles.powerGlyph} aria-hidden="true" />
                 <span className="sr-only">Turn terminal {isPowered ? "off" : "on"}</span>
               </button>
