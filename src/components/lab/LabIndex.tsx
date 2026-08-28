@@ -12,6 +12,7 @@ const experiments = [
   { number: "07", href: "/__lab/terminal", label: "PLAYGROUND TERMINAL" },
   { number: "08", href: "/__lab/tamagotchi", label: "PLAYGROUND TAMAGOTCHI" },
   { number: "09", href: "/__lab/keychain", label: "PLAYGROUND KEYCHAIN" },
+  { number: "10", href: "/__lab/diecast", label: "PLAYGROUND DIE-CAST" },
 ];
 
 export default function LabIndex() {

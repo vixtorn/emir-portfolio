@@ -1,0 +1,1 @@
+import LabShell from "@/components/lab/LabShell";import DiecastSpike from "@/components/playground/diecast/DiecastSpike";export default function DiecastPage(){return <LabShell number="10" title="PLAYGROUND DIE-CAST" purpose="BMW M3 GTR die-cast collectible presentation."><DiecastSpike/></LabShell>}
