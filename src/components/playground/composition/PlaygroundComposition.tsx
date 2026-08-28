@@ -7,7 +7,6 @@ import {
   useState,
   type KeyboardEvent,
   type MouseEvent,
-  type ReactNode,
 } from "react";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { Group } from "three";
@@ -17,7 +16,7 @@ import { useGpuSceneActivity } from "@/hooks/useGpuSceneActivity";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { gpuSceneConfig } from "@/lib/performance/gpu-config";
 
-import CanModel from "../can/CanModel";
+import CanArtifact from "../can/CanArtifact";
 import StudioEnvironment from "../can/StudioEnvironment";
 import KeychainPendulum from "../keychain/KeychainPendulum";
 import ScratchBoardingPassLab from "../scratch/ScratchBoardingPassLab";
@@ -48,36 +47,6 @@ function useFinePointer() {
   }, []);
 
   return finePointer;
-}
-
-function Motion({
-  children,
-  position,
-  scale,
-  spin = 0,
-}: {
-  children: ReactNode;
-  position: [number, number, number];
-  scale: number;
-  spin?: number;
-}) {
-  const ref = useRef<Group>(null);
-
-  useFrame((state) => {
-    if (!ref.current) return;
-
-    ref.current.position.y =
-      position[1] + Math.sin(state.clock.elapsedTime * (0.7 + spin)) * 0.025;
-    ref.current.rotation.y = spin
-      ? Math.sin(state.clock.elapsedTime * spin) * 0.08
-      : 0;
-  });
-
-  return (
-    <group ref={ref} position={position} scale={scale}>
-      {children}
-    </group>
-  );
 }
 
 function Bmw() {
@@ -149,18 +118,23 @@ function KeychainArtifact({
 }
 
 function Scene({
+  onCanCursorChange,
   finePointer,
   reducedMotion,
 }: {
+  onCanCursorChange: (cursor: string) => void;
   finePointer: boolean;
   reducedMotion: boolean;
 }) {
   return (
     <>
       <Suspense fallback={null}>
-        <Motion position={layout.can} scale={1.45} spin={0.2}>
-          <CanModel onPointerOut={() => {}} onPointerOver={() => {}} />
-        </Motion>
+        <group position={layout.can} scale={1.45}>
+          <CanArtifact
+            onCursorChange={onCanCursorChange}
+            prefersReducedMotion={reducedMotion}
+          />
+        </group>
       </Suspense>
       <Suspense fallback={null}>
         <TamagotchiArtifact
@@ -197,6 +171,7 @@ export default function PlaygroundComposition() {
   });
   const finePointer = useFinePointer();
   const reducedMotion = useReducedMotion();
+  const [canCursor, setCanCursor] = useState("default");
   const [expanded, setExpanded] = useState(false);
   const [isTerminalPowered, setIsTerminalPowered] = useState(true);
 
@@ -248,6 +223,7 @@ export default function PlaygroundComposition() {
         camera={{ fov: 34, position: [0, 0, 13] }}
         dpr={[1, gpuSceneConfig.desktopMaxDpr]}
         frameloop={isActive ? "always" : "never"}
+        style={{ cursor: canCursor }}
       >
         <color attach="background" args={[0x080808]} />
         <StudioEnvironment />
@@ -255,7 +231,11 @@ export default function PlaygroundComposition() {
         <hemisphereLight intensity={0.45} />
         <directionalLight intensity={2.2} position={[5, 7, 8]} />
         <directionalLight intensity={0.8} position={[-5, 3, 4]} />
-        <Scene finePointer={finePointer} reducedMotion={reducedMotion} />
+        <Scene
+          finePointer={finePointer}
+          onCanCursorChange={setCanCursor}
+          reducedMotion={reducedMotion}
+        />
       </Canvas>
 
       <div className={styles.boarding}>
