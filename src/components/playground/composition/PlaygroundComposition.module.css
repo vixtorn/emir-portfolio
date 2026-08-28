@@ -91,22 +91,41 @@
   outline-offset: 0.25rem;
 }
 
-@media (max-width: 700px) {
+@media (width >= 768px) and (width <= 1199px) {
+  .boarding {
+    top: 7%;
+    left: 4%;
+    width: min(26vw, 24rem);
+  }
+
+  .terminal {
+    top: 9%;
+    right: 4%;
+    width: min(22vw, 22rem);
+  }
+}
+
+@media (max-width: 767px) {
   .composition {
-    min-height: 150svh;
+    min-height: 120svh;
   }
 
   .boarding {
     top: 3%;
-    left: 5%;
-    width: 70vw;
+    left: 4%;
+    width: 58vw;
   }
 
   .terminal {
-    top: auto;
-    right: 5%;
-    bottom: 4%;
-    width: 62vw;
+    top: 28%;
+    right: 4%;
+    bottom: auto;
+    width: 58vw;
+  }
+
+  .compactTerminalDevice {
+    aspect-ratio: 1.36;
+    min-height: 0;
   }
 
   .modalContent {

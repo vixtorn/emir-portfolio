@@ -25,13 +25,33 @@ import PlaygroundTerminal from "../terminal/PlaygroundTerminal";
 import TerminalDevice from "../terminal/TerminalDevice";
 import styles from "./PlaygroundComposition.module.css";
 
-const layout = {
-  can: [0, -0.6, 0] as [number, number, number],
-  tamagotchi: [3, -0.3, -1] as [number, number, number],
-  keychain: [-4, -1.35, 1] as [number, number, number],
-  bmw: [3.79, -2.75, -0.5] as [number, number, number],
-  bmwScale: 0.46,
-} as const;
+type CompositionLayout = {
+  can: { position: [number, number, number]; scale: number };
+  tamagotchi: { position: [number, number, number]; scale: number };
+  keychain: { position: [number, number, number]; scale: number };
+  bmw: { position: [number, number, number]; scale: number };
+};
+
+const desktopLayout: CompositionLayout = {
+  can: { position: [0, -0.6, 0], scale: 1.45 },
+  tamagotchi: { position: [3, -0.3, -1], scale: 0.7 },
+  keychain: { position: [-4, -1.35, 1], scale: 0.7 },
+  bmw: { position: [3.79, -2.75, -0.5], scale: 0.46 },
+};
+
+const tabletLayout: CompositionLayout = {
+  can: { position: [0, -0.6, 0], scale: 1.2 },
+  tamagotchi: { position: [2.35, -0.65, -1], scale: 0.62 },
+  keychain: { position: [-3, -1.55, 1], scale: 0.62 },
+  bmw: { position: [2.9, -2.55, -0.5], scale: 0.4 },
+};
+
+const mobileLayout: CompositionLayout = {
+  can: { position: [0, -0.35, 0], scale: 0.82 },
+  tamagotchi: { position: [1.1, -1.05, -1], scale: 0.42 },
+  keychain: { position: [-1.2, -1.25, 1], scale: 0.42 },
+  bmw: { position: [1.3, -2.05, -0.5], scale: 0.26 },
+};
 
 function useFinePointer() {
   const [finePointer, setFinePointer] = useState(false);
@@ -49,7 +69,36 @@ function useFinePointer() {
   return finePointer;
 }
 
-function Bmw() {
+function useCompositionLayout() {
+  const [layout, setLayout] = useState<CompositionLayout>(desktopLayout);
+
+  useEffect(() => {
+    const tabletQuery = window.matchMedia("(max-width: 1199px)");
+    const mobileQuery = window.matchMedia("(max-width: 767px)");
+    const updateLayout = () => {
+      setLayout(
+        mobileQuery.matches
+          ? mobileLayout
+          : tabletQuery.matches
+            ? tabletLayout
+            : desktopLayout,
+      );
+    };
+
+    updateLayout();
+    tabletQuery.addEventListener("change", updateLayout);
+    mobileQuery.addEventListener("change", updateLayout);
+
+    return () => {
+      tabletQuery.removeEventListener("change", updateLayout);
+      mobileQuery.removeEventListener("change", updateLayout);
+    };
+  }, []);
+
+  return layout;
+}
+
+function Bmw({ layout }: { layout: CompositionLayout }) {
   const gltf = useLoader(
     GLTFLoader,
     "/models/playground/diecast/bmw-m3-gtr-v1.glb",
@@ -61,9 +110,9 @@ function Bmw() {
 
     const time = state.clock.elapsedTime;
     ref.current.position.set(
-      layout.bmw[0] + Math.sin(time * 0.74 + 0.9) * 0.07,
-      layout.bmw[1] + Math.sin(time * 1.01) * 0.055,
-      layout.bmw[2],
+      layout.bmw.position[0] + Math.sin(time * 0.74 + 0.9) * 0.07,
+      layout.bmw.position[1] + Math.sin(time * 1.01) * 0.055,
+      layout.bmw.position[2],
     );
     ref.current.rotation.set(
       Math.sin(time * 0.71) * 0.009,
@@ -73,7 +122,7 @@ function Bmw() {
   });
 
   return (
-    <group ref={ref} scale={layout.bmwScale}>
+    <group ref={ref} scale={layout.bmw.scale}>
       <primitive object={gltf.scene} />
     </group>
   );
@@ -81,15 +130,17 @@ function Bmw() {
 
 function TamagotchiArtifact({
   finePointer,
+  layout,
   reducedMotion,
 }: {
   finePointer: boolean;
+  layout: CompositionLayout;
   reducedMotion: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <group position={layout.tamagotchi} scale={0.7}>
+    <group position={layout.tamagotchi.position} scale={layout.tamagotchi.scale}>
       <TamagotchiMotion
         finePointer={finePointer}
         isHovered={isHovered}
@@ -102,13 +153,15 @@ function TamagotchiArtifact({
 
 function KeychainArtifact({
   finePointer,
+  layout,
   reducedMotion,
 }: {
   finePointer: boolean;
+  layout: CompositionLayout;
   reducedMotion: boolean;
 }) {
   return (
-    <group position={layout.keychain} scale={0.7}>
+    <group position={layout.keychain.position} scale={layout.keychain.scale}>
       <KeychainPendulum
         finePointer={finePointer}
         reducedMotion={reducedMotion}
@@ -120,16 +173,18 @@ function KeychainArtifact({
 function Scene({
   onCanCursorChange,
   finePointer,
+  layout,
   reducedMotion,
 }: {
   onCanCursorChange: (cursor: string) => void;
   finePointer: boolean;
+  layout: CompositionLayout;
   reducedMotion: boolean;
 }) {
   return (
     <>
       <Suspense fallback={null}>
-        <group position={layout.can} scale={1.45}>
+        <group position={layout.can.position} scale={layout.can.scale}>
           <CanArtifact
             onCursorChange={onCanCursorChange}
             prefersReducedMotion={reducedMotion}
@@ -139,17 +194,19 @@ function Scene({
       <Suspense fallback={null}>
         <TamagotchiArtifact
           finePointer={finePointer}
+          layout={layout}
           reducedMotion={reducedMotion}
         />
       </Suspense>
       <Suspense fallback={null}>
         <KeychainArtifact
           finePointer={finePointer}
+          layout={layout}
           reducedMotion={reducedMotion}
         />
       </Suspense>
       <Suspense fallback={null}>
-        <Bmw />
+        <Bmw layout={layout} />
       </Suspense>
     </>
   );
@@ -170,6 +227,7 @@ export default function PlaygroundComposition() {
     priority: 1,
   });
   const finePointer = useFinePointer();
+  const layout = useCompositionLayout();
   const reducedMotion = useReducedMotion();
   const [canCursor, setCanCursor] = useState("default");
   const [expanded, setExpanded] = useState(false);
@@ -233,6 +291,7 @@ export default function PlaygroundComposition() {
         <directionalLight intensity={0.8} position={[-5, 3, 4]} />
         <Scene
           finePointer={finePointer}
+          layout={layout}
           onCanCursorChange={setCanCursor}
           reducedMotion={reducedMotion}
         />
@@ -251,7 +310,10 @@ export default function PlaygroundComposition() {
         role="button"
         tabIndex={0}
       >
-        <TerminalDevice onPowerChange={setIsTerminalPowered}>
+        <TerminalDevice
+          className={styles.compactTerminalDevice}
+          onPowerChange={setIsTerminalPowered}
+        >
           <PlaygroundTerminal />
         </TerminalDevice>
       </div>
