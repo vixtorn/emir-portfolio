@@ -1,0 +1,238 @@
+.pass {
+  --mx: 50%;
+  --my: 50%;
+  --rx: 0deg;
+  --ry: 0deg;
+  --foil-left: 2.15%;
+  --foil-top: 8.5%;
+  --foil-width: 10.35%;
+  --foil-height: 77.25%;
+  --foil-x: 50%;
+  --foil-y: 50%;
+  --foil-angle: 132deg;
+  --foil-intensity: 1.08;
+  --foil-brightness: 0.98;
+  --foil-opacity: 0.72;
+  --foil-glare: 0.38;
+  --scratch-left: 29.875%;
+  --scratch-top: 68.222222%;
+  --scratch-width: 26.625%;
+  --scratch-height: 10.888889%;
+  position: relative;
+  width: min(100%, 52rem);
+  perspective: 70rem;
+  transform-style: preserve-3d;
+}
+
+.ticket {
+  position: relative;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: filter 320ms var(--ease-soft);
+  will-change: transform;
+}
+
+.mainArtwork {
+  overflow: hidden;
+}
+
+.mainImage {
+  max-width: none;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 1.2rem 2.4rem rgb(0 0 0 / 35%));
+  pointer-events: none;
+}
+
+.pass:hover .image {
+  filter: drop-shadow(0 1.5rem 2.8rem rgb(0 0 0 / 42%));
+}
+
+.foil {
+  position: absolute;
+  top: var(--foil-top);
+  left: var(--foil-left);
+  width: var(--foil-width);
+  height: var(--foil-height);
+  overflow: hidden;
+  border-radius: 0.12rem;
+  background:
+    radial-gradient(
+      ellipse 88% 62% at var(--foil-x) var(--foil-y),
+      rgb(239 251 252 / 38%) 0%,
+      rgb(158 226 246 / 20%) 25%,
+      transparent 64%
+    ),
+    conic-gradient(
+      from var(--foil-angle) at var(--foil-x) var(--foil-y),
+      rgb(226 234 235 / 56%) 0deg 31deg,
+      rgb(83 218 247 / 58%) 55deg,
+      rgb(48 111 237 / 48%) 102deg,
+      rgb(139 91 225 / 45%) 151deg,
+      rgb(215 98 203 / 48%) 204deg,
+      rgb(222 231 231 / 54%) 248deg 272deg,
+      rgb(243 180 82 / 39%) 318deg,
+      rgb(226 234 235 / 56%) 360deg
+    ),
+    linear-gradient(
+      calc(var(--foil-angle) - 52deg),
+      rgb(239 244 242 / 45%) 2%,
+      transparent 24%,
+      rgb(72 202 244 / 31%) 48%,
+      transparent 70%,
+      rgb(231 145 203 / 27%) 94%
+    );
+  background-blend-mode: screen, normal, screen;
+  mix-blend-mode: normal;
+  filter: saturate(var(--foil-intensity)) brightness(var(--foil-brightness)) contrast(1.05);
+  opacity: var(--foil-opacity);
+  pointer-events: none;
+  transform: translateZ(0.1rem);
+  will-change: background, filter, transform;
+}
+
+.foil,
+.foil *,
+.scratchReveal {
+  pointer-events: none;
+}
+
+.foil::before,
+.foil::after,
+.glare {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+
+.foil::before {
+  background:
+    repeating-linear-gradient(
+      calc(var(--foil-angle) + 23deg),
+      transparent 0 0.12rem,
+      rgb(249 255 255 / 17%) 0.16rem,
+      transparent 0.22rem 0.52rem
+    ),
+    repeating-linear-gradient(
+      calc(var(--foil-angle) - 68deg),
+      transparent 0 0.2rem,
+      rgb(109 199 235 / 13%) 0.24rem,
+      transparent 0.29rem 0.7rem
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgb(255 255 255 / 7%) 0 1px,
+      transparent 1px 4px
+    );
+  mix-blend-mode: soft-light;
+  opacity: 0.38;
+}
+
+.foil::after {
+  background:
+    linear-gradient(
+      calc(var(--foil-angle) - 42deg),
+      transparent 22%,
+      rgb(248 253 252 / 44%) 43%,
+      rgb(190 239 250 / 26%) 50%,
+      transparent 68%
+    ),
+    linear-gradient(
+      90deg,
+      rgb(255 255 255 / 22%),
+      transparent 16% 82%,
+      rgb(244 193 110 / 19%)
+    );
+  mix-blend-mode: screen;
+  opacity: 0.56;
+  background-position: var(--foil-x) 50%, center;
+  background-size: 180% 100%, 100% 100%;
+}
+
+.glare {
+  background:
+    radial-gradient(
+      ellipse 25% 18% at var(--foil-x) var(--foil-y),
+      rgb(255 255 255 / 68%) 0%,
+      rgb(238 253 253 / 38%) 20%,
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse 88% 45% at var(--foil-x) var(--foil-y),
+      rgb(124 218 246 / 20%) 0%,
+      rgb(166 116 232 / 12%) 36%,
+      transparent 72%
+    );
+  mix-blend-mode: screen;
+  opacity: var(--foil-glare);
+}
+
+.scratchReveal,
+.scratchSurface {
+  position: absolute;
+  top: var(--scratch-top);
+  left: var(--scratch-left);
+  width: var(--scratch-width);
+  height: var(--scratch-height);
+}
+
+.scratchReveal {
+  z-index: 2;
+  display: grid;
+  place-content: center;
+  gap: 0.08rem;
+  overflow: hidden;
+  border-radius: 0.08rem;
+  background: linear-gradient(135deg, #e7e4dc, #c6c3bb 48%, #e4e1da);
+  color: #171817;
+  text-align: center;
+}
+
+.scratchReveal span,
+.scratchReveal strong {
+  margin: 0;
+  line-height: 1;
+}
+
+.scratchReveal span {
+  font-size: clamp(0.28rem, 0.55vw, 0.42rem);
+  letter-spacing: 0.16em;
+}
+
+.scratchReveal strong {
+  font-size: clamp(0.42rem, 0.95vw, 0.72rem);
+  letter-spacing: 0.08em;
+}
+
+.scratchSurface {
+  z-index: 3;
+  display: block;
+  cursor: crosshair;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+}
+
+.pass[data-reduced-motion="true"] .ticket,
+.pass[data-reduced-motion="true"] .foil {
+  transform: none;
+  transition: none;
+}
+
+.pass[data-reduced-motion="true"] .foil {
+  background:
+    radial-gradient(ellipse at 52% 40%, rgb(255 255 255 / 32%), transparent 50%),
+    linear-gradient(142deg, rgb(225 233 232 / 38%), rgb(91 204 238 / 28%), rgb(166 107 222 / 24%), rgb(235 191 112 / 21%));
+  filter: saturate(1.16) brightness(1.02) contrast(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticket,
+  .foil {
+    transition: none;
+  }
+}

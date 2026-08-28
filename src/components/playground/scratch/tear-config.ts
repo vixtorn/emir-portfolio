@@ -1,0 +1,15 @@
+export const tearConfig = {
+  sourceSize: { width: 800, height: 450 },
+  tearX: 607,
+  stubHitArea: { left: 607, top: 35, right: 784, bottom: 405 },
+  preActivationGuard: { left: 570, top: 20, right: 800, bottom: 430 },
+  tearThresholdRatio: 0.35,
+  resistanceFactor: 0.32,
+  connectedVerticalFactor: 0.08,
+  connectedVerticalLimit: 6,
+  connectedRotationLimit: 2,
+  detachedRotationLimit: 6,
+  releaseImpulseX: 4,
+  releaseImpulseRotation: 1,
+  returnDuration: 240,
+} as const;
