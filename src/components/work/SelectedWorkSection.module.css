@@ -1,0 +1,71 @@
+.section {
+  display: flex;
+  align-items: center;
+  min-height: 108svh;
+  overflow: clip;
+  padding-block: var(--section-space-lg);
+}
+
+.container { width: 100%; }
+
+.sectionHeader { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: clamp(2.5rem, 5vw, 5.5rem); }
+.sectionHeader p { margin: 0; }
+.projectCount { color: var(--color-muted); }
+
+.composition { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(0.75rem, 1.6vw, 1.8rem); row-gap: clamp(1.75rem, 4vw, 4.5rem); align-items: end; }
+.titleBlock { position: relative; z-index: 1; grid-column: 1 / span 7; grid-row: 1; align-self: start; padding-top: clamp(1rem, 3vw, 3.75rem); }
+.category { margin: 0 0 clamp(1rem, 2vw, 1.75rem); color: var(--color-accent); }
+.title { max-width: 8.5ch; margin: 0; font-family: var(--font-display); font-size: clamp(4.25rem, 9vw, 10.5rem); font-synthesis: none; font-weight: 400; letter-spacing: -0.065em; line-height: 0.78; }
+.title span { display: block; margin-left: clamp(0.75rem, 5vw, 6.25rem); font-family: var(--font-primary); font-size: 0.42em; font-weight: 500; letter-spacing: -0.06em; line-height: 0.86; }
+
+.media { position: relative; grid-column: 6 / -1; grid-row: 1 / span 2; min-height: clamp(21rem, 40vw, 39rem); overflow: hidden; border: 1px solid color-mix(in srgb, var(--color-silver) 38%, transparent); background: radial-gradient(circle at 64% 35%, rgb(184 186 183 / 13%), transparent 20%), linear-gradient(135deg, rgb(255 255 255 / 4%), transparent 28%), #171715; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%); color: var(--color-paper); isolation: isolate; }
+.media::before, .media::after { position: absolute; z-index: -1; content: ""; pointer-events: none; }
+.media::before { inset: 10% 8%; border: 1px solid rgb(184 186 183 / 13%); transform: skewY(-9deg); }
+.media::after { top: 10%; right: 18%; width: 46%; height: 1px; background: linear-gradient(90deg, transparent, var(--color-accent), transparent); box-shadow: 0 10.5rem 0 rgb(184 186 183 / 22%), -12rem 18rem 0 rgb(184 186 183 / 13%); opacity: 0.75; transform: rotate(-34deg); }
+.mediaHeader, .mediaReadout { position: absolute; right: clamp(1rem, 2vw, 1.75rem); left: clamp(1rem, 2vw, 1.75rem); display: flex; justify-content: space-between; gap: 1rem; font-family: var(--font-technical); font-size: var(--text-micro); letter-spacing: var(--tracking-meta); line-height: 1.2; }
+.mediaHeader { top: clamp(1rem, 2vw, 1.75rem); color: var(--color-silver); }
+.mediaReadout { bottom: clamp(1rem, 2vw, 1.75rem); color: var(--color-paper); }
+.mediaReadout span:last-child { color: var(--color-accent); }
+.mediaGrid { position: absolute; inset: 0; background-image: linear-gradient(rgb(184 186 183 / 9%) 1px, transparent 1px), linear-gradient(90deg, rgb(184 186 183 / 9%) 1px, transparent 1px); background-position: center; background-size: clamp(2.5rem, 5vw, 4.25rem) clamp(2.5rem, 5vw, 4.25rem); mask-image: linear-gradient(to bottom, transparent, black 18%, black 84%, transparent); opacity: 0.6; }
+.toolpath { position: absolute; top: 23%; left: 15%; width: 65%; height: 46%; border: 1px solid rgb(241 238 231 / 62%); border-left-color: var(--color-accent); transform: rotate(-15deg) skewX(-20deg); }
+.toolpath::before, .toolpath::after { position: absolute; content: ""; }
+.toolpath::before { top: 27%; right: -11%; width: 48%; height: 1px; background: linear-gradient(90deg, var(--color-accent), transparent); }
+.toolpath::after { bottom: -17%; left: 17%; width: 1px; height: 38%; background: var(--color-silver); }
+.toolpathPoint { position: absolute; top: 48%; left: 48%; width: 0.6rem; aspect-ratio: 1; border-radius: 50%; background: var(--color-accent); box-shadow: 0 0 0 0.42rem rgb(184 90 45 / 15%); }
+.crosshair { position: absolute; top: 56%; left: 62%; width: clamp(5rem, 13vw, 10rem); aspect-ratio: 1; border: 1px solid rgb(184 186 183 / 42%); border-radius: 50%; }
+.crosshair span { position: absolute; top: 50%; left: -16%; width: 132%; height: 1px; background: rgb(184 186 183 / 45%); }
+.crosshair span:last-child { transform: rotate(90deg); }
+
+.details { grid-column: 1 / span 5; grid-row: 2; align-self: end; padding-bottom: clamp(0.5rem, 2vw, 1.5rem); }
+.description { max-width: 28ch; margin: 0; font-size: clamp(1.15rem, 1.6vw, 1.6rem); line-height: 1.35; }
+.technologyList { display: flex; flex-wrap: wrap; gap: 0.55rem 1.25rem; margin: clamp(1.75rem, 3vw, 2.5rem) 0 0; padding: 0; color: var(--color-muted); font-family: var(--font-technical); font-size: var(--text-micro); letter-spacing: var(--tracking-meta); list-style: none; }
+.technologyList li::before { margin-right: 0.55rem; color: var(--color-accent); content: "+"; }
+.caseStudyLink { display: inline-flex; grid-column: 10 / -1; grid-row: 3; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; border-top: 1px solid var(--color-ink); padding-top: 0.85rem; font-family: var(--font-technical); font-size: var(--text-meta); letter-spacing: var(--tracking-meta); text-decoration: none; transition: color var(--duration-ui) var(--ease-ui); }
+.arrow { display: inline-block; color: var(--color-accent); font-family: var(--font-primary); font-size: 1.35em; line-height: 1; transition: transform var(--duration-ui) var(--ease-ui); }
+.caseStudyLink:hover { color: var(--color-accent); }
+.caseStudyLink:hover .arrow { transform: translate(0.25rem, -0.25rem); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .titleBlock, .media, .details, .caseStudyLink { animation: work-enter 900ms var(--ease-soft) both; }
+  .media { animation-delay: 100ms; transition: transform var(--duration-physical) var(--ease-soft); }
+  .details { animation-delay: 180ms; }
+  .caseStudyLink { animation-delay: 240ms; }
+  .media:hover { transform: translateY(-0.35rem); }
+}
+
+@keyframes work-enter { from { opacity: 0; transform: translateY(1.25rem); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 980px) { .titleBlock { grid-column: 1 / span 7; } .media { grid-column: 5 / -1; } .details { grid-column: 1 / span 4; } .caseStudyLink { grid-column: 8 / -1; } }
+
+@media (max-width: 680px) {
+  .section { min-height: auto; }
+  .sectionHeader { margin-bottom: 3.25rem; }
+  .composition { display: flex; flex-direction: column; align-items: stretch; gap: 2.25rem; }
+  .titleBlock { padding-top: 0; }
+  .title { font-size: clamp(3.8rem, 18vw, 6rem); }
+  .title span { margin-left: 1.5rem; }
+  .media { min-height: min(112vw, 32rem); }
+  .details { padding-bottom: 0; }
+  .description { max-width: 31ch; }
+  .caseStudyLink { margin-top: 0.5rem; }
+}
