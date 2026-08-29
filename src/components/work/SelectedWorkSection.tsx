@@ -1,11 +1,12 @@
+import Image from "next/image";
+
 import styles from "./SelectedWorkSection.module.css";
-import DiecastPreview from "./DiecastPreview";
 import SneakerPreview from "./SneakerPreview";
 
 const technologies = ["NEXT.JS", "WEBGL", "MOTION", "UI SYSTEMS"];
 const neoDexTechnologies = ["NEXT.JS", "TYPESCRIPT", "REACT THREE FIBER", "THREE.JS"];
 const sneakerTechnologies = ["NEXT.JS", "REACT THREE FIBER", "THREE.JS", "REAL-TIME MATERIALS"];
-const diecastTechnologies = ["REACT THREE FIBER", "THREE.JS", "WEBGL", "REAL-TIME 3D"];
+const diecastTechnologies = ["REACT THREE FIBER", "THREE.JS", "WEBGL"];
 
 function CncMediaPlaceholder() {
   return (
@@ -171,12 +172,12 @@ export default function SelectedWorkSection() {
         </article>
 
         <article className={styles.diecastProject} aria-labelledby="diecast-title">
-          <header className={styles.diecastHeader}>
-            <p className="type-meta">04 / REAL-TIME AUTOMOTIVE</p>
-            <p className={`${styles.projectCount} type-meta`}>04 / 04</p>
-          </header>
-
           <div className={styles.diecastComposition}>
+            <header className={styles.diecastHeader}>
+              <p className="type-meta">04 / REAL-TIME AUTOMOTIVE</p>
+              <p className="type-meta">04 / 04</p>
+            </header>
+
             <div className={styles.diecastTitleBlock}>
               <p className={`${styles.diecastCategory} type-meta`}>REAL-TIME AUTOMOTIVE / 2026</p>
               <h2 id="diecast-title" className={styles.diecastTitle}>
@@ -184,25 +185,36 @@ export default function SelectedWorkSection() {
               </h2>
             </div>
 
-            <DiecastPreview className={styles.diecastMedia} />
+            <figure className={styles.diecastScreenshot}>
+              <Image
+                src="/images/work/diecast/diecast-mainpage.png"
+                alt="Diecast project collection of sixteen collectible vehicles"
+                width={851}
+                height={728}
+                sizes="(max-width: 980px) 67vw, 61vw"
+                unoptimized
+              />
+              <figcaption className="type-meta">COLLECTION VIEW / 04</figcaption>
+            </figure>
+            <div className={styles.diecastCopy}>
+              <p className={styles.diecastDescription}>
+                A real-time automotive study exploring cinematic composition, motion and interactive 3D
+                presentation.
+              </p>
 
-            <p className={styles.diecastDescription}>
-              A real-time automotive study exploring cinematic composition, motion and interactive 3D
-              presentation.
-            </p>
+              <ul className={styles.diecastTechnologyList} aria-label="Technologies used">
+                {diecastTechnologies.map((technology) => (
+                  <li key={technology}>{technology}</li>
+                ))}
+              </ul>
 
-            <ul className={styles.diecastTechnologyList} aria-label="Technologies used">
-              {diecastTechnologies.map((technology) => (
-                <li key={technology}>{technology}</li>
-              ))}
-            </ul>
-
-            <a className={styles.diecastCaseStudyLink} href="#work" aria-label="Diecast case study coming soon">
-              <span>VIEW CASE STUDY</span>
-              <span className={styles.arrow} aria-hidden="true">
-                ↗
-              </span>
-            </a>
+              <a className={styles.diecastCaseStudyLink} href="#work" aria-label="Diecast case study coming soon">
+                <span>VIEW CASE STUDY</span>
+                <span className={styles.arrow} aria-hidden="true">
+                  ↗
+                </span>
+              </a>
+            </div>
           </div>
         </article>
       </div>
