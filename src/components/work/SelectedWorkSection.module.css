@@ -94,13 +94,13 @@
 .diecastComposition { position: relative; display: grid; min-height: clamp(42rem, 86svh, 56rem); overflow: clip; padding: clamp(1.25rem, 3vw, 3.5rem) clamp(1.25rem, 4.5vw, 6rem); }
 .diecastHeader { position: relative; display: flex; align-items: baseline; justify-content: space-between; }
 .diecastHeader p { margin: 0; }
-.diecastTitleBlock { position: absolute; top: clamp(6rem, 9vw, 9rem); right: clamp(1.25rem, 4.5vw, 6rem); width: min(25rem, 28vw); }
+.diecastTitleBlock { position: absolute; top: clamp(6rem, 9vw, 9rem); right: clamp(1.25rem, 4.5vw, 6rem); width: min(27rem, 30vw); }
 .diecastCategory { margin: 0 0 clamp(0.75rem, 1.25vw, 1.25rem); color: rgb(23 22 20 / 72%); }
-.diecastTitle { margin: 0; font-family: var(--font-display); font-size: clamp(4.5rem, 7.4vw, 8.25rem); font-synthesis: none; font-weight: 400; letter-spacing: -0.075em; line-height: 0.72; }
+.diecastTitle { margin: 0; font-family: var(--font-display); font-size: clamp(5.25rem, 9.2vw, 10.5rem); font-synthesis: none; font-weight: 400; letter-spacing: -0.075em; line-height: 0.72; }
 .diecastScreenshot { position: absolute; top: clamp(10rem, 14vw, 13rem); left: clamp(1.25rem, 4.5vw, 6rem); width: min(58vw, 50rem); margin: 0; border: 1px solid rgb(23 22 20 / 24%); box-shadow: 0 1rem 2.5rem rgb(30 31 36 / 10%); }
 .diecastScreenshot img { display: block; width: 100%; height: auto; }
 .diecastScreenshot figcaption { position: absolute; top: 0.8rem; left: 0.9rem; color: rgb(23 22 20 / 74%); }
-.diecastCopy { position: absolute; top: clamp(20rem, 28vw, 25rem); right: clamp(1.25rem, 4.5vw, 6rem); width: min(24rem, 28vw); }
+.diecastCopy { position: absolute; top: clamp(18rem, 25vw, 23rem); right: clamp(1.25rem, 4.5vw, 6rem); width: min(27rem, 30vw); }
 .diecastDescription { max-width: 30ch; margin: 0; font-size: clamp(1.05rem, 1.3vw, 1.35rem); line-height: 1.4; }
 .diecastTechnologyList { display: flex; flex-wrap: wrap; gap: 0.5rem 0.85rem; margin: clamp(1.1rem, 2vw, 1.75rem) 0 0; padding: 0; color: rgb(23 22 20 / 72%); font-family: var(--font-technical); font-size: var(--text-micro); letter-spacing: var(--tracking-meta); list-style: none; }
 .diecastTechnologyList li::before { margin-right: 0.45rem; color: var(--color-accent); content: "+"; }
@@ -127,7 +127,7 @@
 
 @keyframes work-enter { from { opacity: 0; transform: translateY(1.25rem); } to { opacity: 1; transform: translateY(0); } }
 
-@media (max-width: 980px) { .titleBlock { grid-column: 1 / span 7; } .media { grid-column: 5 / -1; } .details { grid-column: 1 / span 4; } .caseStudyLink { grid-column: 8 / -1; } .neoDexMedia { grid-column: 1 / span 5; } .neoDexContent, .neoDexCaseStudyLink { grid-column: 7 / -1; } .sneakerTitleBlock { grid-column: 1 / span 8; } .sneakerMedia { grid-column: 7 / span 4; } .sneakerContent, .sneakerCaseStudyLink { grid-column: 1 / span 4; } .diecastTitleBlock { top: 6rem; right: 4vw; width: min(22rem, 30vw); } .diecastScreenshot { top: 11rem; left: 4vw; width: min(60vw, 40rem); } .diecastCopy { top: 20rem; width: min(21rem, 32vw); } }
+@media (max-width: 980px) { .titleBlock { grid-column: 1 / span 7; } .media { grid-column: 5 / -1; } .details { grid-column: 1 / span 4; } .caseStudyLink { grid-column: 8 / -1; } .neoDexMedia { grid-column: 1 / span 5; } .neoDexContent, .neoDexCaseStudyLink { grid-column: 7 / -1; } .sneakerTitleBlock { grid-column: 1 / span 8; } .sneakerMedia { grid-column: 7 / span 4; } .sneakerContent, .sneakerCaseStudyLink { grid-column: 1 / span 4; } .diecastTitleBlock { top: 6rem; right: 4vw; width: min(24rem, 33vw); } .diecastScreenshot { top: 11rem; left: 4vw; width: min(60vw, 40rem); } .diecastCopy { top: 19rem; width: min(23rem, 35vw); } }
 
 @media (max-width: 680px) {
   .section { min-height: auto; }
@@ -157,7 +157,7 @@
   .sneakerCaseStudyLink { margin-top: 0.5rem; }
   .diecastProject { margin-top: 7rem; }
   .diecastComposition { display: flex; min-height: auto; flex-direction: column; align-items: stretch; gap: 2.25rem; padding: 1.25rem; }
-  .diecastTitle { font-size: clamp(4.25rem, 19vw, 6.5rem); }
+  .diecastTitle { font-size: clamp(4.5rem, 20vw, 6.75rem); }
   .diecastTitleBlock, .diecastScreenshot, .diecastCopy { position: relative; inset: auto; align-self: auto; }
   .diecastTitleBlock { margin-top: 2rem; }
   .diecastScreenshot { width: 100%; transform: none; }
