@@ -20,6 +20,18 @@ function SectionHeading({ index, children }: { index: string; children: React.Re
 
 export default function CaseStudyTemplate({ caseStudy }: CaseStudyTemplateProps) {
   const { heroMedia } = caseStudy;
+  const headings = {
+    whyIBuiltIt: "A familiar world, treated like a product.",
+    challenge: "Keep expression from getting in the way.",
+    experience: "Five modes, one product language.",
+    decisions: "Product decisions with technical consequences.",
+    engineering: "Architecture in service of the experience.",
+    toolkit: "Choices that make the product work.",
+    iteration: "A working interface and a well-art-directed interface are not the same thing.",
+    learnings: "Take the product seriously. Take the presentation seriously too.",
+    credits: "A fan-made study, presented honestly.",
+    ...caseStudy.sectionHeadings,
+  };
 
   return (
     <main className={styles.page}>
@@ -29,7 +41,7 @@ export default function CaseStudyTemplate({ caseStudy }: CaseStudyTemplateProps)
           <div className={styles.heroGrid}>
             <div className={styles.heroCopy}>
               <p className={`${styles.eyebrow} type-meta`}>{caseStudy.index} / {caseStudy.category}</p>
-              <h1 id="case-study-title">{caseStudy.title}</h1>
+              <h1 id="case-study-title" className={caseStudy.heroTitleSize === "compact" ? styles.heroTitleCompact : undefined}>{caseStudy.title}</h1>
               <p className={styles.oneLiner}>{caseStudy.oneLiner}</p>
               <div className={styles.heroActions}>
                 {caseStudy.liveUrl && <a href={caseStudy.liveUrl} target="_blank" rel="noreferrer">LIVE EXPERIENCE ↗</a>}
@@ -68,7 +80,7 @@ export default function CaseStudyTemplate({ caseStudy }: CaseStudyTemplateProps)
 
       <section className={styles.paperSection}>
         <div className={`${styles.container} ${styles.proseLayout} portfolio-container`}>
-          <SectionHeading index="03 / WHY I BUILT IT">A familiar world, treated like a product.</SectionHeading>
+          <SectionHeading index="03 / WHY I BUILT IT">{headings.whyIBuiltIt}</SectionHeading>
           <div className={styles.prose}>{caseStudy.whyIBuiltIt?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
         </div>
       </section>
@@ -76,7 +88,7 @@ export default function CaseStudyTemplate({ caseStudy }: CaseStudyTemplateProps)
       {caseStudy.challenge && (
         <section className={`${styles.darkSection} ${styles.challengeSection}`}>
           <div className={`${styles.container} ${styles.challengeLayout} portfolio-container`}>
-            <SectionHeading index="04 / THE CHALLENGE">Keep expression from getting in the way.</SectionHeading>
+            <SectionHeading index="04 / THE CHALLENGE">{headings.challenge}</SectionHeading>
             <div>
               {caseStudy.challenge.intro && <p className={styles.challengeIntro}>{caseStudy.challenge.intro}</p>}
               <ul className={styles.challengeList}>{caseStudy.challenge.points?.map((point) => <li key={point}>{point}</li>)}</ul>
@@ -88,8 +100,8 @@ export default function CaseStudyTemplate({ caseStudy }: CaseStudyTemplateProps)
       {caseStudy.experience && (
         <section className={styles.paperSection}>
           <div className={`${styles.container} portfolio-container`}>
-            <SectionHeading index="05 / THE EXPERIENCE">Five modes, one product language.</SectionHeading>
-            <div className={styles.experienceGrid}>{caseStudy.experience.map((item, index) => (
+            <SectionHeading index="05 / THE EXPERIENCE">{headings.experience}</SectionHeading>
+            <div className={`${styles.experienceGrid} ${caseStudy.experience.length === 6 ? styles.experienceGridSix : ""}`}>{caseStudy.experience.map((item, index) => (
               <article key={item.title} className={styles.experienceItem}>
                 <p className="type-meta">0{index + 1}</p>
                 <h3>{item.title}</h3>
@@ -103,7 +115,7 @@ export default function CaseStudyTemplate({ caseStudy }: CaseStudyTemplateProps)
       {caseStudy.decisions && (
         <section className={`${styles.paperSection} ${styles.decisionsSection}`}>
           <div className={`${styles.container} portfolio-container`}>
-            <SectionHeading index="06 / KEY DECISIONS">Product decisions with technical consequences.</SectionHeading>
+            <SectionHeading index="06 / KEY DECISIONS">{headings.decisions}</SectionHeading>
             <div className={styles.decisionList}>{caseStudy.decisions.map((item) => (
               <article key={item.title} className={styles.decisionItem}>
                 <p className="type-meta">{item.title}</p>
@@ -120,11 +132,29 @@ export default function CaseStudyTemplate({ caseStudy }: CaseStudyTemplateProps)
 
       <section className={styles.darkSection}>
         <div className={`${styles.container} ${styles.engineeringLayout} portfolio-container`}>
-          <SectionHeading index="07 / UNDER THE HOOD">Architecture in service of the experience.</SectionHeading>
+          <SectionHeading index="07 / UNDER THE HOOD">{headings.engineering}</SectionHeading>
           <div>
-            <div className={styles.flow} aria-label="NeoDex architecture flow">
-              <span>PokeAPI</span><i>↓</i><span>Typed data layer</span><i>↓</i><span>Explore / Detail / Compare / Team</span><i>↓</i><span>Type-driven UI system</span>
-            </div>
+            {caseStudy.architecture ? (
+              <div className={styles.architecture} aria-label={caseStudy.architecture.ariaLabel}>
+                <p className="type-meta">{caseStudy.architecture.title}</p>
+                <p>{caseStudy.architecture.description}</p>
+                <div className={styles.architectureDiagram}>
+                  <strong>{caseStudy.architecture.center}</strong>
+                  <ul>{caseStudy.architecture.branches.map((branch) => <li key={branch}>{branch}</li>)}</ul>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.flow} aria-label="NeoDex architecture flow">
+                <span>PokeAPI</span><i>↓</i><span>Typed data layer</span><i>↓</i><span>Explore / Detail / Compare / Team</span><i>↓</i><span>Type-driven UI system</span>
+              </div>
+            )}
+            {caseStudy.performance && (
+              <aside className={styles.performance}>
+                <p className="type-meta">{caseStudy.performance.label}</p>
+                <div><strong>{caseStudy.performance.before}</strong><span>→</span><strong>{caseStudy.performance.after}</strong></div>
+                <p>{caseStudy.performance.detail}</p>
+              </aside>
+            )}
             <div className={styles.engineeringList}>{caseStudy.engineering?.map((item) => (
               <article key={item.title}><h3>{item.title}</h3><p>{item.body}</p></article>
             ))}</div>
@@ -132,10 +162,24 @@ export default function CaseStudyTemplate({ caseStudy }: CaseStudyTemplateProps)
         </div>
       </section>
 
+      {caseStudy.gallery && caseStudy.gallerySection && (
+        <section className={styles.paperSection}>
+          <div className={`${styles.container} portfolio-container`}>
+            <SectionHeading index={caseStudy.gallerySection.index}>{caseStudy.gallerySection.title}</SectionHeading>
+            {caseStudy.gallerySection.description && <p className={styles.galleryDescription}>{caseStudy.gallerySection.description}</p>}
+            <div className={styles.gallery}>{caseStudy.gallery.map((media) => (
+              <figure key={media.src}>
+                <Image src={media.src} alt={media.alt} width={media.width} height={media.height} sizes="(max-width: 680px) 100vw, 33vw" />
+              </figure>
+            ))}</div>
+          </div>
+        </section>
+      )}
+
       {caseStudy.techStack && (
         <section className={`${styles.paperSection} ${styles.techSection}`}>
           <div className={`${styles.container} portfolio-container`}>
-            <SectionHeading index="08 / THE TOOLKIT">Choices that make the product work.</SectionHeading>
+            <SectionHeading index={caseStudy.gallery ? "09 / THE TOOLKIT" : "08 / THE TOOLKIT"}>{headings.toolkit}</SectionHeading>
             <ul className={styles.techList}>{caseStudy.techStack.map((item) => <li key={item.name}><strong>{item.name}</strong><span>{item.reason}</span></li>)}</ul>
           </div>
         </section>
@@ -144,7 +188,7 @@ export default function CaseStudyTemplate({ caseStudy }: CaseStudyTemplateProps)
       {caseStudy.iterations && (
         <section className={`${styles.paperSection} ${styles.iterationSection}`}>
           <div className={`${styles.container} portfolio-container`}>
-            <SectionHeading index="09 / WHAT CHANGED">A working interface and a well-art-directed interface are not the same thing.</SectionHeading>
+            <SectionHeading index={caseStudy.gallery ? "10 / WHAT CHANGED" : "09 / WHAT CHANGED"}>{headings.iteration}</SectionHeading>
             {caseStudy.iterations.map((item) => (
               <article key={item.before} className={styles.iterationItem}>
                 <p className="type-meta">{item.before}</p>
@@ -159,7 +203,7 @@ export default function CaseStudyTemplate({ caseStudy }: CaseStudyTemplateProps)
 
       <section className={styles.paperSection}>
         <div className={`${styles.container} ${styles.learningLayout} portfolio-container`}>
-          <SectionHeading index="10 / WHAT I LEARNED">Take the product seriously. Take the presentation seriously too.</SectionHeading>
+          <SectionHeading index={caseStudy.gallery ? "11 / WHAT I LEARNED" : "10 / WHAT I LEARNED"}>{headings.learnings}</SectionHeading>
           <ul>{caseStudy.learnings?.map((item) => <li key={item}>{item}</li>)}</ul>
         </div>
       </section>
@@ -167,7 +211,7 @@ export default function CaseStudyTemplate({ caseStudy }: CaseStudyTemplateProps)
       {caseStudy.credits && (
         <section className={styles.creditsSection}>
           <div className={`${styles.container} portfolio-container`}>
-            <SectionHeading index="11 / CREDITS + REALITY CHECK">A fan-made study, presented honestly.</SectionHeading>
+            <SectionHeading index={caseStudy.gallery ? "12 / CREDITS + REALITY CHECK" : "11 / CREDITS + REALITY CHECK"}>{headings.credits}</SectionHeading>
             <div className={styles.creditsList}>{caseStudy.credits.map((item) => (
               <p key={item.label}><span>{item.label}</span>{item.url ? <a href={item.url} target="_blank" rel="noreferrer">{item.detail} ↗</a> : item.detail}</p>
             ))}</div>
@@ -177,7 +221,7 @@ export default function CaseStudyTemplate({ caseStudy }: CaseStudyTemplateProps)
 
       <footer className={styles.outro}>
         <div className={`${styles.container} portfolio-container`}>
-          <p className="type-meta">12 / BACK TO WORK</p>
+          <p className="type-meta">{caseStudy.gallery ? "13" : "12"} / BACK TO WORK</p>
           <Link href="/#work">BACK TO SELECTED WORK <span>↗</span></Link>
         </div>
       </footer>

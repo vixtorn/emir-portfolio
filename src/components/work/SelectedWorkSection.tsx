@@ -41,12 +41,12 @@ export default function SelectedWorkSection() {
             </ul>
           </div>
 
-          <a className={styles.caseStudyLink} href="#work" aria-label="CNC Motion Showcase case study coming soon">
+          <Link className={styles.caseStudyLink} href="/work/cnc-motion-showcase" aria-label="View CNC Motion Showcase case study">
             <span>VIEW CASE STUDY</span>
             <span className={styles.arrow} aria-hidden="true">
               ↗
             </span>
-          </a>
+          </Link>
         </div>
 
         <article className={styles.neoDexProject} aria-labelledby="neo-dex-title">

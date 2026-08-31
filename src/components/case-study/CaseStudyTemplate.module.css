@@ -8,6 +8,7 @@
 .heroCopy { grid-column: 1 / span 5; padding-bottom: clamp(1rem, 3vw, 3rem); }
 .eyebrow { margin: 0 0 clamp(1rem, 2vw, 1.75rem); color: var(--color-accent); }
 .hero h1 { margin: 0; font-family: var(--font-display); font-size: clamp(5rem, 12vw, 14rem); font-synthesis: none; font-weight: 400; letter-spacing: -0.07em; line-height: 0.72; }
+.hero h1.heroTitleCompact { font-size: clamp(4.5rem, 8vw, 9rem); line-height: 0.78; }
 .oneLiner { max-width: 27ch; margin: clamp(2rem, 4vw, 4rem) 0 0; font-size: clamp(1.25rem, 1.9vw, 2rem); line-height: 1.28; }
 .heroActions { display: flex; flex-wrap: wrap; gap: 1rem 1.75rem; margin-top: clamp(2rem, 4vw, 3rem); }
 .heroMedia { position: relative; grid-column: 6 / -1; margin: 0; overflow: hidden; border: 1px solid rgb(241 238 231 / 24%); background: var(--surface-graphite); box-shadow: 0 2rem 4rem rgb(0 0 0 / 24%); }
@@ -19,7 +20,7 @@
 .introSection { padding-top: var(--section-space-md); }
 .personalNote { width: min(34rem, 100%); margin-left: auto; border: 1px solid rgb(23 22 20 / 30%); padding: clamp(1.5rem, 3vw, 2.75rem); background: #e7e1d5; box-shadow: 0.55rem 0.55rem 0 rgb(23 22 20 / 10%); transform: rotate(1deg); }
 .personalNote > p:first-child { margin: 0 0 1.25rem; color: var(--color-accent); }
-.personalNote p:not(:first-child) { margin: 0; font-family: var(--font-display); font-size: clamp(1.45rem, 2.2vw, 2.2rem); letter-spacing: -0.03em; line-height: 1.08; }
+.personalNote p:not(:first-child) { margin: 0; font-family: var(--font-display); font-size: clamp(1.45rem, 2.2vw, 2.2rem); letter-spacing: -0.03em; line-height: 1.08; white-space: pre-line; }
 .personalNote p + p { margin-top: 1.25rem; }
 .snapshot { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: clamp(1.5rem, 4vw, 4rem); width: min(58rem, 100%); margin: clamp(5rem, 10vw, 10rem) 0 0; border-top: 1px solid var(--color-ink); padding-top: 1rem; }
 .snapshot p { margin: 0; font-size: var(--text-body); }
@@ -44,6 +45,8 @@
 .experienceItem:nth-child(1), .experienceItem:nth-child(2), .experienceItem:nth-child(3) { grid-column: span 4; }
 .experienceItem:nth-child(4) { grid-column: 3 / span 4; }
 .experienceItem:nth-child(5) { grid-column: 7 / span 4; }
+.experienceGridSix { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.experienceGridSix .experienceItem { grid-column: auto; }
 .experienceItem > p:first-child { margin: 0; color: var(--color-accent); }
 .experienceItem h3 { margin: clamp(2rem, 5vw, 5rem) 0 0; font-family: var(--font-display); font-size: clamp(2rem, 3vw, 3.5rem); font-synthesis: none; font-weight: 400; letter-spacing: -0.04em; line-height: 0.9; }
 .experienceItem h3 + p { max-width: 28ch; margin: 1rem 0 0; font-size: var(--text-body); }
@@ -59,10 +62,26 @@
 .flow { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; margin-bottom: clamp(3rem, 6vw, 5rem); border: 1px solid rgb(241 238 231 / 24%); padding: clamp(1.5rem, 3vw, 2.75rem); color: var(--color-silver); font-family: var(--font-technical); font-size: var(--text-meta); letter-spacing: var(--tracking-meta); }
 .flow span:nth-of-type(2), .flow span:nth-of-type(4) { color: var(--color-paper); }
 .flow i { color: var(--color-accent); font-style: normal; }
+.architecture { margin-bottom: clamp(3rem, 6vw, 5rem); }
+.architecture > p:first-child { margin: 0; color: var(--color-accent); }
+.architecture > p:nth-child(2) { max-width: 38rem; margin: 1rem 0 2rem; color: var(--color-silver); font-size: var(--text-body); line-height: 1.45; }
+.architectureDiagram { display: grid; grid-template-columns: minmax(11rem, 0.7fr) minmax(0, 1.3fr); gap: 1px; border: 1px solid rgb(241 238 231 / 24%); background: rgb(241 238 231 / 24%); }
+.architectureDiagram strong { display: grid; place-items: center; min-height: 11rem; padding: 1.5rem; background: var(--surface-graphite); color: var(--color-paper); font-family: var(--font-technical); font-size: var(--text-meta); font-weight: 400; letter-spacing: var(--tracking-meta); text-align: center; }
+.architectureDiagram ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin: 0; padding: 0; list-style: none; }
+.architectureDiagram li { display: grid; min-height: 5.5rem; align-items: center; padding: 1rem; background: var(--surface-graphite); color: var(--color-silver); font-family: var(--font-technical); font-size: var(--text-micro); letter-spacing: var(--tracking-meta); }
+.performance { margin: 0 0 2rem; border: 1px solid rgb(241 238 231 / 24%); padding: clamp(1.25rem, 2vw, 2rem); }
+.performance > p:first-child { margin: 0; color: var(--color-accent); }
+.performance div { display: flex; align-items: center; gap: clamp(0.75rem, 2vw, 1.5rem); margin-top: 1rem; font-family: var(--font-display); font-size: clamp(2.25rem, 4vw, 4rem); letter-spacing: -0.055em; line-height: 0.85; }
+.performance div span { color: var(--color-accent); }
+.performance > p:last-child { margin: 1.25rem 0 0; color: var(--color-silver); font-size: var(--text-body); line-height: 1.45; }
 .engineeringList { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: rgb(241 238 231 / 20%); }
 .engineeringList article { min-height: 13rem; padding: clamp(1.25rem, 2vw, 2rem); background: var(--surface-graphite); }
 .engineeringList h3 { margin: 0; font-size: clamp(1.1rem, 1.5vw, 1.4rem); font-weight: 500; }
 .engineeringList p { margin: 1rem 0 0; color: var(--color-silver); font-size: var(--text-body); line-height: 1.4; }
+.galleryDescription { width: min(34rem, 100%); margin: clamp(2rem, 5vw, 5rem) 0 0 auto; font-size: clamp(1.2rem, 1.7vw, 1.7rem); line-height: 1.4; }
+.gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin-top: clamp(3rem, 7vw, 7rem); background: rgb(23 22 20 / 20%); }
+.gallery figure { margin: 0; overflow: hidden; background: var(--surface-dark); }
+.gallery img { display: block; width: 100%; height: auto; }
 .techSection { border-top: 1px solid rgb(23 22 20 / 16%); }
 .techList { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: clamp(4rem, 9vw, 9rem) 0 0; padding: 0; background: rgb(23 22 20 / 20%); list-style: none; }
 .techList li { min-height: 12rem; padding: 1.25rem; background: var(--surface-paper); }
@@ -117,6 +136,9 @@
   .decisionItem h3 { margin-top: 1.5rem; }
   .decisionItem > div { margin-top: 1.5rem; }
   .engineeringList, .techList { grid-template-columns: 1fr; }
+  .architectureDiagram { grid-template-columns: 1fr; }
+  .architectureDiagram strong { min-height: 6rem; }
+  .gallery { grid-template-columns: 1fr; }
   .engineeringList article, .techList li { min-height: auto; }
   .iterationItem > div { margin-top: 1.75rem; }
   .learningLayout > ul { width: 100%; }
