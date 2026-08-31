@@ -164,12 +164,12 @@ export default function SelectedWorkSection() {
                 ))}
               </ul>
 
-              <a className={styles.diecastCaseStudyLink} href="#work" aria-label="Diecast case study coming soon">
+              <Link className={styles.diecastCaseStudyLink} href="/work/diecast" aria-label="View Diecast Vault case study">
                 <span>VIEW CASE STUDY</span>
                 <span className={styles.arrow} aria-hidden="true">
                   ↗
                 </span>
-              </a>
+              </Link>
             </div>
           </div>
         </article>
