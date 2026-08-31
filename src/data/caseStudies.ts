@@ -40,6 +40,7 @@ export type CaseStudy = {
   credits?: Array<{ label: string; detail: string; url?: string }>;
   sectionHeadings?: CaseStudySectionHeadings;
   architecture?: { title: string; description: string; center: string; branches: string[]; ariaLabel: string };
+  pipeline?: { title: string; description: string; steps: string[]; ariaLabel: string };
   performance?: { label: string; before: string; after: string; detail: string };
   heroMedia?: CaseStudyMedia;
   gallery?: CaseStudyMedia[];
@@ -47,6 +48,109 @@ export type CaseStudy = {
 };
 
 export const caseStudies: readonly CaseStudy[] = [
+  {
+    slug: "sneaker-configurator",
+    index: "03",
+    title: "SOLELAB",
+    category: "INTERACTIVE 3D SNEAKER CONFIGURATOR",
+    oneLiner: "A real-time sneaker customization experience built around material systems, configurable geometry and a Blender-to-web asset pipeline.",
+    liveUrl: "https://solelab-lyart.vercel.app/",
+    sourceUrl: "https://github.com/vixtorn/sneaker-configurator",
+    role: "Creative Developer / 3D Product Engineer",
+    focus: ["Real-time 3D", "Material systems", "Asset pipeline", "Product interaction", "Responsive WebGL"],
+    personalNote: {
+      eyebrow: "A MATERIAL NOTE",
+      body: "This is the project where I learned that UVs and textures can humble you very quickly.\n\nI spent far more time fighting UV maps, texel density and material behaviour than I expected.\n\nAlso, yes — there's only one shoe.\n\nI lost the other one somewhere between the UVs and texture nodes.",
+    },
+    whyIBuiltIt: [
+      "I didn't want to place a 3D model on a webpage and call it an interactive product. I wanted the model itself to become configurable — individual parts, colors and materials controlled in real time while the sneaker remained a coherent product.",
+      "The project became an excuse to understand what has to happen between a Blender asset and a reliable browser-based product configurator.",
+    ],
+    challenge: {
+      intro: "The challenge was to make a prepared base asset behave like a deliberate product system in the browser, without claiming the original sneaker geometry as my own modelling work.",
+      points: [
+        "Keep Upper, Toe, Tongue, Laces and Sole independently addressable.",
+        "Make material presets read consistently across configurable regions.",
+        "Prevent interactive changes from mutating loader-cached GLTF materials.",
+        "Hand the first-load cinematic naturally to direct orbit interaction.",
+        "Support a full-bleed desktop viewer and a practical stacked mobile layout with the same model.",
+      ],
+    },
+    experience: [
+      { title: "Choose a region", description: "Upper, Toe, Tongue, Laces and Sole are named product regions, not anonymous GLTF fragments." },
+      { title: "Tune the surface", description: "Upper regions can combine a selected color with Smooth Leather, Pebbled Leather, Suede, Canvas or Denim." },
+      { title: "Set the finish", description: "Preset swatches and validated custom HEX input update the active configurable region in real time." },
+      { title: "Separate laces", description: "Laces keep an independent color state instead of inheriting the upper configuration." },
+      { title: "Switch the sole", description: "The outsole exposes Standard and Gum variants as a distinct product choice." },
+    ],
+    decisions: [
+      { title: "01 / ADDRESSABLE MESHES", decision: "Prepare and name configurable sneaker regions in Blender before web integration.", reason: "A product configurator needs to address Upper, Toe, Tongue, Laces and Sole—not arbitrary GLTF mesh fragments.", tradeoff: "The asset hierarchy becomes part of the product architecture, so preparation work happens before UI work." },
+      { title: "02 / DEDICATED UV_WEB", decision: "Prepare a dedicated UV_Web channel for predictable browser material behaviour.", reason: "Checker textures expose stretching, orientation, texel density and inconsistent scale before Suede, Canvas, Denim and Leather presets reach the runtime.", tradeoff: "UV preparation adds Blender-side work, but makes browser material behaviour far easier to control." },
+      { title: "03 / PBR MATERIAL TESTING", decision: "Visually test Base Color, Roughness, Normal Map, Mapping and Principled BSDF combinations before creating runtime presets.", reason: "The browser uses color, normal and roughness maps, so surface response is considered before implementation—not guessed later.", tradeoff: "The project deliberately avoids claiming displacement where it is not used." },
+      { title: "04 / RUNTIME-OWNED MATERIALS", decision: "Load the GLB once, deep-clone its scene, then build owned material instances for named configurable meshes.", reason: "Interactive color and material changes should not mutate loader-cached shared GLTF resources.", tradeoff: "Material and cloned-texture lifecycle needs explicit ownership and disposal." },
+      { title: "05 / CONFIGURATION STATE", decision: "Keep product configuration in Zustand, separate from the 3D scene.", reason: "The UI describes the desired product; React Three Fiber renders that state onto the prepared mesh hierarchy.", tradeoff: "Refreshing currently returns to the default configuration because persistence is intentionally not implemented." },
+      { title: "06 / ONE MODEL, TWO MOMENTS", decision: "Use the same Canvas and runtime GLB for the cinematic reveal and interactive configurator.", reason: "The lace macro, camera pullback and UI reveal hand their final state to OrbitControls instead of cutting to a duplicate scene.", tradeoff: "Camera and controls need precise coordination at the handoff." },
+    ],
+    pipeline: {
+      title: "BLENDER → WEB",
+      description: "The original base asset was prepared and adapted for configuration. The web product is the result of this pipeline, not simply a model dropped into a canvas.",
+      steps: ["BASE 3D ASSET", "BLENDER INSPECTION", "MESH SEPARATION + NAMING", "UV_WEB", "CHECKER VALIDATION", "PBR MATERIAL TESTING", "GLB EXPORT", "REACT THREE FIBER", "RUNTIME MATERIAL SYSTEM", "ZUSTAND CONFIGURATION", "INTERACTIVE PRODUCT"],
+      ariaLabel: "SOLELAB Blender to web asset pipeline",
+    },
+    engineering: [
+      { title: "Owned runtime materials", body: "Known material presets are created once and assigned to named Upper, Toe and Tongue meshes. Lace and outsole colors update their own owned material sets directly." },
+      { title: "Independent configuration", body: "Zustand keeps Upper, Toe, Tongue, Laces and Sole state separate. Material/preset/HEX selections are scoped to upper regions; laces and sole own their distinct controls." },
+      { title: "Cinematic to interactive", body: "The first load begins on the lace and eyelet region, pulls back, reveals the interface, then hands the final camera and target to OrbitControls using the same Canvas and scene." },
+      { title: "Responsive viewer architecture", body: "Desktop uses a viewport-wide Canvas beneath editorial layers. Tablet and mobile keep the same model but switch to a dedicated viewer height and stacked document flow." },
+    ],
+    gallerySection: { index: "08 / THE PREPARATION", title: "The technical mess was part of the material system.", description: "Authentic Blender captures show the work that made runtime configuration predictable: mesh segmentation, UV_Web inspection, checker validation and PBR surface testing." },
+    gallery: [
+      { src: "/images/work/solelab/blender-mesh-segmentation.png", alt: "Configurable sneaker meshes named and separated in Blender", width: 2009, height: 1106 },
+      { src: "/images/work/solelab/blender-uv-web-layout.png", alt: "Dedicated UV_Web layout prepared in Blender", width: 1590, height: 1057 },
+      { src: "/images/work/solelab/blender-uv-checker-validation.png", alt: "Checker texture validation on the prepared sneaker model", width: 1296, height: 544 },
+      { src: "/images/work/solelab/blender-pbr-material-nodes.png", alt: "PBR material node setup in Blender", width: 1133, height: 888 },
+      { src: "/images/work/solelab/blender-suede-material-preview.png", alt: "Suede material preview on the prepared sneaker geometry in Blender", width: 1295, height: 681 },
+    ],
+    techStack: [
+      { name: "Next.js 16", reason: "Application structure and the responsive product interface." },
+      { name: "React 19 + TypeScript", reason: "Typed, reusable configuration and UI systems." },
+      { name: "Three.js + R3F", reason: "Real-time rendering and runtime material assignment." },
+      { name: "Drei", reason: "GLB loading, bounds, centering, controls, overlays and contact shadows." },
+      { name: "Zustand", reason: "Independent product configuration state." },
+      { name: "react-colorful", reason: "Custom HEX color interaction." },
+      { name: "Blender", reason: "Asset preparation, mesh hierarchy, UV validation and material testing." },
+      { name: "Vercel", reason: "Deployment for the live product experience." },
+    ],
+    iterations: [
+      { before: "DISPLAYED MODEL", problem: "Loading a 3D model is not enough for a dependable product configurator; its meshes, UVs and materials need predictable runtime behaviour.", decision: "Separate meaningful regions, create UV_Web, validate with checker textures, test materials, export the GLB, then build runtime-owned materials around named meshes.", result: "The prepared asset becomes an addressable product system rather than a passive 3D object." },
+      { before: "SHARED LOADER MATERIALS", problem: "Mutating loaded materials directly is simple, but cached GLTF resources can be shared across uses.", decision: "Deep-clone the scene and create runtime-owned material instances before interactive material/color changes occur.", result: "The configurator owns the material resources it changes." },
+    ],
+    learnings: [
+      "Before SOLELAB, I mostly thought of a 3D asset as geometry. Afterwards, hierarchy, UV ownership, texel density, runtime addressability and material lifecycle became part of the application architecture.",
+      "Web-ready 3D begins before the GLB reaches the browser.",
+      "Asset structure and product interaction are connected.",
+      "UV problems cannot always be fixed with runtime code.",
+      "Reusable material systems need ownership discipline.",
+      "Cinematic presentation should hand off naturally to interaction.",
+      "Responsive 3D requires layout decisions as much as rendering decisions.",
+    ],
+    credits: [
+      { label: "Asset reality check", detail: "SOLELAB-specific work includes Blender asset preparation, configurable mesh separation, scene-object naming, lace organization, UV_Web preparation, UV validation, material testing, GLB integration, runtime material architecture, interface implementation and the responsive cinematic viewer. The repository does not clearly establish original model-source or texture-source licensing; the original base asset is not claimed as SOLELAB-authored geometry." },
+      { label: "Future directions", detail: "Possible next steps include shareable configuration URLs, saved designs, PNG preview export, additional configurable parts and material presets, KTX2 texture compression, and lower-end mobile GPU profiling. These are not implemented features." },
+    ],
+    sectionHeadings: {
+      whyIBuiltIt: "A product configuration starts before the browser.",
+      challenge: "Make one prepared asset behave like a real product system.",
+      experience: "Five controls, one coherent sneaker.",
+      decisions: "Six decisions from mesh hierarchy to product state.",
+      engineering: "The Blender-to-web pipeline is the product architecture.",
+      toolkit: "Tools with clear material and interaction responsibilities.",
+      iteration: "From a displayed model to an addressable product system.",
+      learnings: "The asset is part of the application architecture.",
+      credits: "Be exact about the work—and the asset source.",
+    },
+    heroMedia: { src: "/images/work/solelab/solelab-configurator-hero.png", alt: "SOLELAB interactive 3D sneaker configurator interface", width: 1910, height: 1020 },
+  },
   {
     slug: "cnc-motion-showcase",
     index: "01",

@@ -118,12 +118,12 @@ export default function SelectedWorkSection() {
               </ul>
             </div>
 
-            <a className={styles.sneakerCaseStudyLink} href="#work" aria-label="Sneaker Configurator case study coming soon">
+            <Link className={styles.sneakerCaseStudyLink} href="/work/sneaker-configurator" aria-label="View SOLELAB case study">
               <span>VIEW CASE STUDY</span>
               <span className={styles.arrow} aria-hidden="true">
                 ↗
               </span>
-            </a>
+            </Link>
           </div>
         </article>
 

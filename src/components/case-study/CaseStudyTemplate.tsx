@@ -134,7 +134,13 @@ export default function CaseStudyTemplate({ caseStudy }: CaseStudyTemplateProps)
         <div className={`${styles.container} ${styles.engineeringLayout} portfolio-container`}>
           <SectionHeading index="07 / UNDER THE HOOD">{headings.engineering}</SectionHeading>
           <div>
-            {caseStudy.architecture ? (
+            {caseStudy.pipeline ? (
+              <div className={styles.pipeline} aria-label={caseStudy.pipeline.ariaLabel}>
+                <p className="type-meta">{caseStudy.pipeline.title}</p>
+                <p>{caseStudy.pipeline.description}</p>
+                <ol>{caseStudy.pipeline.steps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, "0")}</span>{step}</li>)}</ol>
+              </div>
+            ) : caseStudy.architecture ? (
               <div className={styles.architecture} aria-label={caseStudy.architecture.ariaLabel}>
                 <p className="type-meta">{caseStudy.architecture.title}</p>
                 <p>{caseStudy.architecture.description}</p>

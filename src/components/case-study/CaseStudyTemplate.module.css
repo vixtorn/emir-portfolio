@@ -69,6 +69,13 @@
 .architectureDiagram strong { display: grid; place-items: center; min-height: 11rem; padding: 1.5rem; background: var(--surface-graphite); color: var(--color-paper); font-family: var(--font-technical); font-size: var(--text-meta); font-weight: 400; letter-spacing: var(--tracking-meta); text-align: center; }
 .architectureDiagram ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin: 0; padding: 0; list-style: none; }
 .architectureDiagram li { display: grid; min-height: 5.5rem; align-items: center; padding: 1rem; background: var(--surface-graphite); color: var(--color-silver); font-family: var(--font-technical); font-size: var(--text-micro); letter-spacing: var(--tracking-meta); }
+.pipeline { margin-bottom: clamp(3rem, 6vw, 5rem); }
+.pipeline > p:first-child { margin: 0; color: var(--color-accent); }
+.pipeline > p:nth-child(2) { max-width: 38rem; margin: 1rem 0 2rem; color: var(--color-silver); font-size: var(--text-body); line-height: 1.45; }
+.pipeline ol { margin: 0; padding: 0; border: 1px solid rgb(241 238 231 / 24%); list-style: none; }
+.pipeline li { display: grid; grid-template-columns: 3.25rem minmax(0, 1fr); gap: 1rem; align-items: center; min-height: 3.25rem; padding: 0.65rem 1rem; color: var(--color-silver); font-family: var(--font-technical); font-size: var(--text-micro); letter-spacing: var(--tracking-meta); }
+.pipeline li + li { border-top: 1px solid rgb(241 238 231 / 18%); }
+.pipeline li span { color: var(--color-accent); }
 .performance { margin: 0 0 2rem; border: 1px solid rgb(241 238 231 / 24%); padding: clamp(1.25rem, 2vw, 2rem); }
 .performance > p:first-child { margin: 0; color: var(--color-accent); }
 .performance div { display: flex; align-items: center; gap: clamp(0.75rem, 2vw, 1.5rem); margin-top: 1rem; font-family: var(--font-display); font-size: clamp(2.25rem, 4vw, 4rem); letter-spacing: -0.055em; line-height: 0.85; }
