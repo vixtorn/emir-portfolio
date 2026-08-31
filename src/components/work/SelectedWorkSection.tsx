@@ -9,32 +9,6 @@ const neoDexTechnologies = ["NEXT.JS", "TYPESCRIPT", "REACT THREE FIBER", "THREE
 const sneakerTechnologies = ["NEXT.JS", "REACT THREE FIBER", "THREE.JS", "REAL-TIME MATERIALS"];
 const diecastTechnologies = ["REACT THREE FIBER", "THREE.JS", "WEBGL"];
 
-function NeoDexMediaPlaceholder() {
-  return (
-    <div
-      className={styles.neoDexMedia}
-      role="img"
-      aria-label="Abstract catalogue media placeholder for NeoDex"
-    >
-      <div className={styles.neoDexMediaHeader}>
-        <span>DEX INDEX / 002</span>
-        <span>FILTER STATE / ACTIVE</span>
-      </div>
-      <div className={styles.neoDexRail} aria-hidden="true">
-        <span>GEN / INDEX</span>
-        <span>002</span>
-      </div>
-      <div className={styles.neoDexSpecimen} aria-hidden="true">
-        <span className={styles.neoDexSpecimenInner} />
-      </div>
-      <div className={styles.neoDexMediaFooter}>
-        <span>SPECIMEN VIEW</span>
-        <span>INTERFACE PREVIEW</span>
-      </div>
-    </div>
-  );
-}
-
 export default function SelectedWorkSection() {
   return (
     <section id="work" className={`${styles.section} surface-paper`} aria-labelledby="work-title">
@@ -81,7 +55,14 @@ export default function SelectedWorkSection() {
           </header>
 
           <div className={styles.neoDexComposition}>
-            <NeoDexMediaPlaceholder />
+            <div className={styles.neoDexMedia}>
+              <Image
+                src="/images/work/neodex/neodex-selected-work-v1.png"
+                alt="NeoDex product showcase featuring creature exploration and comparison interfaces"
+                fill
+                sizes="(max-width: 680px) 100vw, (max-width: 980px) 42vw, 58vw"
+              />
+            </div>
 
             <div className={styles.neoDexContent}>
               <p className={`${styles.neoDexCategory} type-meta`}>DIGITAL PRODUCT / 2026</p>
