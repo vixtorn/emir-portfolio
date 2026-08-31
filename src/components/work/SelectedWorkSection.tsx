@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 import CncSequencePreview from "./CncSequencePreview";
 import styles from "./SelectedWorkSection.module.css";
@@ -80,12 +81,12 @@ export default function SelectedWorkSection() {
               </ul>
             </div>
 
-            <a className={styles.neoDexCaseStudyLink} href="#work" aria-label="NeoDex case study coming soon">
+            <Link className={styles.neoDexCaseStudyLink} href="/work/neodex" aria-label="View NeoDex case study">
               <span>VIEW CASE STUDY</span>
               <span className={styles.arrow} aria-hidden="true">
                 ↗
               </span>
-            </a>
+            </Link>
           </div>
         </article>
 
