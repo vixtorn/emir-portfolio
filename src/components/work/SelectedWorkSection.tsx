@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+import CncSequencePreview from "./CncSequencePreview";
 import styles from "./SelectedWorkSection.module.css";
 import SneakerPreview from "./SneakerPreview";
 
@@ -7,33 +8,6 @@ const technologies = ["NEXT.JS", "WEBGL", "MOTION", "UI SYSTEMS"];
 const neoDexTechnologies = ["NEXT.JS", "TYPESCRIPT", "REACT THREE FIBER", "THREE.JS"];
 const sneakerTechnologies = ["NEXT.JS", "REACT THREE FIBER", "THREE.JS", "REAL-TIME MATERIALS"];
 const diecastTechnologies = ["REACT THREE FIBER", "THREE.JS", "WEBGL"];
-
-function CncMediaPlaceholder() {
-  return (
-    <div
-      className={styles.media}
-      role="img"
-      aria-label="Abstract technical media placeholder for CNC Motion Showcase"
-    >
-      <div className={styles.mediaHeader}>
-        <span>MEDIA SLOT / 01</span>
-        <span>AXIS / X-Y-Z</span>
-      </div>
-      <div className={styles.mediaGrid} aria-hidden="true" />
-      <div className={styles.toolpath} aria-hidden="true">
-        <span className={styles.toolpathPoint} />
-      </div>
-      <div className={styles.crosshair} aria-hidden="true">
-        <span />
-        <span />
-      </div>
-      <div className={styles.mediaReadout}>
-        <span>CNC SYSTEM / PREVIEW</span>
-        <span>REAL-TIME STUDY</span>
-      </div>
-    </div>
-  );
-}
 
 function NeoDexMediaPlaceholder() {
   return (
@@ -70,7 +44,7 @@ export default function SelectedWorkSection() {
           <p className={`${styles.projectCount} type-meta`}>01 / 04</p>
         </header>
 
-        <div className={styles.composition}>
+        <div className={styles.composition} data-cnc-motion-showcase>
           <div className={styles.titleBlock}>
             <p className={`${styles.category} type-meta`}>INTERACTIVE SYSTEM / 2026</p>
             <h2 id="work-title" className={styles.title}>
@@ -78,7 +52,7 @@ export default function SelectedWorkSection() {
             </h2>
           </div>
 
-          <CncMediaPlaceholder />
+          <CncSequencePreview className={styles.media} />
 
           <div className={styles.details}>
             <p className={styles.description}>
