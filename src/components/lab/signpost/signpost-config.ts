@@ -13,6 +13,24 @@ export const signpostConfig = {
     travelViewportHeights: 2,
     fullTurnRadians: Math.PI * 2,
   },
+  trafficLight: {
+    redToAmber: {
+      start: 0.68,
+      end: 0.72,
+    },
+    amberToGreen: {
+      start: 0.9,
+      end: 0.94,
+    },
+    activeEmissiveIntensity: 1.15,
+    inactiveEmissiveIntensity: 0.04,
+    reducedMotionProgress: 1,
+    lenses: {
+      red: "Lens_Red",
+      amber: "Lens_Amber",
+      green: "Lens_Green",
+    },
+  },
 } as const;
 
 export const signpostRequiredNodes = [
