@@ -1,0 +1,1 @@
+import LabShell from "@/components/lab/LabShell";import PlaygroundComposition from "@/components/playground/composition/PlaygroundComposition";export default function Page(){return <LabShell number="11" title="PLAYGROUND COMPOSITION" purpose="Production-intent shared-canvas artifact composition."><PlaygroundComposition/></LabShell>}
