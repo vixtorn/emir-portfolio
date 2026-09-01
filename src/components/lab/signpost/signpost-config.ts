@@ -9,6 +9,10 @@ export const signpostConfig = {
   renderer: {
     maxDpr: 1.75,
   },
+  scrollRotation: {
+    travelViewportHeights: 2,
+    fullTurnRadians: Math.PI * 2,
+  },
 } as const;
 
 export const signpostRequiredNodes = [

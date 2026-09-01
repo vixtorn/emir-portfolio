@@ -1,13 +1,23 @@
 "use client";
 
-import { useLoader } from "@react-three/fiber";
-import { useMemo } from "react";
+import { useFrame, useLoader } from "@react-three/fiber";
+import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
+import { Group } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 import { signpostConfig, signpostRequiredNodes } from "./signpost-config";
 
-export default function SignpostModel() {
+type SignpostModelProps = {
+  rotationProgressRef: MutableRefObject<number>;
+  reducedMotion: boolean;
+};
+
+export default function SignpostModel({
+  rotationProgressRef,
+  reducedMotion,
+}: SignpostModelProps) {
   const gltf = useLoader(GLTFLoader, signpostConfig.modelUrl);
+  const modelRootRef = useRef<Group>(null);
 
   const missingNodes = useMemo(
     () =>
@@ -16,10 +26,36 @@ export default function SignpostModel() {
       ),
     [gltf.scene],
   );
+  useEffect(() => {
+    const rotatingAssembly = modelRootRef.current?.getObjectByName(
+      "RotatingAssembly",
+    );
+
+    if (rotatingAssembly) {
+      rotatingAssembly.rotation.y = 0;
+    }
+  }, [reducedMotion]);
+
+  useFrame(() => {
+    const rotatingAssembly = modelRootRef.current?.getObjectByName(
+      "RotatingAssembly",
+    );
+
+    if (!rotatingAssembly || reducedMotion) {
+      return;
+    }
+
+    rotatingAssembly.rotation.y =
+      rotationProgressRef.current * signpostConfig.scrollRotation.fullTurnRadians;
+  });
 
   if (missingNodes.length > 0) {
     throw new Error(`Signpost GLB is missing: ${missingNodes.join(", ")}`);
   }
 
-  return <primitive object={gltf.scene} />;
+  return (
+    <group ref={modelRootRef}>
+      <primitive object={gltf.scene} />
+    </group>
+  );
 }
