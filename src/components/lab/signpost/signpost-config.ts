@@ -59,13 +59,18 @@ export const signpostConfig = {
       },
       {
         progress: 0.08,
-        position: [6.8, 5.7, 10.9] as const,
-        target: [0, 3.05, 0] as const,
+        position: [6.8, 6.1, 10.9] as const,
+        target: [0, 3.55, 0] as const,
       },
       {
         progress: 0.2,
-        position: [2.65, 5.8, 4.05] as const,
-        target: [0, 3.7, 0] as const,
+        position: [2.65, 7.35, 4.05] as const,
+        target: [0, 5, 0] as const,
+      },
+      {
+        progress: 0.26,
+        position: [2.6, 7.05, 4] as const,
+        target: [0, 4.75, 0] as const,
       },
       {
         progress: 0.42,
@@ -101,13 +106,18 @@ export const signpostConfig = {
       },
       {
         progress: 0.08,
-        position: [7.9, 6, 13.2] as const,
-        target: [0, 3.05, 0] as const,
+        position: [7.9, 6.4, 13.2] as const,
+        target: [0, 3.55, 0] as const,
       },
       {
         progress: 0.2,
-        position: [4.95, 6.2, 7.6] as const,
-        target: [0, 3.7, 0] as const,
+        position: [4.95, 7.8, 7.6] as const,
+        target: [0, 5, 0] as const,
+      },
+      {
+        progress: 0.26,
+        position: [4.9, 7.55, 7.5] as const,
+        target: [0, 4.75, 0] as const,
       },
       {
         progress: 0.42,
