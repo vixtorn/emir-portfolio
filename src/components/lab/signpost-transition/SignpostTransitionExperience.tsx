@@ -15,7 +15,7 @@ import { signpostConfig } from "@/components/signpost/signpost-config";
 import styles from "./SignpostTransitionExperience.module.css";
 
 const coneMotion = {
-  finalX: -0.95,
+  finalX: -1.25,
   initialTiltZ: (4 * Math.PI) / 180,
   initialX: -1.55,
   initialY: 8.4,
@@ -109,6 +109,7 @@ function TrafficCone({
     <group
       ref={coneRef}
       position={[coneMotion.initialX, coneMotion.initialY, coneMotion.z]}
+      scale={2}
     >
       <primitive object={gltf.scene} position={[0, groundOffset, 0]} />
     </group>

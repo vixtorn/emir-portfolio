@@ -16,6 +16,7 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { gpuSceneConfig } from "@/lib/performance/gpu-config";
 
 import SignpostCameraRig from "./SignpostCameraRig";
+import SignpostCone from "./SignpostCone";
 import SignpostModel from "./SignpostModel";
 import { signpostConfig } from "./signpost-config";
 import styles from "./SignpostSection.module.css";
@@ -139,6 +140,10 @@ export default function SignpostExperience() {
           <directionalLight intensity={1.05} position={[-6, 3, 4]} />
           <directionalLight intensity={0.85} position={[1, 5, 6]} />
           <Suspense fallback={null}>
+            <SignpostCone
+              progressRef={progressRef}
+              reducedMotion={reducedMotion}
+            />
             <SignpostModel progressRef={progressRef} reducedMotion={reducedMotion} />
           </Suspense>
         </Canvas>
