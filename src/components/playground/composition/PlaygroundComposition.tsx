@@ -98,7 +98,13 @@ function useCompositionLayout() {
   return layout;
 }
 
-function Bmw({ layout }: { layout: CompositionLayout }) {
+function Bmw({
+  layout,
+  reducedMotion,
+}: {
+  layout: CompositionLayout;
+  reducedMotion: boolean;
+}) {
   const gltf = useLoader(
     GLTFLoader,
     "/models/playground/diecast/bmw-m3-gtr-v1.glb",
@@ -107,6 +113,12 @@ function Bmw({ layout }: { layout: CompositionLayout }) {
 
   useFrame((state) => {
     if (!ref.current) return;
+
+    if (reducedMotion) {
+      ref.current.position.set(...layout.bmw.position);
+      ref.current.rotation.set(0, (-35 * Math.PI) / 180, 0);
+      return;
+    }
 
     const time = state.clock.elapsedTime;
     ref.current.position.set(
@@ -206,7 +218,7 @@ function Scene({
         />
       </Suspense>
       <Suspense fallback={null}>
-        <Bmw layout={layout} />
+        <Bmw layout={layout} reducedMotion={reducedMotion} />
       </Suspense>
     </>
   );
@@ -216,13 +228,19 @@ function isTerminalPowerControl(target: EventTarget | null) {
   return target instanceof HTMLElement && target.closest("button") !== null;
 }
 
-export default function PlaygroundComposition() {
+type PlaygroundCompositionProps = {
+  sceneId?: string;
+};
+
+export default function PlaygroundComposition({
+  sceneId = "lab-playground-composition",
+}: PlaygroundCompositionProps) {
   const ref = useRef<HTMLDivElement>(null);
   const compactTerminalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const wasExpandedRef = useRef(false);
   const { isActive } = useGpuSceneActivity({
-    id: "lab-playground-composition",
+    id: sceneId,
     elementRef: ref,
     priority: 1,
   });

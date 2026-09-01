@@ -1,5 +1,9 @@
-import SectionPlaceholder from "@/components/section-placeholder/SectionPlaceholder";
+import PlaygroundComposition from "./composition/PlaygroundComposition";
 
 export default function PlaygroundSection() {
-  return <SectionPlaceholder id="playground" label="04 / PLAYGROUND" />;
+  return (
+    <section id="playground" aria-label="Playground">
+      <PlaygroundComposition sceneId="playground" />
+    </section>
+  );
 }
