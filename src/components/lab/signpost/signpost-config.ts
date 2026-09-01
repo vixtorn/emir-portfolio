@@ -22,14 +22,27 @@ export const signpostConfig = {
       start: 0.9,
       end: 0.94,
     },
-    activeEmissiveIntensity: 1.15,
+    activeEmissiveIntensity: 2.4,
     inactiveEmissiveIntensity: 0.04,
     reducedMotionProgress: 1,
     lenses: {
-      red: "Lens_Red",
-      amber: "Lens_Amber",
-      green: "Lens_Green",
+      red: {
+        nodeName: "Lens_Red",
+        emissiveColor: "#b31d18",
+      },
+      amber: {
+        nodeName: "Lens_Amber",
+        emissiveColor: "#e39a22",
+      },
+      green: {
+        nodeName: "Lens_Green",
+        emissiveColor: "#168c47",
+      },
     },
+  },
+  presentation: {
+    scale: 1.1,
+    verticalTravel: 0.34,
   },
 } as const;
 

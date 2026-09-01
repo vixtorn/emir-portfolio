@@ -21,6 +21,10 @@ function smoothstep(start: number, end: number, value: number) {
   return progress * progress * (3 - 2 * progress);
 }
 
+function getPresentationYOffset(progress: number) {
+  return -smoothstep(0, 1, progress) * signpostConfig.presentation.verticalTravel;
+}
+
 function getTrafficLightWeights(progress: number) {
   const redToAmber = smoothstep(
     signpostConfig.trafficLight.redToAmber.start,
@@ -65,6 +69,7 @@ export default function SignpostModel({
   reducedMotion,
 }: SignpostModelProps) {
   const gltf = useLoader(GLTFLoader, signpostConfig.modelUrl);
+  const presentationGroupRef = useRef<Group>(null);
   const modelRootRef = useRef<Group>(null);
   const lensMaterialsRef = useRef<LensMaterials>({});
 
@@ -76,12 +81,17 @@ export default function SignpostModel({
     [gltf.scene],
   );
   useEffect(() => {
+    const presentationGroup = presentationGroupRef.current;
     const rotatingAssembly = modelRootRef.current?.getObjectByName(
       "RotatingAssembly",
     );
 
     if (rotatingAssembly) {
       rotatingAssembly.rotation.y = 0;
+    }
+
+    if (reducedMotion && presentationGroup) {
+      presentationGroup.position.y = 0;
     }
   }, [reducedMotion]);
 
@@ -96,21 +106,24 @@ export default function SignpostModel({
       signpostConfig.trafficLight.lenses,
     ) as LensName[]) {
       const lensNode = modelRootRef.current?.getObjectByName(
-        signpostConfig.trafficLight.lenses[lensName],
+        signpostConfig.trafficLight.lenses[lensName].nodeName,
       );
 
       if (!(lensNode instanceof Mesh) || !(lensNode.material instanceof MeshStandardMaterial)) {
         throw new Error(
-          `Signpost lens ${signpostConfig.trafficLight.lenses[lensName]} must use MeshStandardMaterial.`,
+          `Signpost lens ${signpostConfig.trafficLight.lenses[lensName].nodeName} must use MeshStandardMaterial.`,
         );
       }
 
       const originalMaterial = lensNode.material;
       const runtimeMaterial = originalMaterial.clone();
 
-      runtimeMaterial.emissive.copy(runtimeMaterial.color);
+      runtimeMaterial.emissive.set(
+        signpostConfig.trafficLight.lenses[lensName].emissiveColor,
+      );
       runtimeMaterial.emissiveIntensity =
         signpostConfig.trafficLight.inactiveEmissiveIntensity;
+      runtimeMaterial.toneMapped = false;
       lensNode.material = runtimeMaterial;
       runtimeMaterials[lensName] = runtimeMaterial;
       originalMaterials.push({ mesh: lensNode, material: originalMaterial });
@@ -138,18 +151,27 @@ export default function SignpostModel({
   }, [gltf.scene, reducedMotion, rotationProgressRef]);
 
   useFrame(() => {
+    const presentationGroup = presentationGroupRef.current;
     const rotatingAssembly = modelRootRef.current?.getObjectByName(
       "RotatingAssembly",
     );
 
-    if (!rotatingAssembly || reducedMotion) {
+    if (!presentationGroup || !rotatingAssembly) {
       return;
     }
 
-    rotatingAssembly.rotation.y =
-      rotationProgressRef.current * signpostConfig.scrollRotation.fullTurnRadians;
+    if (reducedMotion) {
+      presentationGroup.position.y = 0;
+      return;
+    }
 
-    applyTrafficLightEmissive(lensMaterialsRef.current, rotationProgressRef.current);
+    const progress = rotationProgressRef.current;
+
+    rotatingAssembly.rotation.y =
+      progress * signpostConfig.scrollRotation.fullTurnRadians;
+    presentationGroup.position.y = getPresentationYOffset(progress);
+
+    applyTrafficLightEmissive(lensMaterialsRef.current, progress);
   });
 
   if (missingNodes.length > 0) {
@@ -157,8 +179,10 @@ export default function SignpostModel({
   }
 
   return (
-    <group ref={modelRootRef}>
-      <primitive object={gltf.scene} />
+    <group ref={presentationGroupRef} scale={signpostConfig.presentation.scale}>
+      <group ref={modelRootRef}>
+        <primitive object={gltf.scene} />
+      </group>
     </group>
   );
 }
