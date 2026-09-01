@@ -14,17 +14,11 @@ import { signpostConfig } from "@/components/signpost/signpost-config";
 
 import styles from "./SignpostTransitionExperience.module.css";
 
-const platform = {
-  depth: 2.4,
-  height: 0.16,
-  position: [-0.2, -0.08, 0] as const,
-  width: 4.8,
-} as const;
-
 const coneMotion = {
-  finalX: -1.38,
-  initialTiltZ: (-5 * Math.PI) / 180,
-  initialX: -4.05,
+  finalX: -0.95,
+  initialTiltZ: (4 * Math.PI) / 180,
+  initialX: -1.55,
+  initialY: 8.4,
   settleProgress: 0.075,
   slideEndProgress: 0.055,
   z: 0.16,
@@ -77,15 +71,6 @@ function useScrollProgress(
   return progressRef;
 }
 
-function ServicePlatform() {
-  return (
-    <mesh position={platform.position} receiveShadow>
-      <boxGeometry args={[platform.width, platform.height, platform.depth]} />
-      <meshStandardMaterial color="#1c1c1a" metalness={0.04} roughness={0.84} />
-    </mesh>
-  );
-}
-
 function TrafficCone({
   progressRef,
   reducedMotion,
@@ -99,7 +84,7 @@ function TrafficCone({
     gltf.scene.updateMatrixWorld(true);
     return new Box3().setFromObject(gltf.scene);
   }, [gltf.scene]);
-  const groundOffset = platform.position[1] + platform.height / 2 - bounds.min.y;
+  const groundOffset = -bounds.min.y;
 
   useFrame(() => {
     const cone = coneRef.current;
@@ -114,12 +99,17 @@ function TrafficCone({
       progress,
     );
 
-    cone.position.x = coneMotion.initialX + (coneMotion.finalX - coneMotion.initialX) * slide;
+    cone.position.x =
+      coneMotion.initialX + (coneMotion.finalX - coneMotion.initialX) * slide;
+    cone.position.y = coneMotion.initialY * (1 - slide);
     cone.rotation.z = coneMotion.initialTiltZ * (1 - settle);
   });
 
   return (
-    <group ref={coneRef} position={[coneMotion.initialX, 0, coneMotion.z]}>
+    <group
+      ref={coneRef}
+      position={[coneMotion.initialX, coneMotion.initialY, coneMotion.z]}
+    >
       <primitive object={gltf.scene} position={[0, groundOffset, 0]} />
     </group>
   );
@@ -170,7 +160,6 @@ export default function SignpostTransitionExperience() {
             <directionalLight intensity={1.05} position={[-6, 3, 4]} />
             <directionalLight intensity={0.85} position={[1, 5, 6]} />
             <Suspense fallback={null}>
-              <ServicePlatform />
               <TrafficCone progressRef={progressRef} reducedMotion={reducedMotion} />
               <SignpostModel progressRef={progressRef} reducedMotion={reducedMotion} />
             </Suspense>
