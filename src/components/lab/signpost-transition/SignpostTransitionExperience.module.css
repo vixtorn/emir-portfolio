@@ -1,0 +1,48 @@
+.section {
+  position: relative;
+  background: var(--surface-paper);
+  color: var(--text-primary);
+  overflow: clip;
+}
+
+.label {
+  position: absolute;
+  z-index: var(--z-floating);
+  top: 1rem;
+  left: var(--page-gutter);
+  margin: 0;
+}
+
+.scrollStage {
+  position: relative;
+  width: 100%;
+  height: var(--signpost-scroll-height);
+}
+
+.stickyViewport {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+.scrollStage[data-reduced-motion="true"] {
+  height: min(72svh, 46rem);
+}
+
+.scrollStage[data-reduced-motion="true"] .stickyViewport {
+  position: relative;
+  height: 100%;
+}
+
+@media (max-width: 760px) {
+  .scrollStage[data-reduced-motion="true"] {
+    height: min(68svh, 40rem);
+  }
+}
