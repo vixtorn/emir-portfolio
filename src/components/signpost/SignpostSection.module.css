@@ -1,0 +1,38 @@
+.section {
+  background: #e5e1d7;
+  color: var(--text-primary);
+  overflow: clip;
+}
+
+.scrollStage {
+  height: var(--signpost-scroll-height);
+  position: relative;
+  width: 100%;
+}
+
+.stickyViewport {
+  height: 100svh;
+  position: sticky;
+  top: 0;
+}
+
+.canvas {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.scrollStage[data-reduced-motion="true"] {
+  height: min(72svh, 46rem);
+}
+
+.scrollStage[data-reduced-motion="true"] .stickyViewport {
+  height: 100%;
+  position: relative;
+}
+
+@media (max-width: 760px) {
+  .scrollStage[data-reduced-motion="true"] {
+    height: min(68svh, 40rem);
+  }
+}

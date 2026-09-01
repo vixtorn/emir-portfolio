@@ -1,5 +1,10 @@
-import SectionPlaceholder from "@/components/section-placeholder/SectionPlaceholder";
+import SignpostExperience from "./SignpostExperience";
+import styles from "./SignpostSection.module.css";
 
 export default function SignpostSection() {
-  return <SectionPlaceholder id="signpost" label="05 / SIGNPOST" />;
+  return (
+    <section id="signpost" className={styles.section} aria-label="Signpost">
+      <SignpostExperience />
+    </section>
+  );
 }
