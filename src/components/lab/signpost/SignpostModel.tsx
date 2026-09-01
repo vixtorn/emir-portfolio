@@ -22,7 +22,10 @@ function smoothstep(start: number, end: number, value: number) {
 }
 
 function getPresentationYOffset(progress: number) {
-  return -smoothstep(0, 1, progress) * signpostConfig.presentation.verticalTravel;
+  return (
+    -smoothstep(0, 1, progress) *
+    signpostConfig.cameraChoreography.presentationVerticalTravel
+  );
 }
 
 function getTrafficLightWeights(progress: number) {
