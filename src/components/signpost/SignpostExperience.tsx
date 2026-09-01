@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import {
   Suspense,
   useCallback,
@@ -9,33 +9,15 @@ import {
   type CSSProperties,
   type RefObject,
 } from "react";
-import { Vector3 } from "three";
 
 import { useGpuSceneActivity } from "@/hooks/useGpuSceneActivity";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { gpuSceneConfig } from "@/lib/performance/gpu-config";
 
+import SignpostCameraRig from "./SignpostCameraRig";
 import SignpostModel from "./SignpostModel";
 import { signpostConfig } from "./signpost-config";
 import styles from "./SignpostSection.module.css";
-
-function CameraFraming() {
-  const { camera, invalidate, size } = useThree();
-
-  useEffect(() => {
-    const position =
-      size.width < 760
-        ? signpostConfig.camera.narrowPosition
-        : signpostConfig.camera.desktopPosition;
-
-    camera.position.set(position[0], position[1], position[2]);
-    camera.lookAt(new Vector3(...signpostConfig.camera.target));
-    camera.updateProjectionMatrix();
-    invalidate();
-  }, [camera, invalidate, size.width]);
-
-  return null;
-}
 
 function useScrollProgress(
   stageRef: RefObject<HTMLDivElement | null>,
@@ -112,7 +94,13 @@ export default function SignpostExperience() {
           aria-label="Interactive 3D signpost"
           camera={{ fov: signpostConfig.camera.fov }}
           className={styles.canvas}
-          dpr={[1, gpuSceneConfig.desktopMaxDpr]}
+          dpr={[
+            1,
+            Math.min(
+              signpostConfig.renderer.maxDpr,
+              gpuSceneConfig.desktopMaxDpr,
+            ),
+          ]}
           frameloop={isActive && !reducedMotion ? "always" : "demand"}
           gl={{ antialias: true, powerPreference: "high-performance" }}
           onCreated={({ invalidate }) => {
@@ -121,7 +109,10 @@ export default function SignpostExperience() {
           }}
         >
           <color attach="background" args={["#e5e1d7"]} />
-          <CameraFraming />
+          <SignpostCameraRig
+            progressRef={progressRef}
+            reducedMotion={reducedMotion}
+          />
           <ambientLight intensity={0.55} />
           <hemisphereLight args={["#fffaf0", "#958e83", 0.45]} />
           <directionalLight intensity={2.4} position={[5, 8, 7]} />

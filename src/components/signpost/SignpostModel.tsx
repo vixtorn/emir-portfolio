@@ -21,6 +21,23 @@ function smoothstep(start: number, end: number, value: number) {
   return progress * progress * (3 - 2 * progress);
 }
 
+function getPartialRevealRotation(progress: number) {
+  const { maxRadians, startProgress, peakProgress, returnProgress } =
+    signpostConfig.scroll.partialReveal;
+
+  if (progress <= startProgress || progress >= returnProgress) {
+    return 0;
+  }
+
+  if (progress <= peakProgress) {
+    return smoothstep(startProgress, peakProgress, progress) * maxRadians;
+  }
+
+  return (
+    (1 - smoothstep(peakProgress, returnProgress, progress)) * maxRadians
+  );
+}
+
 function getTrafficLightWeights(progress: number) {
   const redToAmber = smoothstep(
     signpostConfig.trafficLight.redToAmber.start,
@@ -163,7 +180,7 @@ export default function SignpostModel({
 
     const progress = progressRef.current;
 
-    rotatingAssembly.rotation.y = progress * signpostConfig.scroll.fullTurnRadians;
+    rotatingAssembly.rotation.y = getPartialRevealRotation(progress);
     presentationGroup.position.y =
       -smoothstep(0, 1, progress) * signpostConfig.presentation.verticalTravel;
     updateLensEmission(lensMaterialsRef.current, progress);
