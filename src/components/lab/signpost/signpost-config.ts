@@ -10,8 +10,13 @@ export const signpostConfig = {
     maxDpr: 1.75,
   },
   scrollRotation: {
-    travelViewportHeights: 2,
-    fullTurnRadians: Math.PI * 2,
+    travelViewportHeights: 7,
+    partialReveal: {
+      maxRadians: (65 * Math.PI) / 180,
+      startProgress: 0.18,
+      peakProgress: 0.34,
+      returnProgress: 0.58,
+    },
   },
   trafficLight: {
     redToAmber: {
@@ -49,8 +54,13 @@ export const signpostConfig = {
     desktopKeyframes: [
       {
         progress: 0,
-        position: [2.7, 6.7, 4.3] as const,
-        target: [0, 4.55, 0] as const,
+        position: [7.2, 5.4, 11.8] as const,
+        target: [0, 2.7, 0] as const,
+      },
+      {
+        progress: 0.08,
+        position: [6.8, 5.7, 10.9] as const,
+        target: [0, 3.05, 0] as const,
       },
       {
         progress: 0.2,
@@ -58,56 +68,71 @@ export const signpostConfig = {
         target: [0, 3.7, 0] as const,
       },
       {
-        progress: 0.4,
+        progress: 0.42,
         position: [2.5, 4.9, 3.8] as const,
         target: [0, 2.9, 0] as const,
       },
       {
-        progress: 0.58,
-        position: [0.75, 4.7, 5] as const,
-        target: [0, 2.45, 0] as const,
+        progress: 0.68,
+        position: [2.5, 3.8, 4] as const,
+        target: [0, 2.4, 0] as const,
       },
       {
-        progress: 0.76,
-        position: [-3, 4.5, 4] as const,
-        target: [0, 2.5, 0] as const,
+        progress: 0.84,
+        position: [2.5, 2.7, 3.7] as const,
+        target: [0, 1.6, 0] as const,
+      },
+      {
+        progress: 0.94,
+        position: [2.5, 2.7, 3.7] as const,
+        target: [0, 1.6, 0] as const,
       },
       {
         progress: 1,
-        position: [2.8, 3.3, 5.2] as const,
-        target: [0, 1.3, 0] as const,
+        position: [2.5, 1.8, 3.7] as const,
+        target: [0, 0.3, 0] as const,
       },
     ],
     narrowKeyframes: [
       {
         progress: 0,
-        position: [5.1, 7.3, 8.1] as const,
-        target: [0, 4.45, 0] as const,
+        position: [8.2, 5.8, 13.8] as const,
+        target: [0, 2.7, 0] as const,
+      },
+      {
+        progress: 0.08,
+        position: [7.9, 6, 13.2] as const,
+        target: [0, 3.05, 0] as const,
       },
       {
         progress: 0.2,
-        position: [4.95, 6.45, 7.65] as const,
-        target: [0, 3.75, 0] as const,
+        position: [4.95, 6.2, 7.6] as const,
+        target: [0, 3.7, 0] as const,
       },
       {
-        progress: 0.4,
-        position: [4.8, 5.5, 7.25] as const,
-        target: [0, 2.95, 0] as const,
+        progress: 0.42,
+        position: [4.8, 5.35, 7.2] as const,
+        target: [0, 2.9, 0] as const,
       },
       {
-        progress: 0.58,
-        position: [4.7, 4.55, 7.1] as const,
-        target: [0, 2.2, 0] as const,
+        progress: 0.68,
+        position: [4.8, 4.25, 7.3] as const,
+        target: [0, 2.4, 0] as const,
       },
       {
-        progress: 0.76,
-        position: [4.6, 3.85, 7] as const,
-        target: [0, 1.55, 0] as const,
+        progress: 0.84,
+        position: [4.8, 3.15, 7] as const,
+        target: [0, 1.6, 0] as const,
+      },
+      {
+        progress: 0.94,
+        position: [4.8, 3.15, 7] as const,
+        target: [0, 1.6, 0] as const,
       },
       {
         progress: 1,
-        position: [4.9, 2.9, 7.75] as const,
-        target: [0, 0.7, 0] as const,
+        position: [4.8, 2.2, 7] as const,
+        target: [0, 0.3, 0] as const,
       },
     ],
   },
