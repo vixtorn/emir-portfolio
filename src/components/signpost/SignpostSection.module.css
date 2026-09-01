@@ -1,5 +1,5 @@
 .section {
-  background: #e5e1d7;
+  background: var(--surface-paper);
   color: var(--text-primary);
   overflow: clip;
 }
@@ -17,9 +17,38 @@
 }
 
 .canvas {
+  background: transparent;
   display: block;
   height: 100%;
   width: 100%;
+}
+
+.accessibleNav {
+  position: absolute;
+  z-index: var(--z-nav);
+  top: 1rem;
+  left: 1rem;
+}
+
+.accessibleNavLink {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.accessibleNavLink:focus-visible {
+  position: relative;
+  display: block;
+  width: auto;
+  height: auto;
+  margin-block-end: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  clip: auto;
+  background: var(--surface-paper);
+  color: var(--text-primary);
 }
 
 .scrollStage[data-reduced-motion="true"] {

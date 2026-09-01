@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import { useGpuSceneActivity } from "@/hooks/useGpuSceneActivity";
+import { useMotion } from "@/components/providers/MotionProvider";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { gpuSceneConfig } from "@/lib/performance/gpu-config";
 
@@ -71,6 +72,7 @@ export default function SignpostExperience() {
     invalidateRef.current?.();
   }, []);
   const reducedMotion = useReducedMotion();
+  const { scrollTo } = useMotion();
   const { isActive } = useGpuSceneActivity({
     id: "signpost",
     elementRef: stageRef,
@@ -90,6 +92,21 @@ export default function SignpostExperience() {
       }
     >
       <div className={styles.stickyViewport}>
+        <nav className={styles.accessibleNav} aria-label="Signpost navigation">
+          {Object.entries(signpostConfig.navigation).map(([key, navigation]) => (
+            <a
+              className={styles.accessibleNavLink}
+              href={navigation.target}
+              key={key}
+              onClick={(event) => {
+                event.preventDefault();
+                scrollTo(navigation.target);
+              }}
+            >
+              {navigation.label}
+            </a>
+          ))}
+        </nav>
         <Canvas
           aria-label="Interactive 3D signpost"
           camera={{ fov: signpostConfig.camera.fov }}
@@ -102,13 +119,16 @@ export default function SignpostExperience() {
             ),
           ]}
           frameloop={isActive && !reducedMotion ? "always" : "demand"}
-          gl={{ antialias: true, powerPreference: "high-performance" }}
+          gl={{
+            alpha: true,
+            antialias: true,
+            powerPreference: "high-performance",
+          }}
           onCreated={({ invalidate }) => {
             invalidateRef.current = invalidate;
             invalidate();
           }}
         >
-          <color attach="background" args={["#e5e1d7"]} />
           <SignpostCameraRig
             progressRef={progressRef}
             reducedMotion={reducedMotion}

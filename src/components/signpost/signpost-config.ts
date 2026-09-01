@@ -34,6 +34,28 @@ export const signpostConfig = {
       green: { nodeName: "Lens_Green", emissiveColor: "#168c47" },
     },
   },
+  navigation: {
+    ABOUT: {
+      target: "#about",
+      label: "About",
+      nodeNames: ["Sign_ABOUT", "Text_ABOUT"],
+    },
+    PLAYGROUND: {
+      target: "#playground",
+      label: "Playground",
+      nodeNames: ["Sign_PLAYGROUND", "Text_PLAYGROUND"],
+    },
+    SELECTED_WORK: {
+      target: "#work",
+      label: "Selected Work",
+      nodeNames: ["Sign_SELECTED_WORK", "Text_SELECTED_WORK"],
+    },
+    HELLO: {
+      target: "#contact",
+      label: "Contact",
+      nodeNames: ["Sign_HELLO", "Text_HELLO"],
+    },
+  },
   cameraChoreography: {
     desktopKeyframes: [
       {

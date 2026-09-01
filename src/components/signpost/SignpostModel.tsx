@@ -1,9 +1,17 @@
 "use client";
 
-import { useFrame, useLoader } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
-import { Group, Mesh, MeshStandardMaterial } from "three";
+import { useFrame, useLoader, type ThreeEvent } from "@react-three/fiber";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  type MutableRefObject,
+} from "react";
+import { Group, Mesh, MeshStandardMaterial, Object3D } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+import { useMotion } from "@/components/providers/MotionProvider";
 
 import { signpostConfig, signpostRequiredNodes } from "./signpost-config";
 
@@ -14,6 +22,11 @@ type SignpostModelProps = {
 
 type LensName = keyof typeof signpostConfig.trafficLight.lenses;
 type LensMaterials = Partial<Record<LensName, MeshStandardMaterial>>;
+type SignNavigationKey = keyof typeof signpostConfig.navigation;
+
+const signNavigationEntries = Object.entries(signpostConfig.navigation) as Array<
+  [SignNavigationKey, (typeof signpostConfig.navigation)[SignNavigationKey]]
+>;
 
 function smoothstep(start: number, end: number, value: number) {
   const progress = Math.min(1, Math.max(0, (value - start) / (end - start)));
@@ -36,6 +49,28 @@ function getPartialRevealRotation(progress: number) {
   return (
     (1 - smoothstep(peakProgress, returnProgress, progress)) * maxRadians
   );
+}
+
+function resolveSignNavigationKey(object: Object3D) {
+  let current: Object3D | null = object;
+
+  while (current) {
+    const objectName = current.name.toUpperCase();
+
+    for (const [navigationKey, navigation] of signNavigationEntries) {
+      if (
+        navigation.nodeNames.some((nodeName) =>
+          objectName.startsWith(nodeName.toUpperCase()),
+        )
+      ) {
+        return navigationKey;
+      }
+    }
+
+    current = current.parent;
+  }
+
+  return null;
 }
 
 function getTrafficLightWeights(progress: number) {
@@ -78,10 +113,12 @@ export default function SignpostModel({
   progressRef,
   reducedMotion,
 }: SignpostModelProps) {
+  const { scrollTo } = useMotion();
   const gltf = useLoader(GLTFLoader, signpostConfig.modelUrl);
   const presentationGroupRef = useRef<Group>(null);
   const modelRootRef = useRef<Group>(null);
   const lensMaterialsRef = useRef<LensMaterials>({});
+  const originalCursorRef = useRef<string | null>(null);
   const missingNodes = useMemo(
     () =>
       signpostRequiredNodes.filter(
@@ -89,6 +126,58 @@ export default function SignpostModel({
       ),
     [gltf.scene],
   );
+
+  const restoreCursor = useCallback(() => {
+    if (typeof document === "undefined" || originalCursorRef.current === null) {
+      return;
+    }
+
+    document.body.style.cursor = originalCursorRef.current;
+    originalCursorRef.current = null;
+  }, []);
+
+  const updateCursor = useCallback(
+    (isNavigable: boolean) => {
+      if (typeof document === "undefined") {
+        return;
+      }
+
+      if (!isNavigable) {
+        restoreCursor();
+        return;
+      }
+
+      if (originalCursorRef.current === null) {
+        originalCursorRef.current = document.body.style.cursor;
+      }
+
+      document.body.style.cursor = "pointer";
+    },
+    [restoreCursor],
+  );
+
+  const handlePointerMove = useCallback(
+    (event: ThreeEvent<PointerEvent>) => {
+      updateCursor(resolveSignNavigationKey(event.object) !== null);
+    },
+    [updateCursor],
+  );
+
+  const handleSignClick = useCallback(
+    (event: ThreeEvent<MouseEvent>) => {
+      const navigationKey = resolveSignNavigationKey(event.object);
+
+      if (!navigationKey) {
+        return;
+      }
+
+      event.stopPropagation();
+      scrollTo(signpostConfig.navigation[navigationKey].target);
+    },
+    [scrollTo],
+  );
+
+  useEffect(() => restoreCursor, [restoreCursor]);
 
   useEffect(() => {
     const presentationGroup = presentationGroupRef.current;
@@ -193,7 +282,12 @@ export default function SignpostModel({
   return (
     <group ref={presentationGroupRef} scale={signpostConfig.presentation.scale}>
       <group ref={modelRootRef}>
-        <primitive object={gltf.scene} />
+        <primitive
+          object={gltf.scene}
+          onClick={handleSignClick}
+          onPointerMove={handlePointerMove}
+          onPointerOut={restoreCursor}
+        />
       </group>
     </group>
   );
