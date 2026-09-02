@@ -23,8 +23,11 @@
 .principleDesignBeat { justify-content: flex-start; }
 .principleCodeBeat { justify-content: flex-end; text-align: right; }
 .principleProductsBeat { justify-content: flex-start; padding-left: 22vw; }
-.surfaceTransition { min-height: 55svh; background: #080808; }
-.paperBeat { display: grid; min-height: 100svh; align-content: end; gap: clamp(2rem, 5vw, 5rem); padding: clamp(3rem, 7vw, 7rem) var(--page-gutter); background: #f1eee7; color: #171614; }
+.transitionTrack { position: relative; height: 260svh; background: #080808; }
+.transitionStage { position: sticky; top: 0; height: 100svh; overflow: clip; background: #080808; color: var(--color-paper); }
+.transitionDarkField, .transitionPaperField { position: absolute; inset: 0; }
+.transitionDarkField { color: var(--color-paper); }
+.transitionPaperField { display: grid; align-content: end; gap: clamp(2rem, 5vw, 5rem); padding: clamp(3rem, 7vw, 7rem) var(--page-gutter); color: #171614; opacity: 0; }
 .supporting { max-width: 58ch; margin: 0; font-size: clamp(1.3rem, 2.1vw, 2rem); line-height: 1.36; }
 .revealWord { display: inline-block; margin-right: .25em; }
 .exit { margin: 0; color: #171614; letter-spacing: .1em; white-space: nowrap; will-change: transform; }

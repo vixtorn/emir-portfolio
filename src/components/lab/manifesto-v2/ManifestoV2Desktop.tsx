@@ -2,11 +2,10 @@
 
 import { useLayoutEffect, useRef } from "react";
 
-import { configureGsap, gsap, ScrollTrigger } from "@/lib/motion/gsap";
+import { configureGsap, ScrollTrigger } from "@/lib/motion/gsap";
 
 import ScrollFloat from "./motion/ScrollFloat";
-import ScrollReveal from "./motion/ScrollReveal";
-import ScrollVelocityPunctuation from "./motion/ScrollVelocityPunctuation";
+import ManifestoV2Transition from "./ManifestoV2Transition";
 import VerticalCutReveal, { type VerticalCutRevealHandle } from "./motion/VerticalCutReveal";
 import styles from "./ManifestoV2.module.css";
 
@@ -26,7 +25,6 @@ export default function ManifestoV2Desktop({ reducedMotion }: Props) {
   const principleDesignBeat = useRef<HTMLElement>(null);
   const principleCodeBeat = useRef<HTMLElement>(null);
   const principleProductsBeat = useRef<HTMLElement>(null);
-  const surfaceTransitionRef = useRef<HTMLElement>(null);
 
   useLayoutEffect(() => {
     if (reducedMotion) return;
@@ -40,27 +38,6 @@ export default function ManifestoV2Desktop({ reducedMotion }: Props) {
     ].filter((trigger): trigger is ScrollTrigger => Boolean(trigger));
 
     return () => triggers.forEach((trigger) => trigger.kill());
-  }, [reducedMotion]);
-
-  useLayoutEffect(() => {
-    const transition = surfaceTransitionRef.current;
-    if (reducedMotion || !transition) return;
-
-    configureGsap();
-    const context = gsap.context(() => {
-      gsap.fromTo(transition, { backgroundColor: "#080808" }, {
-        backgroundColor: "#f1eee7",
-        ease: "none",
-        scrollTrigger: {
-          trigger: transition,
-          start: "top 55%",
-          end: "bottom 45%",
-          scrub: true,
-        },
-      });
-    }, transition);
-
-    return () => context.revert();
   }, [reducedMotion]);
 
   return (
@@ -82,11 +59,7 @@ export default function ManifestoV2Desktop({ reducedMotion }: Props) {
       <section ref={principleDesignBeat} className={`${styles.principleBeat} ${styles.principleDesignBeat}`}><VerticalCutReveal ref={principleDesignRef} text="DESIGN SHOULD MOVE." splitBy="words" staggerDuration={0.26} staggerFrom="first" spring={{ stiffness: 110, damping: 25 }} className={`${styles.principle} ${styles.principleDesign}`} /></section>
       <section ref={principleCodeBeat} className={`${styles.principleBeat} ${styles.principleCodeBeat}`}><VerticalCutReveal ref={principleCodeRef} text="CODE SHOULD HAVE PERSONALITY." splitBy="words" staggerDuration={0.26} staggerFrom="center" spring={{ stiffness: 110, damping: 25 }} className={`${styles.principle} ${styles.principleCode}`} /></section>
       <section ref={principleProductsBeat} className={`${styles.principleBeat} ${styles.principleProductsBeat}`}><VerticalCutReveal ref={principleProductsRef} text="PRODUCTS SHOULD FEEL HUMAN." splitBy="words" staggerDuration={0.26} staggerFrom="last" spring={{ stiffness: 110, damping: 25 }} className={`${styles.principle} ${styles.principleProducts}`} /></section>
-      <section ref={surfaceTransitionRef} className={styles.surfaceTransition} aria-hidden="true" />
-      <section className={styles.paperBeat}>
-        <ScrollReveal>I move between design, development, 3D, product thinking and visual experimentation — mostly because choosing only one sounded boring.</ScrollReveal>
-        <ScrollVelocityPunctuation className={`${styles.exit} type-meta`}>DESIGN × CODE × PRODUCT × 3D × PLAY ×</ScrollVelocityPunctuation>
-      </section>
+      <ManifestoV2Transition reducedMotion={reducedMotion} />
     </div>
   );
 }
