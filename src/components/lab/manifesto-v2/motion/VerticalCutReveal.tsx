@@ -1,0 +1,80 @@
+"use client";
+
+import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
+import { motion } from "motion/react";
+
+import styles from "../ManifestoV2.module.css";
+
+type SplitBy = "words" | "characters";
+type StaggerFrom = "first" | "last" | "center";
+
+type VerticalCutRevealProps = {
+  text: string;
+  splitBy: SplitBy;
+  staggerDuration: number;
+  staggerFrom: StaggerFrom;
+  className?: string;
+  spring?: { stiffness: number; damping: number };
+  wordClassName?: (word: string) => string | undefined;
+};
+
+export type VerticalCutRevealHandle = {
+  reset: () => void;
+  startAnimation: () => void;
+};
+
+type Word = { characters: string[]; needsSpace: boolean; value: string };
+
+const VerticalCutReveal = forwardRef<VerticalCutRevealHandle, VerticalCutRevealProps>(function VerticalCutReveal(
+  { text, splitBy, staggerDuration, staggerFrom, className, spring = { stiffness: 190, damping: 22 }, wordClassName },
+  ref,
+) {
+  const [isAnimating, setIsAnimating] = useState(false);
+  const words = useMemo<Word[]>(() => text.split(" ").map((value, index, all) => ({
+    characters: splitBy === "characters" ? Array.from(value) : [value],
+    needsSpace: index < all.length - 1,
+    value,
+  })), [splitBy, text]);
+  const total = words.reduce((count, word) => count + word.characters.length, 0);
+
+  const delayFor = useCallback((index: number) => {
+    if (staggerFrom === "last") return (total - 1 - index) * staggerDuration;
+    if (staggerFrom === "center") return Math.abs(Math.floor(total / 2) - index) * staggerDuration;
+    return index * staggerDuration;
+  }, [staggerDuration, staggerFrom, total]);
+
+  useImperativeHandle(ref, () => ({ reset: () => setIsAnimating(false), startAnimation: () => setIsAnimating(true) }), []);
+
+  let offset = 0;
+
+  return (
+    <span className={`${styles.verticalCut} ${className ?? ""}`}>
+      <span className={styles.srOnly}>{text}</span>
+      <span aria-hidden="true">
+        {words.map((word) => {
+          const wordOffset = offset;
+          offset += word.characters.length;
+
+          return (
+            <span key={`${word.value}-${wordOffset}`} className={`${styles.cutWord} ${wordClassName?.(word.value) ?? ""}`}>
+              {word.characters.map((character, index) => (
+                <span key={`${character}-${index}`} className={styles.cutCharacter}>
+                  <motion.span
+                    animate={isAnimating ? { y: "0%" } : { y: "100%" }}
+                    initial={{ y: "100%" }}
+                    transition={{ type: "spring", stiffness: spring.stiffness, damping: spring.damping, delay: delayFor(wordOffset + index) }}
+                  >
+                    {character}
+                  </motion.span>
+                </span>
+              ))}
+              {word.needsSpace ? <span className={styles.cutSpace}>{"\u00A0"}</span> : null}
+            </span>
+          );
+        })}
+      </span>
+    </span>
+  );
+});
+
+export default VerticalCutReveal;

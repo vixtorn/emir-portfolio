@@ -1,0 +1,26 @@
+"use client";
+
+import { useLayoutEffect, useMemo, useRef } from "react";
+
+import { configureGsap, gsap } from "@/lib/motion/gsap";
+
+import styles from "../ManifestoV2.module.css";
+
+export default function ScrollReveal({ children }: { children: string }) {
+  const ref = useRef<HTMLParagraphElement>(null);
+  const words = useMemo(() => children.split(/(\s+)/).map((word, index) => word.trim() ? <span className={styles.revealWord} key={`${word}-${index}`}>{word}</span> : word), [children]);
+
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    configureGsap();
+    const element = ref.current;
+    const context = gsap.context(() => {
+      const wordElements = element.querySelectorAll<HTMLElement>(`.${styles.revealWord}`);
+      gsap.fromTo(element, { rotate: 1.5, transformOrigin: "0% 50%" }, { rotate: 0, ease: "none", scrollTrigger: { trigger: element, start: "top bottom", end: "bottom 72%", scrub: true } });
+      gsap.fromTo(wordElements, { opacity: 0.2, filter: "blur(2.5px)" }, { opacity: 1, filter: "blur(0px)", stagger: 0.05, ease: "none", scrollTrigger: { trigger: element, start: "top 85%", end: "bottom 64%", scrub: true } });
+    }, element);
+    return () => context.revert();
+  }, []);
+
+  return <p ref={ref} className={styles.supporting}>{words}</p>;
+}
