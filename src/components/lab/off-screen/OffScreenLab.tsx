@@ -26,6 +26,7 @@ export default function OffScreenLab() {
       const context = gsap.context(() => {
         frames.forEach((frame, index) => {
           const direction = index % 2 === 0 ? 1 : -1;
+          const prominence = Number(frame.dataset.prominence ?? 0.7);
 
           gsap.fromTo(frame, {
             "--memory-motion-scale": 0.96,
@@ -37,7 +38,7 @@ export default function OffScreenLab() {
             "--memory-motion-x": `${direction * -12}px`,
             "--memory-motion-y": "-30px",
             ease: "none",
-            opacity: 0.45,
+            opacity: prominence,
             scrollTrigger: { end: "bottom 10%", scrub: true, start: "top 90%", trigger: frame },
           });
         });

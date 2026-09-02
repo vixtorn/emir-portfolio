@@ -17,6 +17,8 @@ export default function MemoryFrame({ memory, index, mode, frameRef }: MemoryFra
     mode === "desktop"
       ? ({
           "--memory-depth": `${memory.desktop.depth}px`,
+          "--memory-layer": memory.desktop.layer ?? 1,
+          "--memory-opacity": memory.desktop.opacity,
           "--memory-rotate": `${memory.desktop.rotate}deg`,
           "--memory-scale": memory.desktop.scale,
           "--memory-width": `${memory.desktop.width}vw`,
@@ -28,6 +30,7 @@ export default function MemoryFrame({ memory, index, mode, frameRef }: MemoryFra
   return (
     <figure
       ref={frameRef}
+      data-prominence={memory.desktop.opacity}
       className={`${styles.memoryFrame} ${styles[`tone${memory.tone}`]} ${mode === "desktop" ? styles.desktopFrame : styles.mobileFrame}`}
       style={style}
     >
