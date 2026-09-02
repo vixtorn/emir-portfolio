@@ -1,7 +1,10 @@
 .manifesto { background: #080808; color: var(--color-paper); }
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.chapterBeat { display: flex; align-items: end; min-height: 72svh; padding: 2rem var(--page-gutter); }
-.decrypt { font-family: var(--font-mono); font-size: clamp(.95rem, 1.35vw, 1.2rem); letter-spacing: .08em; }
+.chapterBeat { display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline; min-height: 72svh; box-sizing: border-box; padding: 57svh var(--page-gutter) 0; }
+.chapterUtility, .decrypt { font-family: var(--font-mono); font-size: clamp(.95rem, 1.35vw, 1.2rem); letter-spacing: .08em; }
+.chapterUtility { grid-column: 1; justify-self: start; }
+.chapterWord { grid-column: 2; justify-self: center; }
+.chapterWord .decrypt { font-size: clamp(1.35rem, 2.25vw, 2.1rem); }
 .desktopFlow { background: #080808; }
 .beat { min-height: 125svh; }
 .beatInner { display: flex; min-height: 100svh; align-items: center; overflow: clip; }
@@ -20,6 +23,7 @@
 .principleDesignBeat { justify-content: flex-start; }
 .principleCodeBeat { justify-content: flex-end; text-align: right; }
 .principleProductsBeat { justify-content: flex-start; padding-left: 22vw; }
+.surfaceTransition { min-height: 55svh; background: #080808; }
 .paperBeat { display: grid; min-height: 100svh; align-content: end; gap: clamp(2rem, 5vw, 5rem); padding: clamp(3rem, 7vw, 7rem) var(--page-gutter); background: #f1eee7; color: #171614; }
 .supporting { max-width: 58ch; margin: 0; font-size: clamp(1.3rem, 2.1vw, 2rem); line-height: 1.36; }
 .revealWord { display: inline-block; margin-right: .25em; }
@@ -27,7 +31,9 @@
 .mobileFlow { display: none; }
 
 @media (max-width: 900px) {
-  .chapterBeat { min-height: 32svh; }
+  .chapterBeat { grid-template-columns: auto 1fr; min-height: 32svh; padding: clamp(2rem, 8vw, 4rem) var(--page-gutter); }
+  .chapterWord { grid-column: 2; justify-self: end; }
+  .chapterWord .decrypt { font-size: clamp(1.1rem, 5.2vw, 1.45rem); }
   .desktopFlow { display: none; }
   .mobileFlow { display: grid; gap: clamp(3rem, 10vw, 6rem); padding: clamp(3rem, 8vw, 5rem) var(--page-gutter) 0; }
   .mobileFlow h1, .mobileFlow h2 { max-width: 10ch; margin: 0; font-family: var(--font-primary); font-size: clamp(3.2rem, 10.8vw, 6.5rem); font-weight: 500; letter-spacing: -.065em; line-height: .83; }

@@ -11,7 +11,10 @@ export default function ManifestoV2Lab() {
   const reducedMotion = useReducedMotion();
   return (
     <section className={styles.manifesto} data-reduced-motion={reducedMotion}>
-      <header className={styles.chapterBeat}><DecryptedText text="02 / MANIFESTO" initialText="02 / M_N_F_ST_" speed={120} /></header>
+      <header className={styles.chapterBeat}>
+        <span className={styles.chapterUtility}>02 /</span>
+        <span className={styles.chapterWord}><DecryptedText text="MANIFESTO" initialText="M_N_F_ST_" speed={120} /></span>
+      </header>
       <ManifestoV2Desktop reducedMotion={reducedMotion} />
       <ManifestoV2Mobile />
     </section>
