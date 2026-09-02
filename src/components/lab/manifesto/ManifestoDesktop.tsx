@@ -18,17 +18,19 @@ export default function ManifestoDesktop({ reducedMotion }: ManifestoDesktopProp
   const statementOneRef = useRef<HTMLElement>(null);
   const statementTwoRef = useRef<HTMLElement>(null);
   const principlesRef = useRef<HTMLDivElement>(null);
+  const animatedFieldRef = useRef<HTMLDivElement>(null);
   const paperRef = useRef<HTMLDivElement>(null);
   const exitRef = useRef<HTMLParagraphElement>(null);
 
   useLayoutEffect(() => {
-    if (reducedMotion || !trackRef.current || !stageRef.current) return;
+    if (reducedMotion || !trackRef.current || !stageRef.current || !animatedFieldRef.current) return;
 
     configureGsap();
     const track = trackRef.current;
     const stage = stageRef.current;
     const statementOne = statementOneRef.current;
     const statementTwo = statementTwoRef.current;
+    const animatedField = animatedFieldRef.current;
     const darkField = stage.querySelector<HTMLElement>("[data-dark-field]");
     const principles = principlesRef.current?.querySelectorAll<HTMLElement>("[data-principle]");
     const paper = paperRef.current;
@@ -61,6 +63,8 @@ export default function ManifestoDesktop({ reducedMotion }: ManifestoDesktopProp
           .filter((line): line is HTMLSpanElement => line !== null);
 
         timeline.set(revealLines, { scale: 0.96, yPercent: 108 }, 0);
+        stage.dataset.motionReady = "true";
+        animatedField.style.visibility = "visible";
 
         if (statementOne && statementOneLine) {
           timeline.to(statementOneLine, { duration: 0.12, ease: "none", scale: 1, yPercent: 0 }, 0.1);
@@ -91,7 +95,11 @@ export default function ManifestoDesktop({ reducedMotion }: ManifestoDesktopProp
         }
       }, track);
 
-      return () => context.revert();
+      return () => {
+        context.revert();
+        stage.dataset.motionReady = "false";
+        animatedField.style.visibility = "hidden";
+      };
     });
 
     return () => media.revert();
@@ -99,28 +107,37 @@ export default function ManifestoDesktop({ reducedMotion }: ManifestoDesktopProp
 
   return (
     <div ref={trackRef} className={styles.desktopTrack}>
-      <section ref={stageRef} className={styles.desktopStage} aria-labelledby="manifesto-title">
+      <section ref={stageRef} className={styles.desktopStage} aria-labelledby="manifesto-title" data-motion-ready="false">
         <h1 id="manifesto-title" className={styles.srOnly}>Manifesto</h1>
+        <div className={styles.srOnly}>
+          <p>I DON&apos;T JUST BUILD INTERFACES.</p>
+          <p>I BUILD THE FEELING AROUND THEM.</p>
+          <p>DESIGN SHOULD MOVE.</p>
+          <p>CODE SHOULD HAVE PERSONALITY.</p>
+          <p>PRODUCTS SHOULD FEEL HUMAN.</p>
+        </div>
         <div className={styles.darkField} data-dark-field>
           <header className={styles.chapter}>
             <ManifestoChapter reducedMotion={reducedMotion} />
           </header>
-          <ManifestoStatement ref={statementOneRef} className={styles.statementOne} heading="h2">
-            I DON&apos;T JUST BUILD INTERFACES.
-          </ManifestoStatement>
-          <ManifestoStatement ref={statementTwoRef} className={styles.statementTwo} heading="h2">
-            I BUILD THE <em>FEELING</em> AROUND THEM.
-          </ManifestoStatement>
-          <div ref={principlesRef} className={styles.principles}>
-            <ManifestoStatement className={styles.principleOne} data-principle>
-              DESIGN SHOULD MOVE.
+          <div ref={animatedFieldRef} className={styles.animatedField} aria-hidden="true" style={{ visibility: "hidden" }}>
+            <ManifestoStatement ref={statementOneRef} className={styles.statementOne} heading="h2">
+              I DON&apos;T JUST BUILD INTERFACES.
             </ManifestoStatement>
-            <ManifestoStatement className={styles.principleTwo} data-principle>
-              CODE SHOULD HAVE PERSONALITY.
+            <ManifestoStatement ref={statementTwoRef} className={styles.statementTwo} heading="h2">
+              I BUILD THE <em>FEELING</em> AROUND THEM.
             </ManifestoStatement>
-            <ManifestoStatement className={styles.principleThree} data-principle>
-              PRODUCTS SHOULD FEEL HUMAN.
-            </ManifestoStatement>
+            <div ref={principlesRef} className={styles.principles}>
+              <ManifestoStatement className={styles.principleOne} data-principle>
+                DESIGN SHOULD MOVE.
+              </ManifestoStatement>
+              <ManifestoStatement className={styles.principleTwo} data-principle>
+                CODE SHOULD HAVE PERSONALITY.
+              </ManifestoStatement>
+              <ManifestoStatement className={styles.principleThree} data-principle>
+                PRODUCTS SHOULD FEEL HUMAN.
+              </ManifestoStatement>
+            </div>
           </div>
         </div>
         <div ref={paperRef} className={styles.paperField}>

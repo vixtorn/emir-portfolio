@@ -4,6 +4,8 @@
 .desktopStage { position: sticky; top: 0; height: 100svh; overflow: clip; background: #080808; color: var(--color-paper); }
 .darkField, .paperField { position: absolute; inset: 0; }
 .darkField { color: var(--color-paper); }
+.animatedField { visibility: hidden; }
+.desktopStage[data-motion-ready="true"] .animatedField { visibility: visible; }
 .chapter { position: absolute; top: clamp(1.5rem, 3vw, 3rem); left: var(--page-gutter); }
 .chapter p { margin: 0; }
 .cut { position: absolute; overflow: hidden; margin: 0; font-family: var(--font-primary); font-weight: 500; letter-spacing: -.065em; line-height: .8; }
