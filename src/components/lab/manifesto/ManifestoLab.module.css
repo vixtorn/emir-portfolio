@@ -1,0 +1,46 @@
+.manifesto { background: var(--surface-paper); }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.desktopTrack { height: 430svh; background: #080808; }
+.desktopStage { position: sticky; top: 0; height: 100svh; overflow: clip; background: #080808; color: var(--color-paper); }
+.darkField, .paperField { position: absolute; inset: 0; }
+.darkField { color: var(--color-paper); }
+.chapter { position: absolute; top: clamp(1.5rem, 3vw, 3rem); left: var(--page-gutter); }
+.chapter p { margin: 0; }
+.cut { position: absolute; overflow: hidden; margin: 0; font-family: var(--font-primary); font-weight: 500; letter-spacing: -.065em; line-height: .8; }
+.cut > span { display: block; }
+.statementOne { top: 30%; left: 8vw; max-width: 11ch; font-size: clamp(4.5rem, 9.6vw, 11.5rem); }
+.statementTwo { top: 43%; right: 7vw; max-width: 10ch; font-size: clamp(4.1rem, 8.7vw, 10.5rem); text-align: right; }
+.statementTwo em { display: inline-block; font-family: var(--font-display); font-size: 1.08em; font-style: normal; font-weight: 400; letter-spacing: -.085em; }
+.principles { position: absolute; inset: 0; }
+.principles .cut { font-size: clamp(2rem, 4.3vw, 5.3rem); }
+.principleOne { top: 29%; left: 8vw; max-width: 11ch; }
+.principleTwo { top: 49%; right: 9vw; max-width: 13ch; text-align: right; }
+.principleThree { top: 67%; left: 23vw; max-width: 11ch; }
+.paperField { display: flex; z-index: 1; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: clamp(2rem, 5vw, 5rem); padding: clamp(2rem, 5vw, 5rem) var(--page-gutter); color: var(--text-primary); opacity: 0; }
+.supporting { max-width: 58ch; margin: 0; font-size: clamp(1.25rem, 2.1vw, 2rem); line-height: 1.35; }
+.exit { margin: 0; color: var(--text-primary); font-size: clamp(.75rem, 1.1vw, 1rem); letter-spacing: .11em; white-space: nowrap; }
+.mobileFlow { display: none; }
+
+@media (max-width: 900px) {
+  .desktopTrack { display: none; }
+  .mobileFlow { display: grid; gap: clamp(3rem, 10vw, 6rem); padding-top: clamp(3rem, 8vw, 5rem); background: #080808; color: var(--color-paper); }
+  .mobileFlow > header, .mobileFlow > h2, .mobilePrinciples, .mobilePaper { margin: 0 var(--page-gutter); }
+  .mobileFlow header p { margin: 0 0 1rem; }
+  .mobileFlow h1, .mobileFlow h2 { margin: 0; font-family: var(--font-primary); font-size: clamp(3.2rem, 10.8vw, 6.5rem); font-weight: 500; letter-spacing: -.065em; line-height: .83; }
+  .mobileFlow h2 { max-width: 10ch; margin-left: auto; text-align: right; }
+  .mobileFlow em { font-family: var(--font-display); font-size: 1.08em; font-style: normal; font-weight: 400; letter-spacing: -.08em; }
+  .mobilePrinciples { display: grid; gap: 2.5rem; font-size: clamp(1.8rem, 6.5vw, 3.75rem); font-weight: 500; letter-spacing: -.055em; line-height: .92; }
+  .mobilePrinciples p { max-width: 12ch; margin: 0; }
+  .mobilePrinciples p:nth-child(2) { margin-left: auto; text-align: right; }
+  .mobilePaper { display: grid; gap: 2.5rem; padding: clamp(3rem, 8vw, 5rem) 0 clamp(4rem, 10vw, 6rem); color: var(--text-primary); }
+  .mobilePaper p { max-width: 58ch; margin: 0; font-size: var(--text-lead); line-height: 1.4; }
+  .mobilePaper p:last-child { font-size: var(--text-meta); letter-spacing: .09em; white-space: normal; }
+}
+
+@media (max-width: 520px) {
+  .mobileFlow h1, .mobileFlow h2 { font-size: clamp(3rem, 14vw, 4.5rem); }
+  .mobilePrinciples { font-size: clamp(1.7rem, 8vw, 2.8rem); }
+}
+
+.manifesto[data-reduced-motion="true"] .desktopTrack { display: none; }
+.manifesto[data-reduced-motion="true"] .mobileFlow { display: grid; }
