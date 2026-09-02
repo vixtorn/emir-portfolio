@@ -31,6 +31,7 @@ export default function MemoryFrame({ memory, index, mode, frameRef }: MemoryFra
     <figure
       ref={frameRef}
       data-prominence={memory.desktop.opacity}
+      data-role={memory.role}
       className={`${styles.memoryFrame} ${styles[`tone${memory.tone}`]} ${mode === "desktop" ? styles.desktopFrame : styles.mobileFrame}`}
       style={style}
     >
