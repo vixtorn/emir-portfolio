@@ -6,7 +6,7 @@
 .beat { min-height: 125svh; }
 .beatInner { display: flex; min-height: 100svh; align-items: center; overflow: clip; }
 .statementOneFloat { width: min(78vw, 13ch); margin-left: 2vw; }
-.statementTwoFloat { width: min(71vw, 11ch); margin-left: auto; margin-right: 15vw; text-align: right; }
+.statementTwoFloat { width: 63vw; max-width: 63vw; margin-left: auto; margin-right: 20vw; text-align: right; transform-origin: right center; }
 .verticalCut { display: inline-flex; flex-wrap: wrap; font-family: var(--font-primary); font-weight: 500; letter-spacing: -.065em; line-height: .8; }
 .statementOne { font-size: clamp(4.25rem, 9.4vw, 11rem); }
 .statementTwo { font-size: clamp(4rem, 8.7vw, 10rem); }
