@@ -26,20 +26,18 @@ export default function OffScreenLab() {
       const context = gsap.context(() => {
         frames.forEach((frame, index) => {
           const direction = index % 2 === 0 ? 1 : -1;
-          const prominence = Number(frame.dataset.prominence ?? 0.7);
-          const restingOpacity = Math.max(prominence - 0.05, 0.82);
 
           gsap.fromTo(frame, {
             "--memory-motion-scale": 0.96,
             "--memory-motion-x": `${direction * 18}px`,
             "--memory-motion-y": "38px",
-            opacity: restingOpacity,
+            opacity: 0.96,
           }, {
             "--memory-motion-scale": 1.02,
             "--memory-motion-x": `${direction * -12}px`,
             "--memory-motion-y": "-30px",
             ease: "none",
-            opacity: prominence,
+            opacity: 1,
             scrollTrigger: { end: "bottom 10%", scrub: true, start: "top 90%", trigger: frame },
           });
         });
