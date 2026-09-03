@@ -6,7 +6,8 @@
 .title { max-width: 9ch; margin: clamp(.8rem, 1.7vw, 1.5rem) 0 0; font-family: var(--font-display); font-size: clamp(5rem, 8.85vw, 10rem); font-synthesis: none; font-weight: 400; letter-spacing: -.07em; line-height: .79; }
 .desktopJourney { position: relative; z-index: 1; height: 222svh; margin-top: clamp(1.5rem, 3vw, 3rem); perspective: 1500px; perspective-origin: 50% 45%; transform-style: preserve-3d; }
 .memoryFrame { margin: 0; border: 1px solid rgb(23 22 20 / 20%); padding: 2px 2px 0; background: rgb(248 246 241 / 84%); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 42%), 0 .7rem 1.7rem rgb(23 22 20 / 9%); }
-.desktopFrame { position: absolute; z-index: var(--memory-layer); top: var(--memory-y); left: var(--memory-x); width: var(--memory-width); opacity: var(--memory-opacity); transform: translate3d(var(--memory-motion-x, 0px), var(--memory-motion-y, 0px), var(--memory-depth)) rotate(var(--memory-rotate)) scale(calc(var(--memory-scale) * var(--memory-motion-scale, 1))); transform-style: preserve-3d; will-change: opacity, transform; }
+.desktopMemoryPosition { position: absolute; z-index: var(--memory-layer); top: var(--memory-y); left: var(--memory-x); width: var(--memory-width); opacity: var(--memory-opacity); }
+.desktopFrame { width: 100%; transform: translate3d(var(--memory-motion-x, 0px), var(--memory-motion-y, 0px), var(--memory-depth)) rotate(var(--memory-rotate)) scale(calc(var(--memory-scale) * var(--memory-motion-scale, 1))); transform-style: preserve-3d; will-change: transform; }
 .imageArea { position: relative; overflow: hidden; background: var(--memory-tone); }
 .imageArea img { object-fit: cover; }
 .placeholder { display: grid; width: 100%; height: 100%; align-content: end; gap: .3rem; padding: clamp(.8rem, 1.4vw, 1.35rem); color: rgb(23 22 20 / 72%); }
@@ -23,23 +24,25 @@
 @media (max-width: 900px) {
   .desktopJourney { display: none; }
   .mobileJourney { display: grid; gap: clamp(2.5rem, 8vw, 4rem); margin-top: clamp(2rem, 5vw, 3.5rem); padding: 0 var(--page-gutter) clamp(2rem, 5vw, 4rem); }
-  .mobileFrame { width: min(88vw, 36rem); transform: rotate(var(--memory-rotate)); }
-  .mobileFrame:nth-child(2n) { justify-self: end; width: min(72vw, 29rem); }
-  .mobileFrame:nth-child(3n) { justify-self: start; width: min(78vw, 32rem); }
+  .mobileMemoryPosition { width: min(88vw, 36rem); transform: rotate(var(--memory-rotate)); }
+  .mobileMemoryPosition:nth-child(2n) { justify-self: end; width: min(72vw, 29rem); }
+  .mobileMemoryPosition:nth-child(3n) { justify-self: start; width: min(78vw, 32rem); }
+  .mobileFrame { width: 100%; }
   .release { height: 8svh; }
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .desktopFrame { transition: filter 200ms var(--ease-ui); }
-  .desktopJourney:has(.desktopFrame:hover) .desktopFrame:not(:hover) { filter: blur(1.25px); }
-  .desktopFrame:hover { z-index: 10; filter: none; }
+  .desktopFrame { transition: box-shadow 200ms var(--ease-ui), filter 200ms var(--ease-ui); }
+  .desktopJourney:has(.desktopFrame:hover) .desktopFrame:not(:hover) { filter: blur(.8px); }
+  .desktopMemoryPosition:has(.desktopFrame:hover) { z-index: 10; }
+  .desktopMemoryPosition:has(.desktopFrame:hover) .desktopFrame { filter: none; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 42%), 0 1rem 2.2rem rgb(23 22 20 / 16%); }
 }
 
 @media (max-width: 680px) {
   .opening { padding-top: 2rem; }
   .title { font-size: clamp(3.9rem, 17vw, 6rem); line-height: .79; }
   .mobileJourney { gap: 2.75rem; }
-  .mobileFrame, .mobileFrame:nth-child(2n), .mobileFrame:nth-child(3n) { width: min(88vw, 31rem); }
+  .mobileMemoryPosition, .mobileMemoryPosition:nth-child(2n), .mobileMemoryPosition:nth-child(3n) { width: min(88vw, 31rem); }
   .caption { min-height: 2.25rem; }
 }
 

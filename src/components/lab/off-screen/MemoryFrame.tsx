@@ -28,29 +28,30 @@ export default function MemoryFrame({ memory, index, mode, frameRef }: MemoryFra
       : ({ "--memory-rotate": `${memory.desktop.rotate * 0.45}deg` } as CSSProperties);
 
   return (
-    <figure
+    <div
       ref={frameRef}
       data-prominence={memory.desktop.opacity}
-      data-role={memory.role}
-      className={`${styles.memoryFrame} ${styles[`tone${memory.tone}`]} ${mode === "desktop" ? styles.desktopFrame : styles.mobileFrame}`}
+      className={`${styles.memoryPosition} ${mode === "desktop" ? styles.desktopMemoryPosition : styles.mobileMemoryPosition}`}
       style={style}
     >
-      <div className={styles.imageArea} style={{ aspectRatio: memory.aspectRatio }}>
-        {memory.src ? (
-          <Image alt={memory.alt ?? ""} fill priority={index === 0} sizes={mode === "desktop" ? "43vw" : "88vw"} src={memory.src} />
-        ) : (
-          <div className={styles.placeholder} aria-hidden="true">
-            <span className="type-micro">MEMORY {String(index + 1).padStart(2, "0")}</span>
-            <strong>{memory.role.toUpperCase()} MEMORY</strong>
-          </div>
+      <figure data-role={memory.role} className={`${styles.memoryFrame} ${styles[`tone${memory.tone}`]} ${mode === "desktop" ? styles.desktopFrame : styles.mobileFrame}`}>
+        <div className={styles.imageArea} style={{ aspectRatio: memory.aspectRatio }}>
+          {memory.src ? (
+            <Image alt={memory.alt ?? ""} fill priority={index === 0} sizes={mode === "desktop" ? "43vw" : "88vw"} src={memory.src} />
+          ) : (
+            <div className={styles.placeholder} aria-hidden="true">
+              <span className="type-micro">MEMORY {String(index + 1).padStart(2, "0")}</span>
+              <strong>{memory.role.toUpperCase()} MEMORY</strong>
+            </div>
+          )}
+        </div>
+        {memory.showCaption !== false && (
+          <figcaption className={styles.caption}>
+            <span className="type-micro">{metadata}</span>
+            {memory.caption?.map((line) => <span key={line}>{line}</span>)}
+          </figcaption>
         )}
-      </div>
-      {memory.showCaption !== false && (
-        <figcaption className={styles.caption}>
-          <span className="type-micro">{metadata}</span>
-          {memory.caption?.map((line) => <span key={line}>{line}</span>)}
-        </figcaption>
-      )}
-    </figure>
+      </figure>
+    </div>
   );
 }

@@ -27,12 +27,13 @@ export default function OffScreenLab() {
         frames.forEach((frame, index) => {
           const direction = index % 2 === 0 ? 1 : -1;
           const prominence = Number(frame.dataset.prominence ?? 0.7);
+          const restingOpacity = Math.max(prominence - 0.05, 0.82);
 
           gsap.fromTo(frame, {
             "--memory-motion-scale": 0.96,
             "--memory-motion-x": `${direction * 18}px`,
             "--memory-motion-y": "38px",
-            opacity: 0.35,
+            opacity: restingOpacity,
           }, {
             "--memory-motion-scale": 1.02,
             "--memory-motion-x": `${direction * -12}px`,
