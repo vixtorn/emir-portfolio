@@ -57,10 +57,15 @@ export default function AboutLab() {
               </button>
             </div>
 
-            <div className={styles.emirInside} aria-label="Emir Inside trademark">
-              <span>EMIR</span>
-              <strong>INSIDE<sup>™</sup></strong>
-            </div>
+            <div className={styles.emirInside}>
+            <Image
+              src="/images/about/emir-inside.gif"
+              alt="Emir Inside"
+              width={1920}
+              height={1080}
+              unoptimized
+            />
+          </div>
           </div>
         </div>
 
