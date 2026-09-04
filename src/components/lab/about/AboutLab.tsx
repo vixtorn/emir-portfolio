@@ -27,7 +27,7 @@ export default function AboutLab() {
 
       <div className={styles.desktopComposition}>
         <figure className={`${styles.object} ${styles.portrait}`}>
-          <Image alt="Emir Duman in an instant photograph" height={1600} priority sizes="(max-width: 900px) 84vw, 25vw" src="/images/about/emir-instant-photo.jpg" width={1066} />
+          <Image alt="Emir Duman outside a McDonald's restaurant" height={1082} priority sizes="(max-width: 900px) 84vw, 25vw" src="/images/about/about-emir-mcdonalds.jpg" width={806} />
         </figure>
 
         <div className={`${styles.object} ${styles.foundation}`}>
@@ -41,23 +41,27 @@ export default function AboutLab() {
           <figcaption>BLENDER MATERIAL STUDY</figcaption>
         </figure>
 
-        <div className={styles.statement}>
-          <h1 id="about-title">ENGINEERING WAS THE START.<br /><em>NOT THE DESTINATION.</em></h1>
-        </div>
+        <div className={styles.storyColumn}>
+          <div className={styles.headlineBlock}>
+            <h1 id="about-title">ENGINEERING WAS THE START.<br /><em>NOT THE DESTINATION.</em></h1>
+          </div>
 
-        <div className={styles.biographyBlock}>
-          <p className={styles.semanticCopy}>{biography.join(" ")}</p>
-          <p className={styles.visualCopy} aria-hidden="true">
-            {words.map((word, index) => <span key={`${word}-${index}`} style={{ "--word-x": `${(index % 5 - 2) * 5}px`, "--word-y": `${(index % 4 - 1.5) * 6}px`, "--word-r": `${(index % 7 - 3) * 1.6}deg` } as CSSProperties}>{word}&nbsp;</span>)}
-          </p>
-          <button className={styles.readControl} disabled={!canDisrupt} type="button" onClick={() => setDisrupted((value) => !value)}>
-            {canDisrupt ? disrupted ? "PUT IT BACK." : "CAN'T YOU READ? ↗" : "READABLE BY DEFAULT"}
-          </button>
-        </div>
+          <div className={styles.readingCluster}>
+            <div className={styles.biographyBlock}>
+              <p className={styles.semanticCopy}>{biography.join(" ")}</p>
+              <p className={styles.visualCopy} aria-hidden="true">
+                {words.map((word, index) => <span key={`${word}-${index}`} style={{ "--word-x": `${(index % 5 - 2) * 5}px`, "--word-y": `${(index % 4 - 1.5) * 6}px`, "--word-r": `${(index % 7 - 3) * 1.6}deg` } as CSSProperties}>{word}&nbsp;</span>)}
+              </p>
+              <button className={styles.readControl} disabled={!canDisrupt} type="button" onClick={() => setDisrupted((value) => !value)}>
+                {canDisrupt ? disrupted ? "PUT IT BACK." : "CAN'T YOU READ? ↗" : "READABLE BY DEFAULT"}
+              </button>
+            </div>
 
-        <div className={styles.emirInside} aria-label="Emir Inside trademark">
-          <span>EMIR</span>
-          <strong>INSIDE<sup>™</sup></strong>
+            <div className={styles.emirInside} aria-label="Emir Inside trademark">
+              <span>EMIR</span>
+              <strong>INSIDE<sup>™</sup></strong>
+            </div>
+          </div>
         </div>
 
         <p className={styles.closing}>Build it carefully.<br />Make it worth touching.</p>
