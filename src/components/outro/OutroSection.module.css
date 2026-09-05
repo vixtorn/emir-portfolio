@@ -1,0 +1,161 @@
+.outro {
+  overflow: clip;
+  padding: clamp(4.5rem, 9vw, 9rem) var(--page-gutter) 0;
+  background: #080808;
+  color: #f1eee7;
+}
+
+.invitation {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(0, 3fr);
+  gap: clamp(2rem, 5vw, 6rem);
+  width: min(100%, 90rem);
+  min-height: min(72svh, 52rem);
+  margin: 0 auto;
+}
+
+.label {
+  margin: 0;
+  color: #b8bab7;
+}
+
+.invitationContent {
+  align-self: center;
+}
+
+.invitationContent h2,
+.name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-synthesis: none;
+  font-weight: 400;
+  letter-spacing: -0.075em;
+  line-height: 0.75;
+}
+
+.invitationContent h2 {
+  max-width: 10ch;
+  font-size: clamp(5.5rem, 11vw, 12.5rem);
+}
+
+.supporting {
+  margin: clamp(2rem, 4vw, 4rem) 0 0;
+  color: #b8bab7;
+  font-size: clamp(1.15rem, 1.8vw, 1.75rem);
+  line-height: 1.35;
+}
+
+.links {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-self: end;
+  border-top: 1px solid rgb(241 238 231 / 32%);
+}
+
+.links a {
+  padding: 1.25rem 0;
+  color: inherit;
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 1.25vw, 1.2rem);
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  transition: color 180ms var(--ease-ui), transform 180ms var(--ease-ui);
+}
+
+.links a + a {
+  padding-left: 1.25rem;
+  border-left: 1px solid rgb(241 238 231 / 20%);
+}
+
+.links a:hover {
+  color: #b85a2d;
+  transform: translateX(0.35rem);
+}
+
+.links a:focus-visible {
+  outline: 2px solid #b85a2d;
+  outline-offset: -2px;
+}
+
+.finalFrame {
+  position: relative;
+  width: min(100%, 90rem);
+  min-height: min(100svh, 68rem);
+  margin: clamp(5rem, 12vw, 12rem) auto 0;
+  padding-bottom: clamp(2rem, 4vw, 4rem);
+  border-top: 1px solid rgb(241 238 231 / 18%);
+}
+
+.name {
+  padding-top: clamp(2.25rem, 5vw, 5rem);
+  font-size: clamp(8rem, 20vw, 22rem);
+}
+
+.name em {
+  color: #b85a2d;
+  font-style: italic;
+}
+
+.emirInside {
+  position: absolute;
+  right: clamp(0rem, 4vw, 4rem);
+  bottom: clamp(2rem, 7vw, 7rem);
+  display: block;
+  width: clamp(6rem, 9vw, 9rem);
+  height: auto;
+  transform: rotate(-4deg);
+}
+
+@media (max-width: 768px) {
+  .outro {
+    padding-top: clamp(4rem, 15vw, 6rem);
+  }
+
+  .invitation {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .invitationContent {
+    margin-top: clamp(3rem, 10vw, 5rem);
+  }
+
+  .invitationContent h2 {
+    font-size: clamp(4.3rem, 18vw, 7rem);
+  }
+
+  .links {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+    margin-top: clamp(2rem, 10vw, 4rem);
+  }
+
+  .links a,
+  .links a + a {
+    padding: 1.1rem 0;
+    border-left: 0;
+    border-bottom: 1px solid rgb(241 238 231 / 20%);
+  }
+
+  .finalFrame {
+    min-height: 72svh;
+    margin-top: clamp(5rem, 18vw, 8rem);
+  }
+
+  .name {
+    font-size: clamp(7.5rem, 28vw, 11rem);
+  }
+
+  .emirInside {
+    right: 0;
+    bottom: 3rem;
+    width: clamp(5.5rem, 23vw, 7.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .links a {
+    transition: none;
+  }
+}
